@@ -282,7 +282,11 @@ main { counter-reset: seccion; }
 
 :root[data-tema="oscuro"] .tema-icono { box-shadow: inset 0 0 0 0 var(--fondo); }
 
-@media (max-width: 760px) {
+/* 860px, no 760px: con "Cómo trabajamos" en el menú, la fila completa
+   (logo + nav + botones) necesita ~815px para no cortarse — medido con
+   getBoundingClientRect(). Si se agrega o renombra un enlace de nav, volver
+   a medir antes de tocar este valor. */
+@media (max-width: 860px) {
   .menu-boton { display: flex; }
 
   .nav-envoltura {
@@ -303,7 +307,10 @@ main { counter-reset: seccion; }
   }
 
   .nav-envoltura.abierta {
-    max-height: 320px;
+    /* 360px: con 5 enlaces + botón "Conversemos" el contenido mide ~312px
+       (medido con getBoundingClientRect()). Si se agrega otro enlace, volver
+       a medir antes de tocar este valor. */
+    max-height: 360px;
     visibility: visible;
     transition: max-height var(--transicion), visibility 0s linear 0s;
   }
