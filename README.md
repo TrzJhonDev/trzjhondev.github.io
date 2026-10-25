@@ -7,7 +7,7 @@ Cumple dos funciones: captar clientes locales que todavía no tienen
 presencia web (hospedajes, restaurantes, comercios de la ruta turística
 a Kuélap y Gocta), y servir de portafolio.
 
-**Sitio publicado:** https://jhontrauco.github.io/
+**Sitio publicado:** https://trzjhondev.github.io/
 
 ## Stack
 
