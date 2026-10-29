@@ -19,7 +19,7 @@ Los archivos del repositorio son exactamente los que sirve el navegador.
 ## Estructura
 
 ```
-jhontrauco.github.io/
+trzjhondev.github.io/
 ├── index.html
 ├── css/estilos.css
 ├── js/main.js
