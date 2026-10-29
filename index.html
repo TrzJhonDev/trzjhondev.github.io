@@ -15,7 +15,10 @@
   <meta property="og:url" content="https://trzjhondev.github.io/">
   <meta property="og:title" content="Jhon Trauco — Desarrollo web en Chachapoyas, Amazonas">
   <meta property="og:description" content="Páginas web para negocios que todavía no tienen una.">
-  <meta property="og:image" content="https://trzjhondev.github.io/img/preview.png">
+  <meta property="og:image" content="https://trzjhondev.github.io/img/preview.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Portada del sitio de Jhon Trauco, desarrollo web en Amazonas, Perú.">
   <meta name="twitter:card" content="summary_large_image">
 
@@ -144,7 +147,11 @@
                 <span></span><span></span><span></span>
                 <span class="mockup-direccion">jhontrauco.dev</span>
               </div>
-              <img src="img/mockup-portada.jpg" alt="Captura de la portada del sitio jhontrauco.dev en modo claro, mostrando el titular y los botones de contacto." width="1200" height="800">
+              <!-- WebP en tres anchos; el JPG original queda de respaldo -->
+              <picture>
+                <source type="image/webp" srcset="img/mockup-portada-600.webp 600w, img/mockup-portada-900.webp 900w, img/mockup-portada-1200.webp 1200w" sizes="(max-width: 900px) 1px, 480px">
+                <img src="img/mockup-portada.jpg" alt="Captura de la portada del sitio jhontrauco.dev en modo claro, mostrando el titular y los botones de contacto." width="1200" height="800">
+              </picture>
             </div>
           </div>
         </div>
@@ -345,7 +352,7 @@
         <h2 class="seccion-titulo">Por qué hago esto</h2>
 
         <div class="sobre-mi-columnas">
-          <img class="sobre-mi-foto" src="img/foto-jhon.jpg" alt="Foto de Jhon Trauco, desarrollador web en Amazonas, Perú." width="800" height="800" loading="lazy">
+          <img class="sobre-mi-foto" src="img/foto-jhon-320.jpg" srcset="img/foto-jhon-320.jpg 320w, img/foto-jhon-640.jpg 640w" sizes="(max-width: 700px) 160px, 280px" alt="Foto de Jhon Trauco, desarrollador web en Amazonas, Perú." width="320" height="320" loading="lazy">
 
           <div class="sobre-mi-texto">
             <p class="seccion-texto">
