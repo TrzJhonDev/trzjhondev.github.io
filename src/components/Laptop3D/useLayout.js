@@ -2,7 +2,8 @@ import { useLayoutEffect, useState } from 'react';
 
 const LAPTOP_HALF = 300; // medio ancho que ocupa el portátil girado (px de escena)
 export const DESKTOP = 900; // desde este ancho el texto va al lado del portátil
-const BANK_REACH = 385; // hasta dónde llega la batería del cargador a la izquierda del centro (px de escena)
+const BANK_REACH = 385;
+export const COL_RIGHT = 32; // margen derecho de la lista de programas en escritorio (= padding-right de .work__panel) // hasta dónde llega la batería del cargador a la izquierda del centro (px de escena)
 
 /**
  * Coloca y escala el portátil según el tamaño del escenario.
@@ -27,13 +28,15 @@ export function useLayout(ref) {
   const colLeft = Math.max(0, (w - 1200) / 2) + 24; // columna del texto (y de la ficha del despiece)
   let cx, cy, fit, ecx, efit;
   if (desktop) {
-    // El portátil ocupa la mitad izquierda; a la derecha va la columna de tarjetas (CARDS_W, igual que en CSS)
-    const cardsW = Math.min(460, Math.max(380, w * 0.36));
+    // El portátil ocupa la izquierda; la lista de programas va pegada al borde derecho (a COL_RIGHT) y es estrecha
+    // (Jhon, 26/11/2026: así el portátil es más grande). cardsW = --cards-w de index.css: si cambias uno, cambia el otro
+    const cardsW = Math.min(380, Math.max(320, w * 0.26));
     // +40 a la izquierda: deja sitio a la batería portátil del cargador, que queda fuera de la carcasa por ese lado
-    const left = Math.max(16, colLeft - 24) + 40, right = w - colLeft - cardsW - 24;
+    const left = 16 + 40, right = w - COL_RIGHT - cardsW - 32;
     cx = (left + right) / 2;
     cy = h * 0.7;
-    fit = Math.min(1.05, (right - left) / 2 / half, h / 820);
+    // Tope 1,2 y alto: con h/750 la tapa abierta queda por debajo de la etiqueta de la skill y el suelo sobre la pista
+    fit = Math.min(1.2, (right - left) / 2 / half, h / 750);
     // En el despiece las tarjetas se ocultan y la ficha de la pieza ocupa su sitio: el portátil no se mueve
     ecx = cx;
     efit = fit;

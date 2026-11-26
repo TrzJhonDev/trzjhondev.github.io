@@ -1,101 +1,59 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { projects } from '../data/profile';
 import { SKILLS } from '../data/skills';
-import { externalLink } from '../lib/links';
+import { externalLink, isReal } from '../lib/links';
 import Laptop3D from './Laptop3D/Laptop3D';
 
-// Segundos que tarda cada tarjeta en recorrer la columna: cuanto mayor, más lento
-const SECONDS_PER_CARD = 14;
+/** Nombre de archivo de un proyecto: "[PROYECTO 1]" → "proyecto-1", "Tienda Online" → "tienda-online". */
+export const slugOf = (p) => p.title.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'programa';
 
-function Card({ p }) {
+function FileIcon() {
   return (
-    <article className="card">
-      {p.image
-        ? <img className="card__img" src={p.image} alt={`Captura de ${p.title}`} loading="lazy" />
-        : <div className="card__img card__img--empty">[CAPTURA DEL PROYECTO]</div>}
-      <h3>{p.title}</h3>
-      <p>{p.description}</p>
-      <div className="tags">{p.tags.map((t) => <span key={t}>{t}</span>)}</div>
-      <div className="card__links">
-        <a {...externalLink(p.code)}>Código</a>
-        <a {...externalLink(p.demo)}>Demo</a>
-      </div>
-    </article>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3" y="4" width="18" height="16" rx="3" /><path d="M3 9h18M7 13.5l2.5 2-2.5 2M12 17.5h4" />
+    </svg>
   );
 }
 
 /**
- * Movimiento del carrusel (un único bucle rAF que escribe `transform`, sin re-renderizar):
- * - solo, baja despacio (una copia cada `dur` segundos) mientras no esté pausado, con el puntero encima ni con foco dentro;
- * - con el puntero encima, la rueda del ratón (o el trackpad) mueve las tarjetas en vez de la página:
- *   rueda hacia abajo = las tarjetas suben, como en una lista normal. El desplazamiento se suaviza por tiempo.
- * La posición se envuelve con el alto de una copia, así que no tiene fin en ningún sentido.
- * Con "reducir movimiento" no hace nada: el CSS lo convierte en una lista con scroll nativo.
+ * Lista de programas (opción D, elegida por Jhon el 26/11/2026; sustituye al carrusel de tarjetas): quieta, un archivo
+ * por proyecto. Al abrir uno se ve en la pantalla del portátil (captura, descripción, stack) y aquí se despliegan sus
+ * enlaces. Título y descripción también van aquí: visibles en móvil (el portátil queda arriba) y para lectores de
+ * pantalla en escritorio (la pantalla 3D no es accesible). Si no caben, la lista se desplaza con la rueda o el dedo.
  */
-function useCarousel(ref, { dur }) {
-
-  useEffect(() => {
-    const box = ref.current;
-    if (!box || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const track = box.querySelector('.carousel__track');
-    const set = box.querySelector('.carousel__set');
-
-    let setH = set.offsetHeight || 1;
-    let y = 0, target = 0, hover = false, focus = false, raf = 0, prev = performance.now(), onScreen = true;
-    const ro = new ResizeObserver(() => { setH = set.offsetHeight || 1; });
-    ro.observe(set);
-    // Rendimiento: el bucle solo corre mientras el carrusel está en pantalla (y la pestaña visible)
-    const io = new IntersectionObserver(([e]) => {
-      onScreen = e.isIntersecting;
-      if (onScreen && !raf) { prev = performance.now(); raf = requestAnimationFrame(frame); }
-    });
-    io.observe(box);
-
-    const frame = (now) => {
-      raf = 0;
-      if (!onScreen) return;
-      const dt = Math.min(0.05, (now - prev) / 1000);
-      prev = now;
-      if (!hover && !focus) {
-        const step = (setH / dur) * dt;
-        y += step;
-        target += step;
-      }
-      y += (target - y) * (1 - Math.exp(-dt * 12));
-      const off = ((y % setH) + setH) % setH;
-      track.style.transform = `translateY(${off - setH}px)`;
-      raf = requestAnimationFrame(frame);
-    };
-    raf = requestAnimationFrame(frame);
-
-    const onWheel = (e) => {
-      if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return; // gesto horizontal: no es para el carrusel
-      e.preventDefault();
-      const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? box.clientHeight : 1;
-      target -= e.deltaY * unit;
-    };
-    const enter = () => { hover = true; };
-    const leave = () => { hover = false; };
-    const fin = () => { focus = true; };
-    const fout = (e) => { if (!box.contains(e.relatedTarget)) focus = false; };
-
-    box.addEventListener('wheel', onWheel, { passive: false });
-    box.addEventListener('pointerenter', enter);
-    box.addEventListener('pointerleave', leave);
-    box.addEventListener('focusin', fin);
-    box.addEventListener('focusout', fout);
-    return () => {
-      cancelAnimationFrame(raf);
-      ro.disconnect();
-      io.disconnect();
-      box.removeEventListener('wheel', onWheel);
-      box.removeEventListener('pointerenter', enter);
-      box.removeEventListener('pointerleave', leave);
-      box.removeEventListener('focusin', fin);
-      box.removeEventListener('focusout', fout);
-      track.style.transform = '';
-    };
-  }, [ref, dur]);
+function Programs({ open, onToggle }) {
+  return (
+    <div className="progs">
+      <p className="progs__path"><span>~/programas</span> — {projects.length} {projects.length === 1 ? 'elemento' : 'elementos'}</p>
+      <ul className="progs__list" aria-label="Proyectos">
+        {projects.map((p, i) => {
+          const on = open === i;
+          const id = `prog-${i}`;
+          return (
+            <li key={`${p.title}-${i}`} className={`prog${on ? ' is-open' : ''}`}>
+              <button type="button" className="prog__btn" aria-expanded={on} aria-controls={id} onClick={() => onToggle(i)}>
+                <FileIcon />
+                <span className="prog__name">{slugOf(p)}.app</span>
+                <span className="prog__state">{on ? 'abierto' : 'abrir'}</span>
+              </button>
+              <div id={id} className="prog__body" hidden={!on}>
+                <div className="prog__info">
+                  <h3>{p.title}</h3>
+                  <p>{p.description}</p>
+                </div>
+                <p className="prog__stack"><span>stack</span> {p.tags.join(' · ')}</p>
+                <div className="prog__links">
+                  <a {...externalLink(p.code)}>Código{!isReal(p.code) && <small>pendiente</small>}</a>
+                  <a {...externalLink(p.demo)}>Demo{!isReal(p.demo) && <small>pendiente</small>}</a>
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
 }
 
 /**
@@ -141,18 +99,15 @@ function useBootRunway(ref) {
 }
 
 /**
- * Sección Proyectos: el portátil 3D a la izquierda (a pantalla completa de la sección) y a la derecha
- * un carrusel vertical que circula despacio de arriba hacia abajo, en bucle, y se mueve con la rueda
- * cuando el puntero está encima (ver useCarousel).
- * La lista se repite (`copies` veces) y la posición se envuelve con el alto de una copia, así que el salto no se nota.
- * Solo la primera copia es accesible; se pausa con el puntero, con el foco y con el botón.
+ * Sección Proyectos: el portátil 3D a la izquierda (a pantalla completa de la sección) y a la derecha la lista de
+ * programas. Abrir un programa lo muestra en la pantalla del portátil; elegir una skill vuelve al editor de código.
  */
 export default function Projects() {
   const [skill, setSkill] = useState(SKILLS[0]);
   const [exploded, setExploded] = useState(false);
-  const copies = projects.length < 3 ? 4 : 2;
-  const carouselRef = useRef(null);
-  useCarousel(carouselRef, { dur: projects.length * SECONDS_PER_CARD });
+  const [open, setOpen] = useState(null); // índice del proyecto abierto en la pantalla, o null
+  const pickSkill = useCallback((s) => { setSkill(s); setOpen(null); }, []);
+  const toggle = useCallback((i) => setOpen((v) => (v === i ? null : i)), []);
 
   const runwayRef = useRef(null);
   const bootRef = useBootRunway(runwayRef);
@@ -164,7 +119,10 @@ export default function Projects() {
     <section id="proyectos" className={`work${exploded ? ' work--exploded' : ''}`}>
       <div id="skills" className="work__stage">
         <h2 className="sr-only">Skills</h2>
-        <Laptop3D skill={skill} onPickSkill={setSkill} onExplodedChange={setExploded} bootRef={bootRef} />
+        <Laptop3D
+          skill={skill} onPickSkill={pickSkill} onExplodedChange={setExploded} bootRef={bootRef}
+          project={open == null ? null : { ...projects[open], file: `${slugOf(projects[open])}.app` }}
+        />
       </div>
 
       <div className="container work__panel">
@@ -172,28 +130,10 @@ export default function Projects() {
           <div className="work__head">
             <div className="section__head">
               {/* Sin el kicker "// proyectos" (Jhon lo quitó el 24/11/2026) */}
-              <h2>Cosas que he construido</h2>
-            </div>
-            {/* Sin botón de Pausar (Jhon lo quitó el 24/11/2026): el carrusel se detiene con el puntero encima o con el foco dentro */}
-          </div>
-
-          <div
-            ref={carouselRef}
-            className="carousel"
-            role="region"
-            aria-label="Proyectos"
-            tabIndex={-1}
-          >
-            <div className="carousel__track">
-              {Array.from({ length: copies }, (_, c) => (
-                <ul key={c} className="carousel__set" {...(c > 0 ? { 'aria-hidden': 'true', inert: '' } : {})}>
-                  {projects.map((p, i) => (
-                    <li key={`${p.title}-${i}`}><Card p={p} /></li>
-                  ))}
-                </ul>
-              ))}
+              <h2>Programas instalados</h2>
             </div>
           </div>
+          <Programs open={open} onToggle={toggle} />
         </div>
       </div>
     </section>

@@ -101,8 +101,8 @@ export default function Education() {
   return (
     <section id="formacion" className="container section section--tight">
       <div className="section__head">
-        <span className="kicker">// formación</span>
-        <h2>Formación y certificados</h2>
+        {/* Sin el kicker "// formación" (pulido del 26/11/2026: Proyectos y Contacto ya no lo llevan; el título se basta) */}
+        <h2>Historial de versiones</h2>
       </div>
       <div className="track" ref={listRef}>
         <div className="track__rail" aria-hidden="true"><i className="track__lit" /></div>
@@ -129,7 +129,7 @@ export default function Education() {
             <li className="track__node track__node--next">
               <span className="track__via" aria-hidden="true" />
               <div className="track__card track__card--next">
-                <span className="track__kind"><Flag />siguiente parada</span>
+                <span className="track__kind"><Flag />próxima versión</span>
                 <strong>Prácticas pre‑profesionales<span className="cursor-blink" aria-hidden="true">_</span></strong>
               </div>
             </li>

@@ -3,6 +3,7 @@
 Portafolio personal de un estudiante de Ingeniería de Sistemas. Hecho con **React 18 + Vite 5** (JavaScript). Lo protagonizan una **mascota robot** y un **portátil interactivo**, los dos modelados en **Blender** y dibujados con **Three.js**. Tienen de respaldo una versión hecha solo con CSS 3D, que se ve mientras carga el 3D o si el navegador no tiene WebGL.
 
 - **Paleta:** azul cielo sobre una base limpia, con modo oscuro (casi negro azulado) y claro (blanco cálido). El botón de la barra cambia de modo con un fundido; por defecto sigue al sistema. Los colores están en `PLAN-COLORES.md`.
+- **Tipografía:** la familia IBM Plex (Sans Condensed en los títulos, Sans en el texto y Mono en el código y la terminal).
 - **Accesible:** contraste AA, todo funciona con teclado y respeta "reducir movimiento".
 - **Sin sonido** y sin usar micrófono ni cámara.
 
@@ -23,14 +24,14 @@ npm run preview  # sirve /dist para probar la versión final
 
 1. **Pantalla de carga.** Al abrir se ve el robot dormido con "CARGANDO" y una barra con el progreso real en el pecho. Cuando todo está listo despierta y vuela a su sitio en la portada. Esc o un clic la saltan. Con "reducir movimiento" no hay vuelo.
 2. **Portada.**
-   - El titular entra por renglones: "Hola, soy Jhon. Construyo …", con una palabra que rota (`building` en `profile.js`).
+   - El titular habla como la máquina: una línea de consola ("> sesión iniciada") y "Sistema listo. Usuario: Jhon.", que entra por renglones. Se edita en `hero` de `profile.js`.
    - La mascota sigue el puntero, parpadea, saluda una vez por sesión, y con un clic (o Intro) se asusta o se ríe.
    - Si no mueves el ratón 8 s, saca un teclado del pecho y escribe datos útiles en su consola.
    - **La consola de su pecho tiene 3 minijuegos:** Serpiente, Salto y Ladrillos. Haz clic en la pantallita y juega con las flechas o WASD, espacio, y Esc para salir.
 3. **Proyectos.**
    - En escritorio la sección queda fija mientras bajas: la mascota pulsa el botón de su pecho y, con el scroll, el portátil abre la tapa, arranca la BIOS y enciende las teclas.
-   - A la derecha, las tarjetas de proyectos bajan despacio. Se paran con el puntero o el foco, y con la rueda encima se mueven ellas en vez de la página.
-   - En móvil el portátil arranca al entrar en pantalla y las tarjetas van debajo.
+   - A la derecha, la lista de programas (`proyecto-1.app`…). Al abrir uno se ve en la pantalla del portátil (captura, descripción y stack) y en la lista aparecen sus enlaces. Elegir una skill vuelve al código.
+   - En móvil el portátil arranca al entrar en pantalla y la lista va debajo, con la descripción a la vista.
 4. **Formación.** Una pista de circuito que se enciende con el scroll; una mini mascota la recorre y cada tarjeta se descubre al llegar la luz.
 5. **Contacto.**
    - En escritorio ancho, la mascota pasea por un escenario y cambia de sitio tus tarjetas: mensaje, copiar correo, GitHub, LinkedIn y CV.

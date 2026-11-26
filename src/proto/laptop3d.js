@@ -21,7 +21,7 @@ const TOKEN = {
   plain: '#E6E6EA', keyword: '#5CC6F7', string: '#8FC9A8', number: '#D9A27A', comment: '#6B7686', func: '#8FA8E8',
   type: '#D9B97A', const: '#F78C6C', tag: '#F07178', attr: '#8FC7D9', punct: '#8C8C92', prompt: '#8FD8FF', caret: '#8FD8FF',
 };
-const MONO = '"JetBrains Mono", ui-monospace, monospace';
+const MONO = '"IBM Plex Mono", ui-monospace, monospace';
 const ease = (t) => t * t * (3 - 2 * t);
 
 /** Teclado: la capa de 480 × 320 de keyLayout.js a 4× (las teclas tienen UV de vista superior sobre ella). */

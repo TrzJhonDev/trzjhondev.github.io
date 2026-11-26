@@ -47,8 +47,8 @@ npm run build  # debe pasar sin errores antes de dar algo por terminado
 
 **Recorrido de la página:**
 1. **Pantalla de carga** (`index.html` + `src/lib/boot.js`): el robot dormido con "CARGANDO" y el progreso real. Despierta y vuela a la portada (FLIP).
-2. **Portada:** titular por renglones con una palabra azul que rota. La mascota 3D va a la derecha, con parallax de 3 planos al bajar.
-3. **Proyectos:** en escritorio la sección queda fija ~2,4 pantallas. La mascota pulsa el botón A de su pecho y el scroll enciende el portátil (tapa, BIOS, teclas). Las tarjetas van en un carrusel que baja solo.
+2. **Portada:** titular con la voz de la máquina ("> sesión iniciada" / "Sistema listo. Usuario: Jhon.", desde el 26/11/2026; antes era la plantilla "Hola, soy… Construyo <palabra que rota>"). La mascota 3D va a la derecha, con parallax de 3 planos al bajar. Los títulos de sección también hablan así: "Programas instalados", "Historial de versiones", "Abrir conexión".
+3. **Proyectos:** en escritorio la sección queda fija ~2,4 pantallas. La mascota pulsa el botón A de su pecho y el scroll enciende el portátil (tapa, BIOS, teclas). A la derecha, una lista quieta de programas (`proyecto-1.app`…): al abrir uno se ve en la pantalla del portátil y la lista despliega sus enlaces.
 4. **Formación:** pista de circuito que se enciende con el scroll, con una mini mascota.
 5. **Contacto:** escenario donde la mascota 3D pasea y lleva tus tarjetas (mensaje por `mailto:`, copiar correo, GitHub, LinkedIn, CV). Por debajo de 1100 px es una rejilla fija.
 6. **Mascota pequeña** en la esquina cuando la portada ya no se ve. Saluda con la mano, sin entrada animada.
@@ -103,7 +103,7 @@ npm run build  # debe pasar sin errores antes de dar algo por terminado
   - el paseo de la mascota ligado al scroll y el salto en arco ("se ve raro, da lag");
   - el cable de circuito de la mascota al portátil (`Bridge.jsx`);
   - la "terminal que carga" en la portada (`HeroLoader.jsx`);
-  - el botón de Pausar del carrusel;
+  - el carrusel de tarjetas que bajaba solo (y su botón de Pausar);
   - la etiqueta "Disponible para prácticas" en la portada;
   - el kicker `// proyectos`;
   - las pistas de scroll ("Bajar a…", "Más abajo hay…").

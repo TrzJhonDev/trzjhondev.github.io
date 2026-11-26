@@ -100,7 +100,7 @@ function drawConsole(ctx, els, now) {
   if (!els) return;
   ctx.drawImage(els.canvas, 0, 0, W, H);
   const blinkOn = (period) => Math.floor(now / (period / 2)) % 2 === 0;
-  const mono = (w, px) => `${w} ${px}px "JetBrains Mono", ui-monospace, monospace`;
+  const mono = (w, px) => `${w} ${px}px "IBM Plex Mono", ui-monospace, monospace`;
   // Barra de puntos
   if (els.hud.style.display === 'flex') {
     ctx.font = mono(700, 6.8 * U); ctx.fillStyle = SILVER; ctx.textBaseline = 'top';
@@ -328,6 +328,8 @@ export class MascotEngine {
     if (this.mqMotion.matches && this.actions.despertar) this.play('despertar');
     else { this.play('reposo'); this.setExpr('idle'); }
     this.kick();
+    // Sin bucle ("reducir movimiento"): aplica la pose y pinta una vez la cara y el pecho
+    if (!this.running() && this.mixer) { this.mixer.update(0); this.renderOnce(); }
   }
 
   /** Saludo de bienvenida: una vez por sesión, marcado cuando empieza de verdad (StrictMode monta dos veces). */

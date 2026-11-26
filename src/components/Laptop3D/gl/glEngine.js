@@ -22,7 +22,7 @@ import { readableOn } from '../../../lib/math3d';
 const S = 0.01; // 1 px de la escena CSS = 1 cm = 0,01 unidades del modelo
 const BASE_GLOW = 0.36;
 const D = 1700; // perspective de .stage
-const MONO = '"JetBrains Mono", ui-monospace, monospace';
+const MONO = '"IBM Plex Mono", ui-monospace, monospace';
 const SHARED = {};
 const deg = Math.PI / 180;
 

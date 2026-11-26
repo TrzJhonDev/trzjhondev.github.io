@@ -3,6 +3,8 @@ import { clamp, toView, tween } from '../../lib/math3d';
 import { PLUG_PATH } from './geometry';
 
 export const FRONT = { rx: -30, ry: -22 };
+// Vista con un programa abierto (Jhon, 26/11/2026): girado hacia el otro lado que FRONT y con menos ángulo, mirando a la lista
+export const PROJECT_VIEW = { rx: -30, ry: 5 };
 export const LID_OPEN = 108;
 const LID_MAX = 130;
 const RX_MIN = -80, RX_MAX = 40; // se puede inclinar por debajo para ver la base
@@ -71,6 +73,8 @@ export function useLaptop(skill, stageRef, options = {}) {
   const openLid = useRef(null);
   const vel = useRef(0);
   const pauseUntil = useRef(0);
+  // Con un programa abierto (lista de Proyectos) el portátil no gira solo: se queda de frente para leer la pantalla
+  const hold = useRef(false);
   const visible = useRef(true);
   const anims = useRef({});
   const total = skill.code.join('\n').length;
@@ -136,7 +140,7 @@ export function useLaptop(skill, stageRef, options = {}) {
           if (Math.abs(vel.current) > 0.05) {
             n.ry = s.ry + vel.current;
             vel.current *= 0.93;
-          } else if (s.auto && s.boot === null && Date.now() > pauseUntil.current) {
+          } else if (s.auto && !hold.current && s.boot === null && Date.now() > pauseUntil.current) {
             n.ry = s.ry + 0.3;
           }
         }
@@ -372,6 +376,8 @@ export function useLaptop(skill, stageRef, options = {}) {
     run,
     retype: () => patch({ typed: 0, running: false, runT: 0, power: true }),
     togglePower: () => patch((s) => ({ power: !s.power })),
+    /** Detiene (true) o devuelve (false) el giro automático, sin tocar la preferencia del usuario (auto). */
+    hold: (on) => { hold.current = on; },
     toggleAuto: () => { pauseUntil.current = 0; patch((s) => ({ auto: !s.auto })); },
     zoomIn: () => patch((s) => ({ zoom: Math.min(ZOOM_MAX, Math.round((s.zoom + 0.1) * 10) / 10) })),
     zoomOut: () => patch((s) => ({ zoom: Math.max(ZOOM_MIN, Math.round((s.zoom - 0.1) * 10) / 10) })),

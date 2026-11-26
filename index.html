@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <!-- Pantalla de carga (PLAN-PANTALLA-CARGA.md): el modelo de la mascota empieza a bajar ya, a la vez que el resto -->
     <link rel="preload" href="./models/mascota.glb?v=%MASCOTA_V%" as="fetch" crossorigin="anonymous" />
     <!-- Versiones de los modelos (huella del archivo, la pone vite.config.js): las URL las usan lib/boot.js y LaptopGL.jsx -->
@@ -52,13 +52,13 @@
       #boot .boot__chest {
         position: absolute; left: 31.4%; top: 60.2%; width: 37.2%; height: 15.7%;
         display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6%;
-        font: 600 clamp(9px, 3.2vw, 15px) / 1 "JetBrains Mono", ui-monospace, monospace; color: #8FD8FF; letter-spacing: 0.06em;
+        font: 600 clamp(9px, 3.2vw, 15px) / 1 "IBM Plex Mono", ui-monospace, monospace; color: #8FD8FF; letter-spacing: 0.06em;
         text-shadow: 0 0 6px rgba(143, 216, 255, 0.45);
       }
       #boot .boot__bar { display: block; width: 72%; height: 7%; min-height: 3px; border-radius: 2px; background: #12313F; overflow: hidden; }
       #boot .boot__bar i { display: block; height: 100%; background: #8FD8FF; transform-origin: left; transform: scaleX(0); }
       #boot .boot__pct { font-size: 0.72em; color: #2AB4F4; }
-      #boot .boot__z { position: absolute; left: 76%; top: 2%; font: 700 clamp(14px, 4vw, 22px) "JetBrains Mono", ui-monospace, monospace; color: #2AB4F4; }
+      #boot .boot__z { position: absolute; left: 76%; top: 2%; font: 700 clamp(14px, 4vw, 22px) "IBM Plex Mono", ui-monospace, monospace; color: #2AB4F4; }
       #boot .boot__z i { position: absolute; font-style: normal; opacity: 0; }
       #boot .boot__gl { position: absolute; inset: 0; }
       #boot.has-gl .boot__img, #boot.has-gl .boot__chest { opacity: 0; }

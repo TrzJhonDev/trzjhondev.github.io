@@ -50,7 +50,12 @@ export default function Mascot3D({ variant = 'hero', greet = false, ptr, look, c
 
   useEffect(() => { engine.current?.setPaused(paused); }, [paused]);
   // Consola del pecho en modo CARGANDO / LISTO mientras dura la pantalla de carga
-  useEffect(() => { link.current.loading?.(loading); }, [loading]);
+  // Con "reducir movimiento" el motor no tiene bucle: hay que volver a pintar el pecho, o se quedaba en CARGANDO
+  useEffect(() => {
+    link.current.loading?.(loading);
+    const id = requestAnimationFrame(() => engine.current?.renderOnce());
+    return () => cancelAnimationFrame(id);
+  }, [loading]);
 
   const onKey = (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); engine.current?.react(); } };
   const label = hero ? 'Mascota robot de la portada. Pulsa para que reaccione.' : 'Mascota robot. Pulsa para que reaccione.';

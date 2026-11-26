@@ -1,6 +1,7 @@
 import { profile } from '../../data/profile';
 import { promptUser } from './useTerminal';
 import { highlight, langOf, sliceTokens } from './highlight';
+import { isReal } from '../../lib/links';
 
 // Contenido de la pantalla: un editor de código que se escribe solo + su salida.
 // También muestra la BIOS (arranque), la terminal interactiva y el cursor del touchpad.
@@ -66,6 +67,30 @@ function Terminal({ lines, input, blink }) {
   );
 }
 
+/**
+ * Programa abierto desde la lista de Proyectos: captura (o hueco por completar), nombre, descripción, stack y enlaces.
+ * Solo se ve; los enlaces de verdad están en la lista (la pantalla 3D no se puede pulsar: un clic abre la terminal).
+ */
+function Program({ p }) {
+  const link = (url) => (isReal(url) ? 'disponible' : 'pendiente');
+  return (
+    <div className="screen__prog">
+      <span className="screen__prog-cmd"><span style={{ color: '#8FD8FF' }}>$</span> abrir {p.file}</span>
+      <div className="screen__prog-main">
+        {p.image
+          ? <img className="screen__prog-shot" src={p.image} alt="" />
+          : <div className="screen__prog-shot is-empty">[CAPTURA]</div>}
+        <div className="screen__prog-text">
+          <b>{p.title}</b>
+          <span>{p.description}</span>
+        </div>
+      </div>
+      <span className="screen__prog-row"><i>stack</i>{p.tags.join(' · ')}</span>
+      <span className="screen__prog-row"><i>código</i>{link(p.code)}<i className="gap">demo</i>{link(p.demo)}</span>
+    </div>
+  );
+}
+
 /** Cursor del touchpad (flecha). */
 function Cursor({ u, v }) {
   return (
@@ -75,7 +100,9 @@ function Cursor({ u, v }) {
   );
 }
 
-export default function Screen({ skill, typed, running, runT, t, on, flash = 0, battery = 100, charging = false, temp = 0.2, bios = null, terminal = null, cursor = null }) {
+export default function Screen({ skill, typed, running, runT, t, on, flash = 0, battery = 100, charging = false, temp = 0.2, bios = null, terminal = null, project = null, cursor = null }) {
+  // Prioridad de lo que se ve: arranque > terminal > programa abierto > editor de la skill
+  const prog = !bios && !terminal ? project : null;
   const totalLen = skill.code.join('\n').length;
   const done = typed >= totalLen;
   const blink = Math.floor(t / 15) % 2 === 0;
@@ -98,8 +125,8 @@ export default function Screen({ skill, typed, running, runT, t, on, flash = 0, 
     <div className={`screen${on ? '' : ' is-off'}`}>
       <div className="screen__bar">
         <div className="dots"><i style={{ background: '#8C8C92' }} /><i style={{ background: '#BDBBC6' }} /><i style={{ background: '#2AB4F4' }} /></div>
-        <div className="screen__tab" style={{ borderTopColor: terminal ? '#8FD8FF' : skill.color }}>{bios ? 'arranque' : terminal ? 'terminal' : skill.file}</div>
-        {running && (
+        <div className="screen__tab" style={{ borderTopColor: terminal || prog ? '#8FD8FF' : skill.color }}>{bios ? 'arranque' : terminal ? 'terminal' : prog ? prog.file : skill.file}</div>
+        {running && !prog && (
           <div className="screen__status" style={{ color: runDone ? '#8FD8FF' : '#BCC2CC' }}>
             {runDone ? '✓ listo' : 'ejecutando…'}
           </div>
@@ -108,7 +135,7 @@ export default function Screen({ skill, typed, running, runT, t, on, flash = 0, 
         <Battery level={battery} charging={charging} />
       </div>
 
-      {bios ? <Bios k={bios.k} total={bios.total} /> : terminal ? <Terminal lines={terminal.lines} input={terminal.input} blink={blink} /> : (
+      {bios ? <Bios k={bios.k} total={bios.total} /> : terminal ? <Terminal lines={terminal.lines} input={terminal.input} blink={blink} /> : prog ? <Program key={prog.file} p={prog} /> : (
       <div className="screen__code">
         {lines.map((ln) => (
           <div key={ln.n} className="code-line">
@@ -127,16 +154,16 @@ export default function Screen({ skill, typed, running, runT, t, on, flash = 0, 
       </div>
       )}
 
-      {running && !bios && !terminal && (
+      {running && !bios && !terminal && !prog && (
         <div className="screen__term">
           <span className="screen__term-label">TERMINAL</span>
           {skill.out.slice(0, outCount).map((o, i) => <span key={i}>{o}</span>)}
         </div>
       )}
 
-      <div className="screen__foot" style={{ background: skill.color }}>
+      <div className="screen__foot" style={{ background: prog ? '#8FD8FF' : skill.color }}>
         <span>{promptUser()}</span>
-        <span>{terminal ? 'Esc para salir · ayuda' : `${skill.cat} · ${skill.name}`}</span>
+        <span>{terminal ? 'Esc para salir · ayuda' : prog ? 'programa · enlaces en la lista' : `${skill.cat} · ${skill.name}`}</span>
       </div>
 
       {cursor && <Cursor u={cursor.u} v={cursor.v} />}

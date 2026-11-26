@@ -157,8 +157,9 @@ export default function Contact() {
     <section id="contacto" className="container section section--tight">
       <div className="cta">
         <div className="cta__head">
-          <h2>¿Trabajamos juntos?</h2>
-          <p>Busco prácticas pre‑profesionales y proyectos donde aprender. Escríbeme.</p>
+          {/* Voz de la máquina (26/11/2026): antes "¿Trabajamos juntos? … Escríbeme." */}
+          <h2>Abrir conexión</h2>
+          <p>Busco prácticas y proyectos donde aprender. Deja tu mensaje y la mascota se lo lleva.</p>
         </div>
 
         <div ref={stageRef} className={`cta__stage${staged ? '' : ' cta__stage--static'}`}>

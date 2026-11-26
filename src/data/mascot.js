@@ -11,13 +11,13 @@ export const mascotLines = {
 
   // Una vez por sesión, cuando la sección llega a la mitad de la pantalla. Las claves son los id de las secciones.
   secciones: {
-    proyectos: 'Portátil interactivo: sus teclas son skills. A la derecha, los proyectos; se pausan al pasar el puntero.',
+    proyectos: 'Portátil interactivo: sus teclas son skills. A la derecha, mis programas: ábrelos y salen en su pantalla.',
     formacion: 'Formación y certificados: así se ve el camino, paso a paso.',
   },
   // Lo mismo en móvil (por debajo de 900 px), donde los proyectos van debajo del portátil y no hay puntero.
   // Si falta una clave, se usa la de `secciones`.
   seccionesMovil: {
-    proyectos: 'Portátil interactivo: toca sus teclas, son skills. Debajo están los proyectos.',
+    proyectos: 'Portátil interactivo: toca sus teclas, son skills. Debajo, mis programas: ábrelos y salen en su pantalla.',
   },
 
   // Bloque "¿Trabajamos juntos?": la mascota pasea por el escenario y lleva las tarjetas de un lado a otro.

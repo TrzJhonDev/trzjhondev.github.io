@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="footer">
       <div className="container footer__inner">
         <span>© {new Date().getFullYear()} {profile.name} {profile.lastName}</span>
-        <span className="mono">hecho con React, CSS 3D y café</span>
+        <span className="mono">compilado con React, Three.js y Blender · exit 0</span>
       </div>
     </footer>
   );

@@ -53,8 +53,8 @@ function drawConsole(ctx) {
   const g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, SCREEN[0]); g.addColorStop(1, SCREEN[1]);
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
   ctx.textAlign = 'center'; ctx.fillStyle = '#2AB4F4';
-  ctx.font = '700 72px "JetBrains Mono", ui-monospace, monospace'; ctx.fillText('TRZ_', W / 2, H / 2 + 14);
-  ctx.fillStyle = '#BCC2CC'; ctx.font = '600 28px "JetBrains Mono", ui-monospace, monospace'; ctx.fillText('clic: jugar', W / 2, H / 2 + 62);
+  ctx.font = '700 72px "IBM Plex Mono", ui-monospace, monospace'; ctx.fillText('TRZ_', W / 2, H / 2 + 14);
+  ctx.fillStyle = '#BCC2CC'; ctx.font = '600 28px "IBM Plex Mono", ui-monospace, monospace'; ctx.fillText('clic: jugar', W / 2, H / 2 + 62);
 }
 
 export class Mascot3D {

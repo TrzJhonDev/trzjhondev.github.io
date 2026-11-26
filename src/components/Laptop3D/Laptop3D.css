@@ -217,7 +217,7 @@
   transform: rotateY(180deg) translateZ(3px); backface-visibility: hidden; overflow: hidden;
   display: flex; align-items: center; justify-content: center;
 }
-.lid-shell__logo { font: 700 42px var(--display); letter-spacing: -0.03em; }
+.lid-shell__logo { font: 700 42px var(--display); letter-spacing: -0.01em; }
 /* Canto de la tapa: lados rectos + facetas en las esquinas (radios 16 px arriba, 6 px abajo) */
 .lid-rim { top: -3px; height: 6px; background: var(--lap-edge); backface-visibility: hidden; }
 
@@ -340,9 +340,9 @@
 }
 
 /* Ficha de la vista despiece (flota sobre la escena) */
-/* Escritorio: ocupa la columna del texto de presentación (que se oculta en el despiece) */
+/* Escritorio: ocupa la columna de la lista de programas (que se oculta en el despiece) */
 .part-info {
-  position: absolute; right: var(--col-left, 24px); top: 50%; z-index: 3; width: 340px; transform: translateY(-50%);
+  position: absolute; right: var(--col-right, 24px); top: 50%; z-index: 3; width: 340px; transform: translateY(-50%);
   padding: 20px; border-radius: 20px; background: var(--surface); border: 1px solid var(--accent-ink);
   display: flex; flex-direction: column; gap: 12px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
   animation: part-in 0.35s ease-out both;
@@ -485,6 +485,20 @@
 .screen__bios-bar { display: block; width: 60%; height: 6px; margin-top: 4px; border: 1px solid #4A4A52; border-radius: 2px; }
 .screen__bios-bar i { display: block; height: 100%; background: #8FD8FF; }
 .screen__shell { justify-content: flex-end; background: #060E14; }
+/* Programa abierto desde la lista de Proyectos (452 × 238 px útiles). Entra una vez al abrirlo (solo opacidad y 4 px) */
+.screen__prog { flex: 1; display: flex; flex-direction: column; gap: 9px; padding: 10px 14px 12px; overflow: hidden; color: #E6E6EA; font-size: 9.5px; line-height: 14px; animation: prog-in 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes prog-in { from { opacity: 0; transform: translateY(4px); } }
+.screen__prog-cmd { color: #BCC2CC; white-space: pre; }
+.screen__prog-main { flex: 1; min-height: 0; display: flex; gap: 14px; }
+.screen__prog-shot { flex: none; width: 196px; height: 122px; border-radius: 4px; object-fit: cover; }
+.screen__prog-shot.is-empty { display: flex; align-items: center; justify-content: center; box-sizing: border-box; border: 1px dashed #2A3A48; background: #0B1A24; color: #6B7686; font-size: 8.5px; }
+.screen__prog-text { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.screen__prog-text b { font: 600 15px/1.15 var(--display); letter-spacing: -0.01em; color: #FFFFFF; }
+.screen__prog-text span { color: #BCC2CC; display: -webkit-box; -webkit-line-clamp: 7; -webkit-box-orient: vertical; overflow: hidden; }
+.screen__prog-row { display: flex; gap: 8px; white-space: nowrap; overflow: hidden; color: #E6E6EA; }
+.screen__prog-row i { font-style: normal; width: 44px; flex: none; color: #8FD8FF; }
+.screen__prog-row i.gap { margin-left: 14px; width: auto; }
+@media (prefers-reduced-motion: reduce) { .screen__prog { animation: none; } }
 .screen__cursor { position: absolute; z-index: 2; pointer-events: none; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.6)); }
 /* Campo real (oculto) donde se escribe en la terminal; 16px evita el zoom automático en iOS */
 .term-input { position: absolute; left: 50%; bottom: 0; width: 1px; height: 1px; padding: 0; border: 0; opacity: 0; font-size: 16px; pointer-events: none; }

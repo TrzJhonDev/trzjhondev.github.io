@@ -2,10 +2,10 @@ import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
 import { boot } from '../../lib/boot';
 import { SKILLS, PARTS } from '../../data/skills';
 import { DEG, LIGHT, billboard, easeInOut, hexA, rotX } from '../../lib/math3d';
-import { useLaptop, BOOT, FRONT } from './useLaptop';
+import { useLaptop, BOOT, FRONT, LID_OPEN, PROJECT_VIEW } from './useLaptop';
 import { useGuide } from '../Mascot/Guide';
 import { useTerminal } from './useTerminal';
-import { useLayout } from './useLayout';
+import { useLayout, COL_RIGHT } from './useLayout';
 import { HALF_D, HALF_W, layers } from './geometry';
 import { KEYS, SKILL_KEY_INDEX, LETTER_KEYS, keyCenter, keyIndexForCode } from './keyLayout';
 import { usePuzzle } from './usePuzzle';
@@ -59,7 +59,7 @@ const tr = ([x, y, z]) => `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,${z.t
  *  - onPickSkill:      (skill) => void
  *  - onExplodedChange: (bool) => void, para que la portada oculte el texto en el despiece
  */
-export default function Laptop3D({ skill, onPickSkill, onExplodedChange, bootRef }) {
+export default function Laptop3D({ skill, onPickSkill, onExplodedChange, bootRef, project = null }) {
   const stageRef = useRef(null);
   // Clic en la pantalla encendida: abre la terminal (la referencia evita depender del orden de los hooks)
   const termRef = useRef(null);
@@ -129,6 +129,23 @@ export default function Laptop3D({ skill, onPickSkill, onExplodedChange, bootRef
   }, [tilted, st.dragging, st.exploded, laptopGuide]);
   useEffect(() => laptopGuide?.register({ straighten: () => actions.front() }), [laptopGuide, actions]);
 
+  // Abrir un programa de la lista (Projects.jsx): el portátil se pone a punto para enseñarlo en la pantalla
+  // (salta el arranque, enciende, abre la tapa, sale del despiece y de la terminal). Se compara por archivo, no por objeto.
+  const projectFile = project?.file ?? null;
+  const stRef = useRef(st);
+  stRef.current = st;
+  useEffect(() => {
+    actions.hold(!!projectFile); // abierto: no gira solo (petición de Jhon, 26/11/2026)
+    if (!projectFile) return;
+    const s = stRef.current;
+    actions.goTo(PROJECT_VIEW.rx, PROJECT_VIEW.ry); // casi de frente, girado un poco hacia la lista
+    actions.skipBoot();
+    if (!s.power) actions.togglePower();
+    if (s.exploded) actions.setExplode(false);
+    if (s.open < 80) actions.setLid(LID_OPEN);
+    termRef.current?.close();
+  }, [projectFile, actions]);
+
   // Rompecabezas del despiece: se cancela al cerrar el despiece
   const puzzle = usePuzzle();
   const stopPuzzle = puzzle.stop;
@@ -153,7 +170,7 @@ export default function Laptop3D({ skill, onPickSkill, onExplodedChange, bootRef
   const typingDone = st.typed >= skill.code.join('\n').length;
   const booting = st.boot !== null;
   const pressIdx = st.press >= 0 ? st.press
-    : booting || typingDone || !st.power ? -1 : LETTER_KEYS[Math.floor(st.typed / 3) * 7 % LETTER_KEYS.length];
+    : booting || typingDone || !st.power || project ? -1 : LETTER_KEYS[Math.floor(st.typed / 3) * 7 % LETTER_KEYS.length];
 
   // Funciones estables para que el teclado memorizado no se redibuje en cada fotograma
   const pick = useCallback((i) => {
@@ -245,7 +262,7 @@ export default function Laptop3D({ skill, onPickSkill, onExplodedChange, bootRef
         }}
         style={{
           '--skill': skill.color, '--fit': fit, '--holo': layout.holo,
-          '--cx': `${cx}px`, '--cy': `${cy}px`, '--col-left': `${layout.colLeft}px`,
+          '--cx': `${cx}px`, '--cy': `${cy}px`, '--col-left': `${layout.colLeft}px`, '--col-right': `${layout.desktop ? COL_RIGHT : 24}px`,
           perspectiveOrigin: `${cx}px ${cy - layout.h * 0.3}px`,
         }}
       >
@@ -315,6 +332,7 @@ export default function Laptop3D({ skill, onPickSkill, onExplodedChange, bootRef
               zoom={zoom * fit} screen={{ typed: st.typed, running: st.running, runT: st.runT, t, on: screenOn, flash, battery: st.battery, charging: plugged && st.battery < 100, temp: st.temp,
                 bios: booting && st.boot < BOOT.keys ? { k: st.boot - BOOT.bios, total: BOOT.keys - BOOT.bios } : null,
                 terminal: term.open ? { lines: term.lines, input: term.input } : null,
+                project,
                 cursor: st.cursor && t - st.cursor.t < 90 ? st.cursor : null }}
             />
 

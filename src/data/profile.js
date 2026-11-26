@@ -11,9 +11,10 @@ export const profile = {
   university: 'Universidad Nacional Toribio Rodríguez de Mendoza',
   city: 'Amazonas',
   available: true, // "Prácticas pre-profesionales" al final de Formación y el estado en la terminal del portátil
-  // Palabras que rotan en el titular: "Construyo <palabra>."
-  building: ['software', 'apps web', 'datos', 'sistemas'],
-  bio: 'Me gusta el desarrollo web, las bases de datos y automatizar todo lo que se repite.',
+  // Titular de la portada, con la voz de la máquina (elegido por Jhon el 26/11/2026). {name} = name.
+  // kicker: la línea de consola de encima; title: primer renglón; accent: el renglón en azul.
+  hero: { kicker: '> sesión iniciada', title: 'Sistema listo.', accent: 'Usuario: {name}.' },
+  bio: 'Escribo web, ordeno bases de datos y automatizo lo que se repite.',
   cvUrl: '#', // p. ej. '/cv-jhon.pdf' (pon el PDF en la carpeta /public)
   email: '[TU CORREO]',
   github: '#',
