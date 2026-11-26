@@ -12,7 +12,7 @@ export const mascotLines = {
   // Una vez por sesión, cuando la sección llega a la mitad de la pantalla. Las claves son los id de las secciones.
   secciones: {
     proyectos: 'Portátil interactivo: sus teclas son skills. A la derecha, mis programas: ábrelos y salen en su pantalla.',
-    formacion: 'Formación y certificados: así se ve el camino, paso a paso.',
+    formacion: 'Cada etapa es un nivel. Voy saltando de uno en uno; el último aún está bloqueado.',
   },
   // Lo mismo en móvil (por debajo de 900 px), donde los proyectos van debajo del portátil y no hay puntero.
   // Si falta una clave, se usa la de `secciones`.

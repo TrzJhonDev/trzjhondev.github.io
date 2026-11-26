@@ -40,17 +40,16 @@ export function GuideProvider({ children }) {
   const [heroVisible, setHeroVisible] = useState(true);
   const [contactVisible, setContactVisible] = useState(false);
   const [muted, setMuted] = useState(() => read('localStorage', 'mascota-muda') === '1');
-  const [miniHidden, setMiniHidden] = useState(() => read('localStorage', 'mascota-oculta') === '1');
   const lookRef = useRef({ dx: 0, dy: 0, until: 0 });
   const cmdRef = useRef(null); // orden para la mascota: { type, n, t }
+  const sectionRef = useRef(null); // sección que tienes delante (franja central): la pequeña cambia de pose según ella
   const ptrMini = useRef({ x: 0, y: 0, mx: -1e4, my: -1e4 });
   const heroShown = heroVisible;
   const R = useRef({
     lastSay: -1e9, seen: readSet('mascota-vistas'), skillsSeen: readSet('mascota-skills'), current: null, muted, hero: true,
-    timer: 0, retry: 0, jokes: {}, runs: -1, cmdN: 0, tiltNext: 0, tiltOffers: 0, exploded: false, laptop: null, hidden: miniHidden,
+    timer: 0, retry: 0, jokes: {}, runs: -1, cmdN: 0, tiltNext: 0, tiltOffers: 0, exploded: false, laptop: null,
   });
   R.current.muted = muted;
-  R.current.hidden = miniHidden;
   R.current.hero = heroShown;
 
   const hide = useCallback(() => { window.clearTimeout(R.current.timer); R.current.bubbleSection = null; setBubble(null); }, []);
@@ -64,8 +63,7 @@ export function GuideProvider({ children }) {
   // del portátil encima de Formación, tapando la pista).
   const say = useCallback((text, force = false, action = null, cooldown = COOLDOWN, section = null) => {
     const r = R.current, now = performance.now();
-    // Con la mascota pequeña oculta nadie habla, salvo que lo pida un clic del usuario. (La grande de la portada siempre se ve.)
-    if (!force && (r.muted || (r.hidden && !r.hero) || now - r.lastSay < cooldown)) return false;
+    if (!force && (r.muted || now - r.lastSay < cooldown)) return false;
     r.lastSay = now;
     r.bubbleSection = section;
     setBubble({ text, action });
@@ -93,14 +91,6 @@ export function GuideProvider({ children }) {
     R.current.muted = next;
     setMuted(next);
     write('localStorage', 'mascota-muda', next ? '1' : '0');
-    if (next) hide();
-  }, [hide]);
-
-  // Esconde la mascota pequeña del todo (se recuerda) o la vuelve a llamar
-  const setHidden = useCallback((next) => {
-    R.current.hidden = next;
-    setMiniHidden(next);
-    write('localStorage', 'mascota-oculta', next ? '1' : '0');
     if (next) hide();
   }, [hide]);
 
@@ -205,12 +195,14 @@ export function GuideProvider({ children }) {
         const id = e.target.id, r = R.current;
         if (!e.isIntersecting) {
           // Salió de la franja central: su comentario ya no viene a cuento
+          if (sectionRef.current === id) sectionRef.current = null;
           if (r.current === id) { r.current = null; window.clearTimeout(r.retry); }
           if (r.bubbleSection === id) hide();
           return;
         }
         if (r.bubbleSection && r.bubbleSection !== id) hide();
         R.current.current = id;
+        sectionRef.current = id;
         window.clearTimeout(R.current.retry);
         R.current.retry = window.setTimeout(() => announce(id), DWELL);
       });
@@ -245,22 +237,12 @@ export function GuideProvider({ children }) {
     <GuideCtx.Provider value={value}>
       {children}
       <p className="sr-only" role="status" aria-live="polite">{bubble ? bubble.text : ''}</p>
-      {showMini && !miniHidden && (
+      {showMini && (
         <div className="mascot-mini">
           {/* 3D (Blender) cuando está lista; CSS mientras carga o sin WebGL */}
-          <MascotAuto variant="mini" greet ptr={ptrMini} look={lookRef} cmd={cmdRef} onAct={onAct} />
+          <MascotAuto variant="mini" greet ptr={ptrMini} look={lookRef} cmd={cmdRef} section={sectionRef} onAct={onAct} />
           {bubbleProps && <Bubble where="mini" {...bubbleProps} />}
-          <button type="button" className="mascot-mini__hide" aria-label="Ocultar la mascota" title="Ocultar la mascota" onClick={() => setHidden(true)}>
-            <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7" /></svg>
-          </button>
         </div>
-      )}
-      {showMini && miniHidden && (
-        <button type="button" className="mascot-call" aria-label="Mostrar la mascota" title="Mostrar la mascota" onClick={() => setHidden(false)}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <rect x="4" y="6" width="16" height="13" rx="4" /><path d="M9 11v2M15 11v2M9.5 16h5" /><path d="M2.5 11v3M21.5 11v3" />
-          </svg>
-        </button>
       )}
     </GuideCtx.Provider>
   );

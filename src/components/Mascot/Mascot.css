@@ -3,18 +3,18 @@
    o aplanaría la escena. Los colores se definen aquí por tema. */
 /* Las variables de color también las usa la mascota en miniatura de la pista de Formación (.track__bot) */
 .mascot, .track__bot {
-  /* Oscuro: carcasa grafito, auriculares azules, ojos y brillo azul cielo claro (ver PLAN-COLORES.md) */
-  --m-shell: #5B5E67; --m-joint: #26282D; --m-cup: #1E88C2; --m-frame: #0A0B0D; --m-chest: #181A1E;
+  /* Marfil y mandarina (Jhon, 26/11/2026; igual que THEMES de Mascot3D/engine.js): carcasa marfil, articulaciones
+     grafito, auriculares y botones mandarina; ojos y brillo azul cielo claro. La misma identidad en los dos temas. */
+  --m-shell: #EFE9DF; --m-joint: #2E3138; --m-cup: #FF8A3D; --m-frame: #0A0B0D; --m-chest: #181A1E;
   --m-screen-1: #0B1A24; --m-screen-2: #061016; --m-pupil: #061016;
-  --m-lit: #8FD8FF; --m-lit-rgb: 143, 216, 255; --m-btn: #2AB4F4; --m-on-btn: #04202E;
+  --m-lit: #8FD8FF; --m-lit-rgb: 143, 216, 255; --m-btn: #FFB347; --m-on-btn: #3A1A05;
   /* Colores de la pantallita de la consola (siempre oscura, igual en los dos modos): azul medio, ámbar y plata */
   --m-mid: #2AB4F4; --m-hot: #FFB454; --m-silver: #BCC2CC;
 }
-/* Claro: lo opuesto al grafito: carcasa BLANCO PERLA con detalles azules (Jhon, 24/11/2026: la plata se veía apagada;
-   quiere en claro el color contrario, que combine con el blanco y el azul de la página). Las articulaciones van en azul
-   pizarra para que la silueta se lea sobre el fondo claro sin bordes; la pantalla de la cara y la consola siguen oscuras. */
+/* Claro: la misma mascota, con el marfil algo más tostado para que se separe del fondo crema y la mandarina un punto
+   más honda; la pantalla de la cara y la consola siguen oscuras. */
 :root[data-theme="light"] .mascot, :root[data-theme="light"] .track__bot {
-  --m-shell: #E8EEF4; --m-joint: #4E6075; --m-cup: #1E88C2; --m-btn: #097AAE; --m-on-btn: #FFFFFF;
+  --m-shell: #E6DCCB; --m-joint: #2E3138; --m-cup: #F27A2E; --m-btn: #F59A2E; --m-on-btn: #3A1A05;
 }
 .mascot {
   position: absolute; inset: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none;
@@ -151,22 +151,9 @@
 .portrait.is-away .mascot { visibility: hidden; }
 @keyframes mini-in { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
 @media (max-width: 899px) { .mascot-mini { width: 72px; height: 96px; right: 8px; bottom: 8px; } }
-@media print { .mascot-mini, .mascot-call { display: none; } }
+@media print { .mascot-mini { display: none; } }
 
-/* Botón para esconder la mascota pequeña (queda discreto) y botón para volver a llamarla */
-.mascot-mini__hide {
-  position: absolute; left: 0; top: 14px; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;
-  border-radius: 50%; border: 1px solid var(--line-2); background: var(--surface); color: var(--muted); cursor: pointer;
-  opacity: 0.75; transition: opacity 0.2s; pointer-events: auto;
-}
-.mascot-mini__hide:hover, .mascot-mini__hide:focus-visible { opacity: 1; color: var(--text); border-color: var(--muted-2); }
-.mascot-call {
-  position: fixed; right: 14px; bottom: 14px; z-index: 30; width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center;
-  border-radius: 50%; border: 1px solid var(--line-2); background: var(--surface); color: var(--accent-ink); cursor: pointer;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3); animation: mini-in 0.4s ease-out both;
-}
-.mascot-call:hover { border-color: var(--accent-ink); }
-@media (max-width: 899px) { .mascot-call { right: 8px; bottom: 8px; } }
+/* Sin botón para esconderla (Jhon, 26/11/2026: "quita la x de la mascota pequeña"); para que no hable está "Callar" */
 
 /* ── Globo de mensaje ── */
 .mbubble {
@@ -200,7 +187,7 @@
 
 /* Con "reducir movimiento" no hay entrada ni engranaje girando */
 @media (prefers-reduced-motion: reduce) {
-  .mascot__stage, .mascot-mini, .mascot-call, .mbubble { animation: none; }
+  .mascot__stage, .mascot-mini, .mbubble { animation: none; }
   .mchest__gear { animation: none; }
   .is-typing .mkeys { animation: none; }
 }

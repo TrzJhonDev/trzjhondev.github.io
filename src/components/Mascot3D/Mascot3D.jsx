@@ -12,7 +12,7 @@ import './Mascot3D.css';
 
 import { MASCOT_URL as MODEL } from '../../lib/boot';
 
-export default function Mascot3D({ variant = 'hero', greet = false, ptr, look, cmd, onAct, paused = false, stage = false, sleeping = false, loading = false, onFrame, onReady, onError }) {
+export default function Mascot3D({ variant = 'hero', greet = false, ptr, look, cmd, section, onAct, paused = false, stage = false, sleeping = false, loading = false, onFrame, onReady, onError }) {
   const host = useRef(null);
   const ghost = useRef(null);
   const link = useRef({});
@@ -25,7 +25,7 @@ export default function Mascot3D({ variant = 'hero', greet = false, ptr, look, c
     let e;
     try {
       e = new MascotEngine(host.current, {
-        variant, greet, ptr, look, cmd, link, ctl: hero ? consoleCtl : null,
+        variant, greet, ptr, look, cmd, section, link, ctl: hero ? consoleCtl : null, // section: ref con la sección que tienes delante (pose de la pequeña)
         onAct: (t) => cb.current.onAct?.(t),
         // Escenario de Contacto: el director mueve la mascota en cada fotograma (Contact.jsx + lib/contactStage.js)
         // Pantalla de carga: empieza dormida (PLAN-PANTALLA-CARGA.md)

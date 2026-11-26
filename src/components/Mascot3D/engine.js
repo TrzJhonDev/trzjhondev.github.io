@@ -14,11 +14,14 @@ import { EYE, EYE_X, EYE_Y, MOUTH, MOUTH_X, MOUTH_Y, P, PUPIL, MIRRORED, mirror 
 // montada oculta): su canvas y sus textos. Un único bucle rAF; se para fuera de pantalla, con la pestaña oculta o en pausa.
 
 // Colores por tema: los mismos que las variables --m-* de Mascot.css (PLAN-COLORES.md)
+// MARFIL Y MANDARINA (Jhon, 26/11/2026, opción A de 4 paletas alegres; antes grafito en oscuro y perla en claro, que él
+// vio "frío, muerto, apagado": "es alegre"). La MISMA identidad en los dos temas, regla 60-30-10: carcasa marfil cálido
+// (60 %), articulaciones grafito (30 %) y acento mandarina (10 %: auriculares, micrófono y botones). La mandarina es el
+// complementario del azul cielo de la página: se hace notar sin competir con los botones azules. En claro el marfil va
+// algo más tostado: en 3D las caras que miran a la luz enseñan el color entero y se confundía con el fondo crema.
 const THEMES = {
-  dark: { carcasa: '#5B5E67', articulacion: '#26282D', auricular: '#1E88C2', boton: '#2AB4F4', marco: '#0A0B0D' },
-  // Carcasa en claro: perla gris azulado (#C9D2DC). El blanco perla de la CSS (#E8EEF4) en 3D se veía blanco puro
-  // (Jhon, 24/11/2026: "aún se ve muy blanco"): las caras que miran a la luz lo muestran entero, sin la capa de sombra.
-  light: { carcasa: '#C9D2DC', articulacion: '#4E6075', auricular: '#1E88C2', boton: '#097AAE', marco: '#0A0B0D' },
+  dark: { carcasa: '#ECE4D6', articulacion: '#2E3138', auricular: '#FF8A3D', boton: '#FFB347', marco: '#0A0B0D' },
+  light: { carcasa: '#DFD2BE', articulacion: '#2E3138', auricular: '#F27A2E', boton: '#F59A2E', marco: '#0A0B0D' },
 };
 
 /** Teclado: teclas oscuras en una rejilla de 3 × 12 que se encienden al azar mientras la mascota teclea. */
@@ -36,6 +39,19 @@ function drawKeys(ctx, lit, now) {
   }
 }
 const LIT = '#8FD8FF', MID = '#2AB4F4', SILVER = '#BCC2CC';
+// Piezas que llevan el acento mandarina aunque en el .glb usen el material de las articulaciones
+const ACCENT_PIECES = new Set(['orejaL', 'orejaR', 'diadema']);
+// Gesto propio (personalidad, Jhon 26/11/2026): se acomoda las gafas, como él. Piezas que suben un poco al empujarlas.
+const GLASSES = new Set(['gafaL', 'gafaR', 'gafas_puente', 'gafa_brilloL', 'gafa_brilloR', 'gafas_puente_brillo']);
+const GLASSES_T = 2.2; // s que dura el gesto (sube 0,7 · empuja · aguanta · baja 0,8): más rápido parecía un parpadeo
+const GLASSES_EVERY = [16000, 30000]; // ms entre gestos cuando está quieta
+// Pose por sección (solo la pequeña de la esquina): cara y hacia dónde mira según la sección que tienes delante.
+// El portátil y la pista de Formación quedan a la izquierda de la esquina, así que mira a la izquierda.
+const SECTION_POSE = {
+  proyectos: { face: 'focus', dx: -0.85, dy: -0.15 },
+  formacion: { face: 'happy', dx: -0.9, dy: 0.05 },
+  contacto: { face: 'happy', dx: -0.4, dy: 0, wave: true },
+};
 const SCREEN = ['#0B1A24', '#061016'];
 const EXPR = { dormir: 'sleep', despertar: 'happy', saludo: 'happy', hola: 'happy', susto: 'surprised', risa: 'laugh', celebrar: 'happy', teclear: 'focus', salto: 'happy',
   cargar: 'happy', caminar_carga: 'happy', triste: 'sad' };
@@ -180,6 +196,8 @@ export class MascotEngine {
     if (!this.stage) window.addEventListener('scroll', this.onScroll, { passive: true });
     // Pulsar el botón A del pecho (orden 'press' de la guía): el brazo izquierdo va al botón y vuelve
     this.pressT0 = -1;
+    this.glassT0 = -1; this.nextGlasses = performance.now() + GLASSES_EVERY[0];
+    this.sectionId = null; this.sectionPose = null;
 
     const r = this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     r.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -241,7 +259,7 @@ export class MascotEngine {
     this.materials = {};
     this.model.traverse((o) => {
       if (!o.isMesh) return;
-      const name = o.material.name;
+      let name = o.material.name;
       if (name === 'pantalla_cara' || name === 'pantalla_consola') {
         // Pantallas sin luz: se ven con sus colores exactos (el mismo degradado y los mismos píxeles que la CSS)
         o.material = new THREE.MeshBasicMaterial({ map: name === 'pantalla_cara' ? this.faceTex : this.consTex });
@@ -251,6 +269,9 @@ export class MascotEngine {
       } else {
         // Lambert: solo luz difusa, sin reflejos que blanqueen (la CSS tampoco tiene brillos en la carcasa)
         const src = o.material;
+        // Acento mandarina (marfil y mandarina, 26/11/2026): en el modelo los discos de las orejas y la diadema comparten
+        // material con las articulaciones; aquí pasan al del auricular para que el acento llegue a su 10 % y se note
+        if (ACCENT_PIECES.has(o.name.replace(/_\d+$/, ''))) name = 'auricular';
         o.material = new THREE.MeshLambertMaterial({ name, color: src.color.clone(), emissive: src.emissive.clone(), emissiveIntensity: src.emissiveIntensity });
         if (name !== 'brillo_lentes') o.material.emissiveIntensity = BASE_GLOW; // el brillo azul conserva su emisión
         (this.materials[name] ||= []).push(o.material);
@@ -284,9 +305,53 @@ export class MascotEngine {
       this.btnA.material = this.btnA.material.clone();
       (this.materials[this.btnA.material.name] ||= []).push(this.btnA.material);
     }
+    // Gesto de las gafas: el brazo derecho apunta al puente de las gafas y las gafas suben un poco (en su espacio local)
+    this.model.traverse((o) => { if (o.isBone && o.name.replace(/_\d+$/, '') === 'brazoR') this.armR = o; });
+    this.armRRest = this.armR?.quaternion.clone();
+    const bridge = this.model.getObjectByName('gafas_puente');
+    if (this.armR && bridge) {
+      this.model.updateMatrixWorld(true);
+      const shoulder = this.armR.getWorldPosition(new THREE.Vector3());
+      // Apunta a la esquina de abajo y por fuera del cristal derecho, un poco por delante (el frente es +Z): el brazo mide
+      // ~1,2 y no llega al puente (la mano quedaba escondida detrás de la cabeza); esa esquina sí queda a su alcance, y
+      // empujarse las gafas desde ella es un gesto real
+      const tall = new THREE.Box3().setFromObject(this.model).getSize(new THREE.Vector3()).y;
+      const lens = new THREE.Box3().setFromObject(this.model.getObjectByName('gafaR') || bridge);
+      const headBox = new THREE.Box3().setFromObject(this.model.getObjectByName('cabeza_1') || bridge);
+      // SIN ATRAVESAR LA CABEZA (Jhon: "el brazo atraviesa su cabeza; es 3D, como un objeto con físicas"): el hombro queda
+      // DEBAJO del borde de la cabeza y el brazo es recto (sin codo), así que no hay recta del hombro a las gafas que no la
+      // cruce. La mano sube por delante del cuerpo hasta el borde inferior DELANTERO de la cabeza (bajo el cristal derecho,
+      // un poco por debajo y por delante, con el grosor del brazo y de la mano de margen) y empuja: suben las gafas. Toda
+      // la recta queda por debajo de la cabeza o por delante de su cara.
+      const target = new THREE.Vector3(lens.min.x + (lens.max.x - lens.min.x) * 0.25, headBox.min.y - tall * 0.05, headBox.max.z + tall * 0.07);
+      // Guardados en el espacio del MODELO y del HUESO (no del mundo): en Contacto la mascota camina y gira. El brazo en
+      // reposo NO cuelga recto (va en diagonal hacia fuera), así que el giro se calcula en cada fotograma desde donde
+      // está la mano hasta la esquina del cristal (glassesPose), no con un eje supuesto.
+      this.glassTarget = (this.head || this.model).worldToLocal(target.clone()); // pegado a la cabeza: si se mueve, la mano la sigue
+      const hand = this.model.getObjectByName('manoR');
+      this.handLocal = this.armR.worldToLocal(hand ? new THREE.Box3().setFromObject(hand).getCenter(new THREE.Vector3()) : shoulder.clone().add(new THREE.Vector3(0, -1, 0)));
+      this.glassesQ = true;
+      const lift = (this.bounds0 = new THREE.Box3().setFromObject(this.model)).getSize(new THREE.Vector3()).y * 0.012;
+      this.glassPieces = [];
+      this.model.traverse((o) => {
+        if (!o.isMesh || !GLASSES.has(o.name)) return;
+        const wp = o.getWorldPosition(new THREE.Vector3());
+        const up = o.parent.worldToLocal(wp.clone().add(new THREE.Vector3(0, lift, 0))).sub(o.parent.worldToLocal(wp.clone()));
+        this.glassPieces.push({ o, rest: o.position.clone(), up });
+      });
+    }
     this.bounds = new THREE.Box3().setFromObject(this.model);
     this.mixer = new THREE.AnimationMixer(this.model);
     this.actions = {};
+    // QUIETA DE VERDAD, TAMBIÉN LOS BRAZOS (Jhon, 26/11/2026: "los brazos parpadean", como la cabeza el 25/11): el bucle
+    // `reposo` del .glb balancea los brazos sin parar (~21°/s, 73 claves en 3 s); con la carcasa marfil se veía como un
+    // parpadeo. Sus claves de giro de brazoL/brazoR se fijan a la primera (en reposo solo respira el cuerpo). Las demás
+    // acciones (teclear, caminar, saludo…) no cambian. Los clips se comparten entre mascotas: se hace una vez y da igual.
+    gltf.animations.find((c) => c.name === 'reposo')?.tracks.forEach((t) => {
+      if (!/brazo[LR]\.quaternion$/.test(t.name)) return;
+      const first = t.values.slice(0, 4);
+      for (let i = 4; i < t.values.length; i += 4) t.values.set(first, i);
+    });
     gltf.animations.forEach((clip) => {
       const a = this.mixer.clipAction(clip);
       // Las acciones sueltas se quedan en su último fotograma al terminar (clamp) y el bucle entra con un fundido desde ahí.
@@ -366,8 +431,11 @@ export class MascotEngine {
     next.reset(); next.setEffectiveWeight(1); next.play();
     if (this.current && this.current !== next) next.crossFadeFrom(this.current, 0.25, false);
     this.current = next;
-    this.setExpr(EXPR[name] || 'idle');
+    this.setExpr(EXPR[name] || this.restFace());
   }
+
+  /** Cara de reposo: la de la pose de la sección (solo la pequeña) o la normal. */
+  restFace() { return this.sectionPose?.face || 'idle'; }
 
   /** true mientras suena una acción suelta (saludo, susto…): el escenario espera a que vuelva a su bucle. */
   oneShot() { return !!this.current && !LOOPS.has(this.current.getClip().name); }
@@ -396,14 +464,14 @@ export class MascotEngine {
     this.mood = want;
     if (!free && want) { this.mood = null; return; }
     const face = { dizzy: 'dizzy', up: 'surprised', smile: 'happy' }[want];
-    this.setExpr(face || (loopName === 'teclear' ? 'focus' : 'idle'));
+    this.setExpr(face || (loopName === 'teclear' ? 'focus' : this.restFace()));
   }
 
   /** Pulsar el botón A: el brazo izquierdo se acerca al botón (0,35 s), aprieta, aguanta y vuelve (1 s en total). */
   pressPose(now) {
     if (this.pressT0 < 0 || !this.armL) return;
     const t = (now - this.pressT0) / 1000;
-    if (t > 1) { this.pressT0 = -1; this.setExpr('happy'); window.setTimeout(() => { if (this.pressT0 < 0 && !this.mood) this.setExpr('idle'); }, 900); return; }
+    if (t > 1) { this.pressT0 = -1; this.setExpr('happy'); window.setTimeout(() => { if (this.pressT0 < 0 && !this.mood) this.setExpr(this.restFace()); }, 900); return; }
     const ease = (x) => x * x * (3 - 2 * x);
     const w = t < 0.35 ? ease(t / 0.35) : t < 0.65 ? 1 + 0.06 * Math.sin(((t - 0.35) / 0.3) * Math.PI) : 1 - ease((t - 0.65) / 0.35);
     const bone = this.armL, parent = bone.parent;
@@ -420,17 +488,58 @@ export class MascotEngine {
     // Mira su botón
     this.look.tx = 0.35; this.look.ty = 0.7;
   }
+  /**
+   * Se acomoda las gafas (gesto propio, como Jhon): el brazo derecho sube hasta el puente (0,45 s), las empuja hacia
+   * arriba con un pequeño rebote, aguanta y baja (GLASSES_T en total). Mira un poco hacia arriba con cara concentrada.
+   */
+  glassesPose(now) {
+    if (this.glassT0 < 0) return;
+    const t = (now - this.glassT0) / 1000;
+    const done = t > GLASSES_T;
+    const ease = (x) => x * x * (3 - 2 * x);
+    // Brazo: sube, se queda y baja
+    const w = done ? 0 : t < 0.7 ? ease(t / 0.7) : t < 1.4 ? 1 : 1 - ease((t - 1.4) / (GLASSES_T - 1.4));
+    if (this.armR && this.glassesQ && w > 0) {
+      const bone = this.armR, parent = bone.parent;
+      bone.updateWorldMatrix(true, false); // el mezclador acaba de mover los huesos: las matrices del mundo van atrasadas
+      const shoulder = bone.getWorldPosition(new THREE.Vector3());
+      const toHand = bone.localToWorld(this.handLocal.clone()).sub(shoulder); // hacia dónde apunta el brazo ahora
+      (this.head || this.model).updateWorldMatrix(true, false);
+      const toLens = (this.head || this.model).localToWorld(this.glassTarget.clone()).sub(shoulder); // hacia el borde de la cabeza
+      // BRAZO TELESCÓPICO: mide ~0,56 y la esquina del cristal está a ~1,2, así que, como buen robot, lo alarga a lo largo
+      // de su eje (el Y del hueso) mientras sube, y vuelve a su tamaño al bajar. Sin esto la mano quedaba detrás de la cabeza.
+      bone.scale.y = 1 + (THREE.MathUtils.clamp(toLens.length() / toHand.length(), 1, 2.4) - 1) * w;
+      const now3 = toHand.normalize(), want = toLens.normalize();
+      const turn = new THREE.Quaternion().slerp(new THREE.Quaternion().setFromUnitVectors(now3, want), w);
+      const parentQ = parent.getWorldQuaternion(new THREE.Quaternion());
+      const boneQ = parentQ.clone().multiply(bone.quaternion);
+      bone.quaternion.copy(parentQ.invert().multiply(turn.multiply(boneQ)));
+    }
+    // Gafas: el empujón (sube y se asienta con un rebote corto) cuando la mano llega
+    const g = done ? 0 : t < 0.62 ? 0 : t < 0.95 ? ease((t - 0.62) / 0.33) : t < 1.2 ? 1 - 0.3 * ease((t - 0.95) / 0.25) : 0.7 * (1 - ease((t - 1.2) / 0.6));
+    this.glassPieces?.forEach(({ o, rest, up }) => o.position.copy(rest).addScaledVector(up, Math.max(0, g)));
+    if (done) {
+      this.glassT0 = -1;
+      this.nextGlasses = now + GLASSES_EVERY[0] + Math.random() * (GLASSES_EVERY[1] - GLASSES_EVERY[0]);
+      if (!this.mood) this.setExpr(this.restFace());
+      return;
+    }
+    this.look.tx = 0; this.look.ty = -0.25;
+  }
   redrawFace() { drawFace(this.faceCtx, this.blinking ? 'blink' : this.expr, this.look); this.faceTex.needsUpdate = true; }
 
   /** Clic o Intro en la mascota: se asusta o se ríe (alterna), como la CSS. */
   react() {
     this.clicks += 1;
     const type = this.clicks % 2 ? 'startle' : 'laugh';
-    if (this.mqMotion.matches) this.play(type === 'startle' ? 'susto' : 'risa');
+    if (this.mqMotion.matches) {
+      this.play(type === 'startle' ? 'susto' : 'risa');
+      if (type === 'startle' && Math.random() < 0.6) this.nextGlasses = performance.now() + 1300; // y se las recoloca
+    }
     else {
       // "Reducir movimiento": sin animación, solo cambia la cara un momento
       this.setExpr(type === 'startle' ? 'surprised' : 'laugh'); this.renderOnce();
-      window.setTimeout(() => { this.setExpr('idle'); this.renderOnce(); }, 900);
+      window.setTimeout(() => { this.setExpr(this.restFace()); this.renderOnce(); }, 900);
     }
     this.lastMove = performance.now();
     this.o.onAct?.(type);
@@ -520,6 +629,8 @@ export class MascotEngine {
     else if (ask && ask.until > now) { this.look.tx = ask.dx; this.look.ty = ask.dy; }
     else if (this.mood === 'up') { this.look.tx = 0; this.look.ty = -0.8; } // subes rápido: mira hacia arriba
     else if (this.mini && now - this.lastScroll < 1300) { this.look.tx = 0; this.look.ty = 0.6; } // la pequeña mira abajo al hacer scroll
+    // Pose por sección: con el ratón quieto, la pequeña mira hacia lo que tienes delante (el portátil, la pista…)
+    else if (this.mini && this.sectionPose && now - this.lastMove > 1500) { this.look.tx = this.sectionPose.dx; this.look.ty = this.sectionPose.dy; }
     else if (p && this.mqDesk.matches && p.mx > -1000) {
       if (!this.rect || now - (this.rectAt || 0) > 250) { this.rect = this.host.getBoundingClientRect(); this.rectAt = now; }
       const b = this.rect;
@@ -538,6 +649,23 @@ export class MascotEngine {
       if (now - order.t < 1500 && order.type === 'press') { this.pressT0 = now; this.setExpr('focus'); }
     }
     this.scrollMood(now);
+    // Pose por sección (solo la pequeña): la guía dice qué sección tienes delante
+    if (this.mini) {
+      const sec = this.o.section?.current || null;
+      if (sec !== this.sectionId) {
+        this.sectionId = sec;
+        this.sectionPose = SECTION_POSE[sec] || null;
+        if (!this.oneShot() && !this.mood) {
+          if (this.sectionPose?.wave && this.mqMotion.matches) this.play('hola');
+          else this.setExpr(this.restFace());
+        }
+      }
+    }
+    // Se acomoda las gafas cuando lleva un rato quieta (en su bucle de reposo, sin teclear ni otra acción)
+    // (en el escenario de Contacto, solo si te mira de frente: de espaldas o de lado no se ve la mano en las gafas)
+    // (no en el escenario de Contacto: allí camina y el director cambia de pose a mitad del gesto)
+    const calm = this.current === this.actions.reposo && !this.typing && !this.oneShot() && this.pressT0 < 0 && !this.sleeping && !this.mood && !this.stage;
+    if (this.glassT0 < 0 && calm && now > this.nextGlasses && this.glassPieces?.length) { this.glassT0 = now; this.setExpr('focus'); }
     // Teclear con el ratón quieto (no mientras se juega en la consola)
     const busy = this.o.link?.current?.busy;
     const idle = this.current === this.actions.reposo || this.current === this.actions.teclear;
@@ -573,6 +701,8 @@ export class MascotEngine {
     if (fk !== this.faceKey) { this.faceKey = fk; this.blinking = blink; this.redrawFace(); }
     // Esqueleto y, encima, la cabeza hacia donde mira
     if (this.head) this.head.quaternion.copy(this.headRest);
+    // El bucle de reposo no anima el brazo derecho: sin esto, el giro del gesto de las gafas se acumulaba fotograma a fotograma
+    if (this.armR) { this.armR.quaternion.copy(this.armRRest); this.armR.scale.y = 1; } // (y su largo, tras el telescópico)
     this.mixer.update(dt);
     if (this.head) this.head.quaternion.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(this.look.y * 0.22, this.look.x * 0.5, 0, 'YXZ')));
     // Mareo: la cabeza da vueltas pequeñas mientras dura
@@ -583,6 +713,17 @@ export class MascotEngine {
       else { this.headQ.slerp(this.head.quaternion, 1 - Math.exp(-dt * 18)); this.head.quaternion.copy(this.headQ); }
     }
     this.pressPose(now);
+    this.glassesPose(now);
+    // Suavizado final de los brazos (~40 ms, por tiempo), igual que la cabeza: Jhon vio que "los brazos parpadean"
+    const ka = 1 - Math.exp(-dt * 24);
+    for (const [bone, key] of [[this.armL, 'armLQ'], [this.armR, 'armRQ']]) {
+      if (!bone) continue;
+      if (!this[key]) this[key] = { q: bone.quaternion.clone(), sy: bone.scale.y };
+      else {
+        this[key].q.slerp(bone.quaternion, ka); bone.quaternion.copy(this[key].q);
+        this[key].sy += (bone.scale.y - this[key].sy) * ka; bone.scale.y = this[key].sy;
+      }
+    }
     drawConsole(this.consCtx, this.o.consoleEls?.(), now); this.consTex.needsUpdate = true;
     this.renderer.render(this.scene, this.camera);
     this.raf = requestAnimationFrame(this.loop);

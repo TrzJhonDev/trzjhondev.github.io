@@ -19,7 +19,12 @@ import './Contact.css';
 
 const Mascot3D = lazy(() => import('./Mascot3D/Mascot3D'));
 // Por debajo de 1100 px no queda sitio libre para que la mascota cambie las tarjetas de lugar
-const STAGE_MQ = '(min-width: 1100px) and (prefers-reduced-motion: no-preference)';
+const BASE = import.meta.env.BASE_URL;
+// Servidor: posiciones (% de la imagen de 338 × 518) de sus luces, proyectadas desde la cámara de blender/servidor.blend.
+// Si cambias el modelo o la cámara, vuelve a renderizar y a proyectarlas (world_to_camera_view).
+const SRV = { power: [31.74, 22.83], ledX: [34.69, 38.8], units: [32.97, 48.41, 63.85, 79.29], delays: [0, -0.7, -1.5, -0.3] };
+
+const STAGE_MQ ='(min-width: 1100px) and (prefers-reduced-motion: no-preference)';
 
 const T = mascotLines.contacto;
 const fill = (s) => s.replace('{name}', profile.name).replace('{email}', profile.email);
@@ -276,8 +281,17 @@ export default function Contact() {
           {/* Servidor del suelo (base del cable), cable y conector (solo en el escenario; los mueve lib/contactStage.js) */}
           {staged && (
             <>
+              {/* Servidor renderizado en Blender (blender/servidor.blend → public/img/servidor.webp), con su sombra en el
+                  suelo; las luces y el puerto del cable van encima, en las posiciones que da la cámara de Blender (SRV). */}
               <span className="cta__server" aria-hidden="true">
-                {[0, 1, 2, 3].map((u) => <span key={u} className="cta__unit"><i /><i /><b /></span>)}
+                <img className="cta__server-img" src={`${BASE}img/servidor.webp`} width="132" height="202" alt="" decoding="async" draggable="false" />
+                <i className="cta__srv-led cta__srv-led--power" style={{ left: `${SRV.power[0]}%`, top: `${SRV.power[1]}%` }} />
+                {SRV.units.map((y, u) => (
+                  <span key={u} className="cta__unit">
+                    <i className="cta__srv-led cta__srv-led--act" style={{ left: `${SRV.ledX[0]}%`, top: `${y}%`, animationDelay: `${SRV.delays[u]}s` }} />
+                    <i className="cta__srv-led cta__srv-led--link" style={{ left: `${SRV.ledX[1]}%`, top: `${y - 0.22}%` }} />
+                  </span>
+                ))}
                 <span className="cta__server-port" />
               </span>
               <svg className="cta__cable" aria-hidden="true" preserveAspectRatio="none"><path /></svg>

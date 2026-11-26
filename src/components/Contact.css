@@ -106,16 +106,29 @@
    ranura hacia abajo: el conector sube desde abajo, su punta entra en él y el cuerpo queda pegado a su cara inferior.
    Medidas que usa lib/contactStage.js: SOCK_H = 10 (alto), ranura en la cara de abajo. Objeto físico: colores fijos. */
 .cta__port { position: relative; margin-bottom: 14px; }
-/* Cuelga de la cara de abajo del canto (6 px) del módulo */
-.cta__socket {
-  position: absolute; left: 50%; bottom: -15px; width: 24px; height: 10px; margin-left: -12px; border-radius: 3px 3px 2px 2px;
-  background: linear-gradient(180deg, #E1E5EA, #A6ADB7 55%, #7E8691);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+/* PUERTO INTEGRADO EN LA CAJA (Jhon, 26/11/2026: "que se note que es uno solo", "no le des inclinación, solo un
+   poquitito"): ya no es una pieza de metal colgando. El canto del módulo baja en un saliente moldeado del MISMO
+   material (--edge, así también toma el color de la marca al encajar), un poco más ancho que el conector, con la luz
+   en su frente. Debajo se ve apenas su cara inferior (3 px más oscuros: la única inclinación) con la boca metálica y
+   la ranura, donde se apoya el cuerpo del conector. La caja de .cta__socket (24 × 10) no cambia: el director mide su
+   centro y su borde de abajo es la boca (sockBottom); el saliente y la boca son pseudoelementos. */
+.cta__socket { position: absolute; left: 50%; bottom: -15px; width: 24px; height: 10px; margin-left: -12px; }
+/* Saliente: arranca dentro del canto (sin junta) y baja hasta la boca; sombreado de arriba a abajo y cantos laterales */
+.cta__socket::before {
+  content: ''; position: absolute; left: -4px; right: -4px; top: -7px; bottom: 0; border-radius: 0 0 5px 5px;
+  background: linear-gradient(180deg, var(--edge), color-mix(in srgb, var(--edge) 82%, #000) calc(100% - 3px),
+    color-mix(in srgb, var(--edge) 52%, #000) calc(100% - 3px));
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.1), inset -1px 0 0 rgba(0, 0, 0, 0.16), 0 3px 4px rgba(0, 0, 0, 0.26);
+  transition: background 0.2s;
 }
-/* Boca del puerto: la ranura oscura de la cara de abajo, donde entra la punta */
-.cta__socket::after { content: ''; position: absolute; left: 6px; right: 6px; bottom: 0; height: 3px; border-radius: 1px 1px 0 0; background: #0B0E12; }
-.cta__led { position: absolute; right: -11px; top: 2px; width: 6px; height: 6px; border-radius: 50%; background: var(--line-2); transition: background-color 0.2s; }
-.cta__port[data-link="on"] .cta__led { background: var(--accent); box-shadow: 0 1px 5px rgba(var(--accent-rgb), 0.55); }
+/* Boca: marco metálico en la cara de abajo con la ranura oscura donde entra la punta (10 px, como la punta) */
+.cta__socket::after {
+  content: ''; position: absolute; left: 4px; right: 4px; bottom: 0; height: 3px; border-radius: 1.5px 1.5px 0 0;
+  background: linear-gradient(#07090C, #07090C) 50% 100% / 10px 2px no-repeat, linear-gradient(90deg, #7E8691, #D9DDE2 45%, #959CA6);
+}
+/* Luz de estado en el frente del saliente, a un lado de la boca */
+.cta__led { position: absolute; z-index: 1; right: -1px; top: -1px; width: 4px; height: 4px; border-radius: 50%; background: color-mix(in srgb, var(--edge) 55%, #000); box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.4); transition: background-color 0.2s; }
+.cta__port[data-link="on"] .cta__led { background: var(--accent); box-shadow: 0 0 5px rgba(var(--accent-rgb), 0.8); }
 .cta__port[data-link="nosignal"] .cta__led { background: var(--danger); }
 /* Al encajar (Jhon eligió "detalles al encajar", 26/11/2026): cuando el director pone data-link, el módulo hace un
    pequeño clic (baja 1,5 px y vuelve), la luz se enciende con un destello breve y el canto toma el color de la marca.
@@ -184,26 +197,32 @@
 .cta__stage--static .cta__face--brand { clip-path: inset(-18px -18px -26px -18px); transition: none; }
 
 /* ── Servidor del suelo (base del cable), cable y conector (solo en el escenario) ──
-   Servidor de rack de 4 unidades: cada una con dos luces (la primera parpadea: actividad) y una rejilla; abajo, el puerto
-   del que sale el cable. Con un puerto en línea (data-link="on") la actividad va más deprisa. Detrás de la mascota. */
-.cta__server {
-  position: absolute; right: 16px; bottom: 30px; z-index: 0; width: 92px; height: 172px; box-sizing: border-box;
-  display: flex; flex-direction: column; gap: 6px; padding: 10px 8px 28px; border-radius: 8px 8px 4px 4px;
-  background: linear-gradient(90deg, #2A2D33, #42464F 50%, #2A2D33);
-  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+   SERVIDOR HECHO EN BLENDER (Jhon, 26/11/2026: el de CSS "parece suspendido y se notan los recortes"). `blender/servidor.blend`
+   (torre de rack: frente con raíles y tornillos, cabecera "srv-01", 4 unidades con luces, rejilla y tirador, puerto del cable
+   y patas) renderizado con Cycles a `public/img/servidor.webp` (338 × 518, fondo transparente) con una SOMBRA DE CONTACTO real
+   (suelo "shadow catcher"), cámara ortográfica algo por encima y a la izquierda (se ven frente, tapa y lateral izquierdo) y
+   sol de arriba a la izquierda y algo de frente (la sombra cae casi entera detrás). Una sola imagen para los dos temas: la
+   sombra es alfa. Encima, en HTML, las luces (activas: parpadean; con un puerto en línea, data-link="on", más deprisa y se
+   enciende la segunda) y el puerto invisible por el que entra el cable (lo mide el director). Las patas delanteras tocan
+   la línea del suelo (30 px): por eso `bottom` es 18 px (la imagen deja 12 px de sombra por debajo). */
+.cta__server { position: absolute; right: -4px; bottom: 18px; z-index: 0; width: 132px; height: 202px; pointer-events: none; }
+.cta__server-img {
+  display: block; width: 100%; height: 100%; user-select: none;
+  /* la sombra del render se desvanece antes del borde de la imagen (sin corte recto) */
+  -webkit-mask: linear-gradient(90deg, transparent, #000 3%, #000 90%, transparent), linear-gradient(0deg, transparent, #000 4%, #000 96%, transparent);
+  -webkit-mask-composite: source-in;
+  mask: linear-gradient(90deg, transparent, #000 3%, #000 90%, transparent), linear-gradient(0deg, transparent, #000 4%, #000 96%, transparent);
+  mask-composite: intersect;
 }
-.cta__unit { flex: 1; display: flex; align-items: center; gap: 4px; padding: 0 6px; border-radius: 3px; background: #1B1E23; box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6); }
-.cta__unit i { width: 4px; height: 4px; border-radius: 50%; background: #3A3E46; }
-.cta__unit i:first-child { background: #8FD8FF; animation: srv-blink 2.4s steps(1) infinite; }
-.cta__unit:nth-child(2) i:first-child { animation-delay: -0.7s; }
-.cta__unit:nth-child(3) i:first-child { animation-delay: -1.5s; }
-.cta__unit:nth-child(4) i:first-child { animation-delay: -0.3s; }
-.cta__server[data-link="on"] .cta__unit i:first-child { animation-duration: 0.7s; }
-.cta__server[data-link="on"] .cta__unit i:nth-child(2) { background: #8FD8FF; }
-.cta__unit b { margin-left: auto; width: 36px; height: 8px; border-radius: 2px; background: repeating-linear-gradient(90deg, #30343C 0 2px, #14171B 2px 4px); }
-.cta__server-port { position: absolute; left: 50%; bottom: 9px; width: 24px; height: 11px; margin-left: -12px; border-radius: 2px; background: #0B0E12; box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8); }
+.cta__srv-led { position: absolute; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%; transform: scaleX(0.8); background: #3A3E46; }
+.cta__srv-led--power, .cta__srv-led--act { background: #8FD8FF; box-shadow: 0 0 4px rgba(143, 216, 255, 0.75); }
+.cta__srv-led--act { animation: srv-blink 2.4s steps(1) infinite; }
+.cta__server[data-link="on"] .cta__srv-led--act { animation-duration: 0.7s; }
+.cta__server[data-link="on"] .cta__srv-led--link { background: #8FD8FF; box-shadow: 0 0 4px rgba(143, 216, 255, 0.75); }
+/* Puerto del cable: el del render (centro en 51,6 % · 86,6 %); invisible, solo marca por dónde entra el cable */
+.cta__server-port { position: absolute; left: 43.17%; top: 83.8%; width: 16.81%; height: 5.56%; }
 @keyframes srv-blink { 0%, 62% { opacity: 1; } 63%, 100% { opacity: 0.25; } }
-@media (prefers-reduced-motion: reduce) { .cta__unit i:first-child { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .cta__srv-led--act { animation: none; } }
 /* El cable va por delante: nunca la cruza porque lib/contactStage.js (route) lo hace rodear su silueta */
 .cta__cable { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; overflow: visible; }
 /* Mano detrás de su cuerpo (al darse la vuelta): conector y cable pasan detrás de la mascota */

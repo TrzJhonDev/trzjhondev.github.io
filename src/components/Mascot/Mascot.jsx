@@ -71,7 +71,8 @@ function Ear({ side }) {
   const ry = 90 * s;
   return (
     <>
-      <Prism at={[s * EAR_X, EAR_Y, 0]} ry={ry} W={42} H={42} D={12} R={21} k={12} soft={0.45} color="var(--m-joint)" />
+      {/* Disco de la oreja en mandarina (marfil y mandarina, 26/11/2026), igual que orejaL/R en el modelo 3D */}
+      <Prism at={[s * EAR_X, EAR_Y, 0]} ry={ry} W={42} H={42} D={12} R={21} k={12} soft={0.45} color="var(--m-cup)" />
       <Prism at={[s * (EAR_X + 6.5), EAR_Y, 0]} ry={ry} W={22} H={22} D={3} R={11} k={8} soft={0.4} color="var(--m-cup)" />
     </>
   );

@@ -6,14 +6,14 @@
 //   favicon-32.png        la misma, para navegadores sin iconos SVG
 //   apple-touch-icon.png  180 px, la cara completa como en Face.jsx/Mascot.css (monturas, filo de luz, brillo,
 //                         reflejo); ocupa el cuadrado entero porque iOS pone sus propias esquinas
-// Los colores son los de --m-* (Mascot.css, tema oscuro) y los píxeles los de faceData.js: si cambia la cara, vuelve a lanzarlo.
+// Los colores son los de --m-* (Mascot.css; marco marfil de la carcasa desde el 26/11/2026) y los píxeles los de faceData.js: si cambia la cara, vuelve a lanzarlo.
 // Necesita Google Chrome instalado (usa playwright-core para pasar el SVG a PNG).
 import fs from 'node:fs';
 import path from 'node:path';
 import { chromium } from 'playwright-core';
 
 const OUT = path.resolve('public');
-const LIT = '#8FD8FF', LITRGB = '143,216,255', RIM = '#467087', SHELL = '#5B5E67', S1 = '#0B1A24', S2 = '#061016', PUPIL = '#061016';
+const LIT = '#8FD8FF', LITRGB = '143,216,255', RIM = '#467087', SHELL = '#EFE9DF', S1 = '#0B1A24', S2 = '#061016', PUPIL = '#061016';
 
 // ── Pestaña: rejilla de 16×16, un rect por píxel ──
 const px = (x, y, w, h, c) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"/>`;

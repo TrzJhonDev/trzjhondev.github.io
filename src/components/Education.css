@@ -1,70 +1,110 @@
-/* ── Formación: pista de circuito ─────────────────────────────────
-   Una traza vertical a la izquierda (x = 20 px) con una vía por etapa y un tramo corto hasta cada tarjeta.
-   .track__lit (escala en Y) y .track__bot (traslación) los mueve Education.jsx al hacer scroll;
-   .is-lit lo pone el mismo bucle cuando la pista llega a esa vía. Colores: solo tokens. */
-.track { position: relative; }
-.track__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 18px; }
+/* ── Formación: mapa de niveles (opción F de Jhon, 26/11/2026) ──────────────────────────
+   Camino SVG punteado (.map__road) que serpentea entre las fichas de nivel; la parte recorrida (.map__lit) se
+   enciende en azul hasta la mascota. Education.jsx calcula el camino con las posiciones reales de las fichas y
+   mueve la cabeza (.track__bot) a saltos. En escritorio la ficha va en un carril central y la tarjeta a un lado,
+   alternando; en móvil, fichas a la izquierda y tarjetas a la derecha. Fichas y tarjetas tienen volumen como los
+   módulos de Contacto (cara + canto --edge). Colores: solo tokens. */
+.map { position: relative; padding-top: 70px; }
+.map__path { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 0; }
+.map__road { fill: none; stroke: var(--line-2); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 0.1 11; }
+.map__lit { fill: none; stroke: var(--accent-ink); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 0 99999; }
+/* Casilla de salida, donde empieza el camino (la coloca Education.jsx) */
+.map__start {
+  position: absolute; left: 0; top: 0; z-index: 1; width: 0; height: 0; pointer-events: none;
+  font-size: 11px; color: var(--muted-2); letter-spacing: 0.04em;
+}
+.map__start::before { content: ''; position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; border-radius: 50%; background: var(--bg); border: 3px solid var(--accent-ink); box-sizing: border-box; }
+.map__start::after { content: 'inicio'; position: absolute; left: 18px; top: -8px; }
 
-.track__rail { position: absolute; left: 18.5px; width: 3px; border-radius: 3px; background: var(--line-2); }
-.track__lit {
-  position: absolute; inset: 0; border-radius: inherit; transform-origin: top; transform: scaleY(0);
-  background: var(--accent-ink); box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.45);
+.map__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 30px; position: relative; z-index: 1; }
+.map__level {
+  --edge: color-mix(in srgb, var(--text) 20%, var(--bg));
+  display: grid; grid-template-columns: 1fr 236px 1fr; column-gap: 28px; align-items: center;
 }
+/* Tarjeta a la izquierda en los niveles impares (1, 3…) y a la derecha en los pares */
+.map__level > .map__card { grid-row: 1; grid-column: 1; }
+.map__level > .map__tile { grid-row: 1; grid-column: 2; justify-self: start; }
+.map__level:nth-child(even) > .map__card { grid-column: 3; }
+.map__level:nth-child(even) > .map__tile { justify-self: end; }
 
-.track__node { position: relative; padding-left: 64px; }
-/* Tramo de la vía a la tarjeta */
-.track__node::before {
-  content: ''; position: absolute; left: 26px; top: 33px; width: 38px; height: 3px;
-  background: var(--line-2); transition: background-color 0.3s, box-shadow 0.3s;
+/* Ficha del nivel: una tecla con volumen; tramo hacia su tarjeta */
+.map__tile {
+  position: relative; width: 44px; height: 44px; box-sizing: border-box; display: grid; place-items: center;
+  border-radius: 11px; font: 700 18px/1 var(--mono); color: var(--muted);
+  border: 1px solid color-mix(in srgb, var(--text) 13%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--text) 10%, var(--surface-2)), color-mix(in srgb, var(--text) 3%, var(--surface-2)) 70%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 5px 0 var(--edge), 0 6px 0 rgba(0, 0, 0, 0.2), 0 12px 14px rgba(0, 0, 0, 0.22);
+  transition: background 0.35s, color 0.35s, border-color 0.35s, box-shadow 0.35s;
 }
-.track__via {
-  position: absolute; left: 12px; top: 26px; width: 16px; height: 16px; border-radius: 50%; z-index: 1;
-  background: var(--bg); border: 3px solid var(--line-2); transition: border-color 0.3s, box-shadow 0.3s;
-}
-.track__node.is-lit::before { background: var(--accent-ink); box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.4); }
-.track__node.is-lit .track__via { border-color: var(--accent-ink); box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.5); }
-.track__node--next .track__via { border-style: dashed; }
+.map__tile::after { content: ''; position: absolute; top: 50%; right: 100%; width: 29px; height: 3px; margin-top: -1.5px; background: var(--line-2); transition: background-color 0.35s; }
+.map__level:nth-child(even) > .map__tile::after { right: auto; left: 100%; }
+/* Alcanzado: superado = ficha azul con su marca; actual = ficha con borde azul y su número */
+.map__level.is-lit.is-done { --edge: color-mix(in srgb, var(--accent) 55%, #000); }
+.map__level.is-lit.is-done .map__tile { background: var(--accent); border-color: transparent; color: var(--on-accent); }
+.map__level.is-lit.is-current { --edge: color-mix(in srgb, var(--accent-ink) 50%, var(--bg)); }
+.map__level.is-lit.is-current .map__tile { border: 2px solid var(--accent-ink); color: var(--accent-ink); }
+.map__level.is-lit .map__tile::after { background: var(--accent-ink); }
+/* Bloqueado: sin volumen, borde discontinuo y candado */
+.map__level.is-locked .map__tile { background: var(--bg); border: 2px dashed var(--line-2); box-shadow: none; color: var(--muted); }
 
-.track__card {
-  display: flex; flex-direction: column; gap: 6px; padding: 18px 22px; border-radius: 18px;
-  background: var(--surface); border: 1px solid var(--line); transition: border-color 0.3s;
+/* Tarjeta: módulo con volumen, como los puertos de Contacto */
+.map__card {
+  display: flex; flex-direction: column; gap: 6px; padding: 16px 20px 18px; border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--text) 6%, var(--surface)), var(--surface) 60%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 6px 0 var(--edge), 0 7px 0 rgba(0, 0, 0, 0.18), 0 16px 22px rgba(0, 0, 0, 0.18);
+  transition: box-shadow 0.35s;
 }
-.track__node.is-lit .track__card { border-color: rgba(var(--accent-rgb), 0.35); }
-.track__card:hover, .track__node.is-lit .track__card:hover { border-color: var(--silver); }
-.track__card--next { background: transparent; border-style: dashed; border-color: var(--line-2); }
+.map__card--next { background: transparent; border: 1.5px dashed var(--line-2); box-shadow: none; }
 
 .track__meta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px 16px; }
 .track__kind { display: inline-flex; align-items: center; gap: 6px; font: 400 12px var(--mono); color: var(--muted-2); }
 .track__kind svg { color: var(--accent-ink); }
 .track__date { font-size: 13px; color: var(--muted); }
-.track__card strong { font-weight: 600; font-size: 17px; }
+.map__card strong { font-weight: 600; font-size: 17px; }
 .track__place { font-size: 15px; color: var(--muted); }
 .track__now {
   display: inline-flex; align-items: center; gap: 8px; width: fit-content; margin-top: 4px; padding: 3px 10px;
   border-radius: 999px; border: 1px solid rgba(var(--accent-rgb), 0.4); font: 400 12px var(--mono); color: var(--accent-ink);
 }
 .track__now i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-ink); }
+.track__now--done { gap: 5px; border-color: var(--line-2); color: var(--muted-2); }
+.track__now--done svg { width: 13px; height: 13px; color: var(--accent-ink); }
 
-/* Mascota en miniatura que recorre la pista (centrada sobre la traza) */
+/* La mascota: su cabeza es la ficha del jugador (de pie sobre la ficha del nivel); se inclina un poco al saltar */
 .track__bot {
-  position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; will-change: transform;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35)) drop-shadow(0 0 8px rgba(var(--m-lit-rgb), 0.25));
+  position: absolute; left: 0; top: 0; z-index: 3; pointer-events: none; will-change: transform;
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.3));
 }
-/* Render del modelo 3D en los dos temas: se muestra el del tema actual */
-.track__bot-img { display: block; width: 40px; height: 34px; object-fit: contain; }
+.track__bot-img { display: block; width: 48px; height: 41px; object-fit: contain; transition: transform 0.2s ease-out; }
+.track__bot.is-jumping .track__bot-img { transform: rotate(-7deg); }
 .track__bot-img--light { display: none; }
 :root[data-theme="light"] .track__bot-img--dark { display: none; }
 :root[data-theme="light"] .track__bot-img--light { display: block; }
 
-/* Acto 3 (scroll-craft): cada tarjeta se descubre con una cortinilla de izquierda a derecha cuando la luz de la pista
-   llega a su vía. Solo transform/clip-path; con "reducir movimiento" todas se ven desde el principio. */
+/* Acto 3 (scroll-craft): cada tarjeta se descubre con una cortinilla cuando la mascota alcanza su nivel (hacia
+   fuera del camino: de la ficha hacia el borde). Solo clip-path; con "reducir movimiento" se ven desde el principio. */
 @media (prefers-reduced-motion: no-preference) {
-  .track__card { clip-path: inset(0 100% 0 0 round 18px); transition: clip-path 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s; }
-  .track__node.is-seen .track__card { clip-path: inset(0 0 0 0 round 18px); }
+  .map__card { clip-path: inset(0 0 0 100% round 14px); transition: clip-path 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s; }
+  .map__level:nth-child(even) > .map__card { clip-path: inset(0 100% 0 0 round 14px); }
+  .map .map__level.is-seen > .map__card { clip-path: inset(-32px -32px -52px -32px round 14px); }
 }
 
-@media (max-width: 480px) {
-  .track__node { padding-left: 56px; }
-  .track__node::before { width: 30px; }
-  .track__card { padding: 16px 18px; }
+/* Móvil y tableta: carril a la izquierda (las fichas van un poco de lado a lado) y tarjetas a la derecha */
+@media (max-width: 899px) {
+  .map { padding-top: 64px; }
+  .map__list { gap: 24px; }
+  .map__level { grid-template-columns: 70px minmax(0, 1fr); column-gap: 16px; }
+  .map__level > .map__tile, .map__level:nth-child(even) > .map__tile { grid-column: 1; justify-self: start; }
+  .map__level:nth-child(even) > .map__tile { justify-self: end; }
+  .map__level > .map__card, .map__level:nth-child(even) > .map__card { grid-column: 2; }
+  .map__tile::after, .map__level:nth-child(even) > .map__tile::after { right: auto; left: 100%; width: 17px; }
+  .map__level:nth-child(odd) > .map__tile::after { width: 43px; }
+  .map__card { padding: 14px 16px 16px; }
+}
+@media (max-width: 899px) and (prefers-reduced-motion: no-preference) {
+  .map__card, .map__level:nth-child(even) > .map__card { clip-path: inset(0 100% 0 0 round 14px); }
+}
+@media (max-width: 899px) and (prefers-reduced-motion: no-preference) {
+  .map .map__level.is-seen > .map__card { clip-path: inset(-32px -32px -52px -32px round 14px); }
 }
