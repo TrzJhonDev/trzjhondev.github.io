@@ -8,8 +8,8 @@ import './Education.css';
  * abajo; la tarjeta de cada nivel va a un lado, alternando. Orden de juego: primero los niveles SUPERADOS
  * (certificados, en el orden de profile.js), después el NIVEL ACTUAL (lo que dice "presente") y al final la
  * próxima versión, BLOQUEADA (prácticas, si profile.available). La cabeza de la mascota es la ficha del jugador:
- * cuando un nivel pasa la mitad de la ventana, SALTA hasta él, nivel a nivel, con un arco (animación por tiempo, no
- * ligada al scroll, que daba sensación de lag) y el camino se enciende detrás de ella. Subiendo, salta hacia atrás.
+ * cuando la punta del camino (que sigue a tu scroll) llega a un nivel, SALTA hasta él, nivel a nivel, con un arco (por tiempo, no
+ * ligado al scroll, que daba sensación de lag). Subiendo, la punta retrocede y ella salta hacia atrás.
  * El camino es un SVG que se calcula con las posiciones reales de las fichas (ResizeObserver), así la maqueta
  * es solo CSS. Con "reducir movimiento": sin saltos, en el nivel actual y con todo a la vista.
  */
@@ -53,11 +53,14 @@ const isCurrent = (e) => /presente/i.test(e.date);
 // Orden de juego: superados → actual (ver arriba)
 const LEVELS = [...education.filter((e) => !isCurrent(e)), ...education.filter(isCurrent)];
 
-// Jhon (26/11/2026): "va muy rápido y termina en una" → salta de UN nivel en UN nivel (nunca varios en un arco),
-// cada salto más pausado y con una pequeña parada al aterrizar; y el nivel se alcanza al pasar la mitad de la ventana.
+// Ritmo (Jhon, 26/11/2026): "va muy rápido y termina en una" → la mascota salta de UN nivel en UN nivel, pausada y
+// con una parada al aterrizar. Y "el scroll no hace nada" → el CAMINO responde siempre: la línea azul sigue a tu scroll
+// (la punta va a la altura de la mitad de la ventana, suavizada por tiempo); cuando la punta pasa una ficha, la
+// mascota salta a ella y la ficha se hunde como una tecla con un pulso (.is-landed).
 const JUMP_T = 0.72; // s por salto
 const LAND_PAUSE = 220; // ms quieta en cada nivel antes de seguir saltando
-const LINE = 0.5; // un nivel se alcanza cuando su ficha sube por encima de esta fracción de la ventana
+const LINE = 0.5; // la punta del camino va a esta fracción de la ventana
+const LINE_RATE = 7; // suavizado de la punta (1/s): sigue al scroll sin saltos ni retraso pesado
 const SEEN = 0.88; // la tarjeta se descubre al asomar (su ficha por encima de esta fracción)
 const HOP = 34; // alto del arco del salto (px)
 const BOT_Y = 60; // la cabeza (41 px) queda de pie sobre la ficha (44 px, centrada en el camino)
@@ -80,7 +83,9 @@ export default function Education() {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     let stops = []; // longitud del camino en cada nivel (y en la salida, índice 0)
-    let total = 1, at = 0, target = 0, jump = null, raf = 0, sraf = 0, wait = 0;
+    let table = []; // muestras { y, L } del camino: de la altura en el mapa a la longitud recorrida (y crece con L)
+    let total = 1, end = 0; // end: longitud del nivel actual (la punta no entra en el tramo bloqueado)
+    let litL = 0, goalL = 0, at = 0, jump = null, raf = 0, wait = 0, last = 0;
 
     // Centro de cada ficha dentro del mapa (offsetLeft/Top: sin transformaciones de por medio)
     const center = (n) => {
@@ -112,60 +117,83 @@ export default function Education() {
       lit.setAttribute('d', d);
       total = lens[lens.length - 1] || 1;
       stops = lens.slice(0, played.length + 1); // la salida y los niveles jugables (el bloqueado no)
-      target = reached();
-      at = target; jump = null; clearTimeout(wait); wait = 0;
-      place(stops[at], 0);
+      end = stops[stops.length - 1];
+      table = [];
+      for (let i = 0; i <= 240; i++) { const L = (end * i) / 240; table.push({ y: base.getPointAtLength(L).y, L }); }
+      litL = goalL = goal();
+      at = levelFor(litL); jump = null; clearTimeout(wait); wait = 0;
+      setLit(litL); placeBot(stops[at], 0);
     };
 
-    // Último nivel cuya ficha ya pasó la línea LINE de la ventana (0 = la salida). De paso abre la cortinilla de las
-    // tarjetas que ya asoman (SEEN: al entrar en la vista, sin esperar a la mascota, para que no haya huecos vacíos)
-    const reached = () => {
-      if (reduce.matches) return played.length;
-      const top = map.getBoundingClientRect().top, line = window.innerHeight * LINE;
-      nodes.forEach((n) => { if (top + center(n).y <= window.innerHeight * SEEN) n.classList.add('is-seen'); });
-      let k = 0;
-      played.forEach((n, i) => { if (top + center(n).y <= line) k = i + 1; });
-      return k;
+    // Longitud del camino que corresponde a la línea LINE de la ventana. De paso abre la cortinilla de las tarjetas
+    // que ya asoman (SEEN: al entrar en la vista, sin esperar a la mascota, para que no haya huecos vacíos)
+    const goal = () => {
+      if (reduce.matches) return end;
+      const top = map.getBoundingClientRect().top, vh = window.innerHeight;
+      nodes.forEach((n) => { if (!n.classList.contains('is-seen') && top + center(n).y <= vh * SEEN) n.classList.add('is-seen'); });
+      const y = vh * LINE - top;
+      if (y <= table[0].y) return 0;
+      if (y >= table[table.length - 1].y) return end;
+      let i = 1;
+      while (table[i].y < y) i++;
+      const a = table[i - 1], b = table[i];
+      return a.L + ((y - a.y) / Math.max(0.001, b.y - a.y)) * (b.L - a.L);
     };
+    // Nivel alcanzado por la punta del camino (0 = la salida)
+    const levelFor = (L) => { let k = 0; for (let i = 1; i < stops.length; i++) if (L >= stops[i] - 0.5) k = i; return k; };
 
-    // Pone la ficha del jugador en la longitud L del camino (con `lift` px de arco) y enciende el camino hasta ahí
-    const place = (L, lift) => {
+    const setLit = (L) => { lit.style.strokeDasharray = `${L.toFixed(1)} ${total + 10}`; };
+    // La ficha del jugador en la longitud L del camino (con `lift` px de arco); los niveles por los que ya pasó, encendidos
+    const placeBot = (L, lift) => {
       const p = base.getPointAtLength(Math.max(0, Math.min(total, L)));
       bot.style.transform = `translate(${(p.x - 24).toFixed(1)}px, ${(p.y - BOT_Y - lift).toFixed(1)}px)`;
-      lit.style.strokeDasharray = `${L.toFixed(1)} ${total + 10}`;
       nodes.forEach((n, i) => n.classList.toggle('is-lit', i < played.length && L >= stops[i + 1] - 0.5));
     };
+    // Al aterrizar: la ficha se hunde como una tecla y suelta un pulso; la cabeza se aplasta un instante
+    const land = (idx) => {
+      const n = played[idx - 1];
+      for (const el of [n, bot]) {
+        if (!el) continue;
+        el.classList.remove('is-landed');
+        void el.offsetWidth; // reinicia la animación
+        el.classList.add('is-landed');
+      }
+    };
 
-    const frame = (now) => {
+    const loop = (now) => {
       raf = 0;
-      if (!jump) return;
-      const t = Math.min(1, (now - jump.t0) / jump.dur);
-      const k = ease(t);
-      place(jump.from + (jump.to - jump.from) * k, Math.sin(Math.PI * t) * HOP * jump.hop);
-      if (t < 1) { raf = requestAnimationFrame(frame); return; }
-      at = jump.toIdx; jump = null;
-      bot.classList.remove('is-jumping');
-      if (target !== at) wait = setTimeout(() => { wait = 0; go(target); }, LAND_PAUSE); // falta camino: sigue, nivel a nivel
+      const dt = Math.min(0.05, (now - (last || now)) / 1000);
+      last = now;
+      // Punta del camino: sigue al scroll, suavizada por tiempo
+      litL += (goalL - litL) * (1 - Math.exp(-dt * LINE_RATE));
+      if (Math.abs(goalL - litL) < 0.3) litL = goalL;
+      setLit(litL);
+      // La mascota: un salto por nivel hacia donde ha llegado la punta
+      const want = levelFor(litL);
+      if (!jump && !wait && want !== at) {
+        const next = at + Math.sign(want - at);
+        jump = { from: stops[at], to: stops[next], toIdx: next, t0: now, dur: JUMP_T * 1000 };
+        bot.classList.add('is-jumping');
+      }
+      if (jump) {
+        const t = Math.min(1, (now - jump.t0) / jump.dur);
+        placeBot(jump.from + (jump.to - jump.from) * ease(t), Math.sin(Math.PI * t) * HOP);
+        if (t >= 1) {
+          at = jump.toIdx; jump = null;
+          bot.classList.remove('is-jumping');
+          land(at);
+          wait = setTimeout(() => { wait = 0; kick(); }, LAND_PAUSE);
+        }
+      }
+      if (jump || litL !== goalL) raf = requestAnimationFrame(loop);
+      else last = 0;
     };
-
-    const go = (idx) => {
-      if (idx === at || jump || wait) return;
-      const next = at + Math.sign(idx - at); // un solo nivel por salto
-      jump = { from: stops[at], to: stops[next], toIdx: next, t0: performance.now(), dur: JUMP_T * 1000, hop: 1 };
-      bot.classList.add('is-jumping');
-      if (!raf) raf = requestAnimationFrame(frame);
-    };
+    const kick = () => { if (!raf) raf = requestAnimationFrame(loop); };
 
     const onScroll = () => {
-      if (sraf) return;
-      sraf = requestAnimationFrame(() => {
-        sraf = 0;
-        const k = reached();
-        if (k === target) return;
-        target = k;
-        if (reduce.matches) { at = k; place(stops[k], 0); return; }
-        go(k);
-      });
+      if (reduce.matches) return;
+      goalL = goal();
+      kick();
     };
 
     const ro = new ResizeObserver(measure);
@@ -179,7 +207,7 @@ export default function Education() {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
       reduce.removeEventListener('change', measure);
-      cancelAnimationFrame(raf); cancelAnimationFrame(sraf); clearTimeout(wait);
+      cancelAnimationFrame(raf); clearTimeout(wait);
     };
   }, []);
 

@@ -184,8 +184,17 @@ section[id], div[id] { scroll-margin-top: 16px; }
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
 
-.container { max-width: 1200px; margin: 0 auto; padding-left: 24px; padding-right: 24px; }
-@media (max-width: 480px) { .container { padding-left: 16px; padding-right: 16px; } }
+/* Con viewport-fit=cover (index.html) la página llega bajo la muesca del móvil en horizontal: el margen nunca es menor
+   que la zona segura (env(safe-area-inset-*), 0 donde no hay muesca) */
+.container { max-width: 1200px; margin: 0 auto; padding-left: max(24px, env(safe-area-inset-left)); padding-right: max(24px, env(safe-area-inset-right)); }
+@media (max-width: 480px) { .container { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); } }
+
+/* MÓVIL COMO APP NATIVA (Jhon, 26/11/2026; skill mobile-native): sin el destello azul del navegador al tocar (cada
+   control tiene su propio estado al pulsar), sin seleccionar el texto de un botón al mantenerlo pulsado, sin la espera
+   del doble toque, y el texto no cambia de tamaño al girar el móvil. Los cambios al pasar el puntero que MUEVEN algo
+   van en @media (hover: hover): en táctil se quedaban "pegados" tras tocar. */
+html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+button, .btn, .icon-btn, [role="button"], summary { -webkit-user-select: none; user-select: none; touch-action: manipulation; }
 .row { display: flex; flex-wrap: wrap; gap: 12px; }
 .mono { font-family: var(--mono); }
 .accent { color: var(--accent-ink); }
@@ -193,7 +202,8 @@ section[id], div[id] { scroll-margin-top: 16px; }
 
 /* Botones */
 .btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 999px; font-weight: 600; text-decoration: none; transition: transform 0.15s, background 0.15s; }
-.btn:not([aria-disabled="true"]):hover { transform: translateY(-1px); }
+@media (hover: hover) { .btn:not([aria-disabled="true"]):hover { transform: translateY(-1px); } }
+.btn:not([aria-disabled="true"]):active { transform: scale(0.97); transition-duration: 0.08s; }
 .btn--lg { min-height: 48px; padding: 0 24px; }
 .btn--accent { background: var(--accent); color: var(--on-accent); }
 .btn--accent:hover { color: var(--on-accent); }
@@ -213,9 +223,18 @@ section[id], div[id] { scroll-margin-top: 16px; }
 .icon-btn:active { transform: scale(0.94); }
 
 /* Navegación (flota sobre la portada 3D) */
-.nav { position: absolute; top: 0; left: 0; right: 0; z-index: 10; pointer-events: none; }
+/* Barra flotante (Navbar.jsx): arriba, transparente sobre la portada; al bajar se esconde (translate, así no choca con
+   la animación de entrada, que usa transform) y al subir vuelve con fondo. Con el foco dentro siempre se ve. */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 40; pointer-events: none; padding-top: env(safe-area-inset-top);
+  transition: translate 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.25s, box-shadow 0.25s;
+}
+.nav.is-floating { pointer-events: auto; background: color-mix(in srgb, var(--bg) 94%, transparent); box-shadow: 0 1px 0 var(--line), 0 10px 28px rgba(0, 0, 0, 0.16); }
+.nav.is-hidden { translate: 0 calc(-100% - 12px); }
+.nav.is-hidden:focus-within { translate: 0 0; }
 .nav__inner > * { pointer-events: auto; }
-.nav__inner { padding-top: 20px; padding-bottom: 20px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+.nav.is-floating .nav__inner { padding-top: 10px; padding-bottom: 10px; }
+.nav__inner { transition: padding 0.25s; padding-top: 20px; padding-bottom: 20px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
 .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
 .brand:hover { color: var(--text); }
 .brand__mark { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line-2); font: 600 14px var(--mono); color: var(--accent-ink); }
@@ -223,8 +242,16 @@ section[id], div[id] { scroll-margin-top: 16px; }
 .cursor-blink { animation: cursor-blink 1.2s steps(2, jump-none) infinite; }
 @keyframes cursor-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.15; } }
 .brand__name { font: 700 20px var(--display); letter-spacing: -0.005em; }
-.nav__links { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; font-size: 15px; }
-.nav__links a:not(.btn) { color: var(--muted); text-decoration: none; }
+.nav__links { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 24px; font-size: 15px; }
+.nav__links a:not(.btn) { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+.nav__links a[aria-current] { color: var(--text); }
+/* Rayita de la sección activa: se desliza (transform) y se estira (width) de un enlace a otro */
+.nav__ind {
+  position: absolute; left: 0; bottom: -7px; width: 0; height: 2px; border-radius: 2px; background: var(--accent-ink);
+  opacity: 0; pointer-events: none; transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s;
+}
+.nav__ind.is-on { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .nav, .nav__ind { transition: none; } }
 .nav__links a:not(.btn):hover { color: var(--text); }
 @media (max-width: 640px) {
   .nav__inner { flex-wrap: nowrap; gap: 10px; }
@@ -342,7 +369,7 @@ section[id], div[id] { scroll-margin-top: 16px; }
 
 /* Acto 2, el pico (scroll-craft): en escritorio Proyectos queda fijado mientras el scroll enciende el portátil
    (useBootRunway en Projects.jsx; 2,4 pantallas = RUNWAY) */
-.boot-runway.is-pinned { height: calc(100svh + 240vh); }
+.boot-runway.is-pinned { height: calc(100svh + 160vh); } /* 160vh = RUNWAY (1,6) de Projects.jsx */
 .boot-runway.is-pinned > .work { position: sticky; top: 0; }
 
 /* Secciones */

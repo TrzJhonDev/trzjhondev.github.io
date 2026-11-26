@@ -19,6 +19,8 @@
   resize: none; width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 10px;
   font: 400 14px/1.45 var(--sans); color: var(--text); background: var(--bg); border: 1px solid var(--line-2);
 }
+/* En táctil a 16 px como mínimo: con menos, el iPhone acerca la página al escribir */
+@media (pointer: coarse) { .cta__msg textarea { font-size: 16px; } }
 .cta__msg textarea::placeholder { color: var(--muted-2); }
 .cta__msg textarea:focus { outline: none; border-color: var(--accent-ink); box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.18); }
 .cta__send { min-height: 40px; justify-content: center; font-size: 14px; }
@@ -152,7 +154,8 @@
    la página; encima, la de color de la marca, que se pinta de abajo arriba (clip-path) al enchufar: data-link en el
    puerto. Al pasar el puntero se endereza un poco. Colores de marca fijos (como los objetos físicos del portátil). */
 .cta__logo { position: relative; width: 46px; height: 46px; margin: 2px 0 6px; transform: perspective(260px) rotateX(14deg); transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); }
-.cta__port:hover .cta__logo, .cta__port:focus-visible .cta__logo { transform: perspective(260px) rotateX(4deg) translateY(-2px); }
+@media (hover: hover) { .cta__port:hover .cta__logo { transform: perspective(260px) rotateX(4deg) translateY(-2px); } }
+.cta__port:focus-visible .cta__logo { transform: perspective(260px) rotateX(4deg) translateY(-2px); }
 .cta__port[data-link] .cta__logo { transform: perspective(260px) rotateX(8deg) translateY(-2px); }
 .cta__face {
   position: absolute; inset: 0; display: grid; place-items: center; border-radius: 13px;

@@ -1,11 +1,68 @@
+import { useEffect, useRef } from 'react';
 import { profile } from '../data/profile';
 import { useTheme } from '../lib/useTheme';
 
+// section: la sección de la página que corresponde a cada enlace. Skills y Proyectos son la MISMA escena (el teclado del
+// portátil y la lista de programas, en #proyectos), así que la rayita los subraya a los dos a la vez.
 const LINKS = [
-  { href: '#skills', label: 'Skills' },
-  { href: '#proyectos', label: 'Proyectos' },
-  { href: '#formacion', label: 'Formación' },
+  { href: '#skills', label: 'Skills', section: 'proyectos' },
+  { href: '#proyectos', label: 'Proyectos', section: 'proyectos' },
+  { href: '#formacion', label: 'Formación', section: 'formacion' },
 ];
+const SECTIONS = ['proyectos', 'formacion'];
+const TOP = 80; // por encima de esto la barra es la de la portada (transparente y siempre visible)
+
+/**
+ * Barra flotante con la sección activa (Jhon, 26/11/2026). Arriba del todo es la de siempre, sobre la portada. Al bajar
+ * se esconde (no tapa el portátil ni las tarjetas) y al subir vuelve, ya con fondo. Una rayita azul se desliza bajo el
+ * enlace de la sección que tienes delante (la que cruza el 40 % de la ventana) y ese enlace lleva aria-current. Todo se
+ * escribe en el DOM desde un único listener de scroll con requestAnimationFrame (sin re-renderizar React).
+ */
+function useFloatingNav(navRef) {
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    const ind = nav.querySelector('.nav__ind');
+    const links = [...nav.querySelectorAll('.nav__links a[data-section]')];
+    let lastY = window.scrollY, raf = 0, active = null;
+
+    const paint = () => {
+      raf = 0;
+      const y = window.scrollY, dy = y - lastY;
+      if (y <= TOP) nav.classList.remove('is-floating', 'is-hidden');
+      else if (dy > 4) nav.classList.add('is-floating', 'is-hidden');
+      else if (dy < -4) { nav.classList.add('is-floating'); nav.classList.remove('is-hidden'); }
+      if (Math.abs(dy) > 4 || y <= TOP) lastY = y;
+
+      // Sección activa: la que cruza la línea del 40 % de la ventana
+      const line = window.innerHeight * 0.4;
+      let now = null;
+      for (const id of SECTIONS) {
+        const r = document.getElementById(id)?.getBoundingClientRect();
+        if (r && r.top <= line && r.bottom > line) { now = id; break; }
+      }
+      if (now === active) return;
+      active = now;
+      const on = links.filter((a) => a.dataset.section === now && a.offsetWidth > 0);
+      links.forEach((a) => (on.includes(a) ? a.setAttribute('aria-current', 'location') : a.removeAttribute('aria-current')));
+      if (!on.length) { ind.classList.remove('is-on'); return; }
+      const left = on[0].offsetLeft, right = on[on.length - 1].offsetLeft + on[on.length - 1].offsetWidth;
+      ind.style.transform = `translateX(${left}px)`;
+      ind.style.width = `${right - left}px`;
+      ind.classList.add('is-on');
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(paint); };
+    const onResize = () => { active = undefined; onScroll(); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize);
+    paint();
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
+      cancelAnimationFrame(raf);
+    };
+  }, [navRef]);
+}
 
 function SunIcon() {
   return (
@@ -27,9 +84,11 @@ function MoonIcon() {
 export default function Navbar() {
   const [theme, toggleTheme] = useTheme();
   const dark = theme === 'dark';
+  const navRef = useRef(null);
+  useFloatingNav(navRef);
 
   return (
-    <header className="nav">
+    <header className="nav" ref={navRef}>
       <nav className="container nav__inner">
         <a href="#inicio" className="brand">
           {/* Firma: la "J_" con el cursor azul parpadeando (decorativa; la marca va al lado). Jhon cambiará el icono más adelante */}
@@ -38,7 +97,8 @@ export default function Navbar() {
           <span className="brand__name">{profile.brand}</span>
         </a>
         <div className="nav__links">
-          {LINKS.map((l) => <a key={l.href} href={l.href}>{l.label}</a>)}
+          {LINKS.map((l) => <a key={l.href} href={l.href} data-section={l.section}>{l.label}</a>)}
+          <span className="nav__ind" aria-hidden="true" />
           <button
             type="button"
             className="icon-btn"

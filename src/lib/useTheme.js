@@ -19,7 +19,11 @@ export function applyTheme(next) {
   try { localStorage.setItem('theme', next); } catch { /* sin almacenamiento: solo esta visita */ }
 
   const root = document.documentElement;
-  const apply = () => { root.dataset.theme = next; };
+  const apply = () => {
+    root.dataset.theme = next;
+    // Barra del navegador en el móvil: el fondo del tema (--bg)
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'light' ? '#FAF8F4' : '#0C0E13');
+  };
 
   if (prefersReducedMotion()) { apply(); return; }
   if (typeof document.startViewTransition === 'function') {

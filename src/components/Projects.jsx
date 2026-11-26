@@ -59,19 +59,39 @@ function Programs({ open, onToggle }) {
 /**
  * Progreso del encendido con el scroll (0 a 1) en un ref, sin re-renderizar.
  * Escritorio (≥ 900 px y con movimiento): la pista mide la sección + RUNWAY pantallas y la sección va sticky; p es lo
- * recorrido de ese extra. Móvil: sin fijar; p va de 0 cuando el escenario asoma por abajo a 1 cuando su borde superior
+ * recorrido de ese extra. SIN SCROLL MUERTO (Jhon, 26/11/2026: "el scroll no hace nada"): antes la sección seguía
+ * fijada 2,4 pantallas cada vez que pasabas, aunque el portátil ya estuviera encendido. Ahora la pista es más corta
+ * (1,6) y, en cuanto el encendido termina (p = 1), se quita para siempre (unpin) compensando el scroll en el mismo
+ * fotograma: lo que ves no se mueve y desde ahí la sección pasa como cualquier otra. Móvil: sin fijar; p va de 0 cuando el escenario asoma por abajo a 1 cuando su borde superior
  * llega arriba. Con "reducir movimiento" no hay pista (el portátil ya sale encendido: useLaptop no hace la entrada).
  */
-const RUNWAY = 2.4;
+const RUNWAY = 1.6; // pantallas de scroll del encendido (si lo cambias, cambia .boot-runway.is-pinned en index.css)
 function useBootRunway(ref) {
   const p = useRef(0);
   useEffect(() => {
     const el = ref.current;
     if (!el) return undefined;
     const desk = window.matchMedia('(min-width: 900px) and (prefers-reduced-motion: no-preference)');
-    let raf = 0;
+    let raf = 0, done = false;
+    // Quita la pista sin que se note: la sección (fija hasta ahora) queda donde estaba y el scroll se compensa. Con el
+    // scroll con inercia (Lenis) se corrige también su destino, para que un salto a #ancla en marcha llegue bien.
+    const unpin = () => {
+      done = true;
+      const before = el.offsetHeight;
+      el.classList.remove('is-pinned');
+      const delta = before - el.offsetHeight;
+      if (delta <= 0) return; // p = 1: ya estás al final de la pista o más abajo, así que siempre se compensa
+      const lenis = window.__lenis, y = window.scrollY - delta;
+      if (lenis) {
+        const goal = lenis.targetScroll - delta;
+        lenis.resize();
+        lenis.scrollTo(y, { immediate: true, force: true });
+        if (goal > y + 1) lenis.scrollTo(goal, { force: true });
+      } else window.scrollTo({ top: y, behavior: 'instant' });
+    };
     const read = () => {
       raf = 0;
+      if (done) return;
       const vh = window.innerHeight, r = el.getBoundingClientRect();
       let v;
       if (desk.matches) v = -r.top / (RUNWAY * vh);
@@ -81,9 +101,10 @@ function useBootRunway(ref) {
       }
       p.current = Math.max(p.current, Math.min(1, Math.max(0, v))); // no retrocede
       el.dataset.scVerifyState = `encendido ${Math.round(p.current * 100)}%`;
+      if (p.current >= 1 && el.classList.contains('is-pinned')) unpin();
     };
     const on = () => { if (!raf) raf = requestAnimationFrame(read); };
-    const setMode = () => { el.classList.toggle('is-pinned', desk.matches); on(); };
+    const setMode = () => { el.classList.toggle('is-pinned', desk.matches && !done); on(); };
     setMode();
     window.addEventListener('scroll', on, { passive: true });
     window.addEventListener('resize', on);

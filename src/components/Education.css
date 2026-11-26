@@ -108,3 +108,18 @@
 @media (max-width: 899px) and (prefers-reduced-motion: no-preference) {
   .map .map__level.is-seen > .map__card { clip-path: inset(-32px -32px -52px -32px round 14px); }
 }
+
+/* Aterrizaje (Education.jsx pone .is-landed en el nivel y en la cabeza): la ficha se hunde como una tecla (el canto se
+   acorta lo mismo) y suelta un anillo; la cabeza se aplasta un instante. Solo transform/opacity. */
+.map__tile::before { content: ''; position: absolute; inset: -2px; border-radius: 13px; border: 2px solid var(--accent-ink); opacity: 0; pointer-events: none; }
+.track__bot-img { transform-origin: 50% 100%; }
+@media (prefers-reduced-motion: no-preference) {
+  .map__level.is-landed .map__tile { animation: tile-land 0.42s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  .map__level.is-landed .map__tile::before { animation: tile-ring 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  .track__bot.is-landed .track__bot-img { animation: bot-land 0.34s cubic-bezier(0.2, 0.8, 0.2, 1); }
+}
+@keyframes tile-land {
+  30% { transform: translateY(3px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 2px 0 var(--edge), 0 3px 0 rgba(0, 0, 0, 0.2), 0 6px 8px rgba(0, 0, 0, 0.2); }
+}
+@keyframes tile-ring { 0% { opacity: 0.75; transform: scale(1); } 100% { opacity: 0; transform: scale(1.75); } }
+@keyframes bot-land { 30% { transform: scale(1.1, 0.88); } }

@@ -47,6 +47,20 @@ export const BOOT = { open: 12, bios: 34, keys: 84, end: 112 };
 export const SCROLL_BOOT = { press: 0.1, lid0: 0.16, lid1: 0.46, end: 0.97 };
 
 /**
+ * Un paso del encendido con el scroll: la tapa se acerca a su ángulo con suavizado por TIEMPO (rate 13/s ≈ el 0,35 por
+ * fotograma de 33 ms de antes, pero igual a 30 o a 60 fps) y la BIOS avanza a su fotograma (nunca retrocede).
+ */
+function scrubBoot(s, sp, dt) {
+  const k = (a, b) => Math.min(1, Math.max(0, (sp - a) / (b - a)));
+  const lid = LID_OPEN * k(SCROLL_BOOT.lid0, SCROLL_BOOT.lid1);
+  const out = { open: s.open + (lid - s.open) * (1 - Math.exp(-dt * 13)) };
+  const frame = sp < SCROLL_BOOT.lid1 ? 0 : BOOT.bios + (BOOT.end - BOOT.bios) * k(SCROLL_BOOT.lid1, SCROLL_BOOT.end);
+  out.boot = Math.max(s.boot, Math.round(frame));
+  if (sp >= SCROLL_BOOT.end || out.boot >= BOOT.end) { out.boot = null; out.typed = 0; out.open = LID_OPEN; }
+  return out;
+}
+
+/**
  * options.onScreen: qué hacer al hacer clic en la pantalla encendida (abre la terminal).
  */
 export function useLaptop(skill, stageRef, options = {}) {
@@ -99,13 +113,23 @@ export function useLaptop(skill, stageRef, options = {}) {
       io = new IntersectionObserver((list) => { visible.current = list[list.length - 1].isIntersecting; });
       io.observe(el);
     }
-    let raf, last = 0;
+    let raf, last = 0, lastScrub = 0;
     const tick = (now) => {
       raf = requestAnimationFrame(tick);
-      if (!visible.current || now - last < 33) return;
-      last = now;
+      if (!visible.current) return;
       const bootRef = optsRef.current.bootRef;
       const sp = bootRef && ref.current.boot !== null ? bootRef.current : null; // p del encendido con scroll
+      // Fluidez (Jhon, 26/11/2026: "se ve tosco"): mientras el scroll mueve el encendido, la tapa y la BIOS se
+      // actualizan en CADA fotograma (60 fps) con suavizado por tiempo; el resto del bucle sigue a ~30 fps
+      if (sp !== null && now - last < 33) {
+        const dt = Math.min(0.05, (now - (lastScrub || now)) / 1000);
+        lastScrub = now;
+        setSt((s) => (s.boot === null ? s : { ...s, ...scrubBoot(s, sp, dt) }));
+        return;
+      }
+      if (now - last < 33) return;
+      const dtFull = Math.min(0.05, (now - (lastScrub || now)) / 1000);
+      last = now; lastScrub = now;
       if (sp !== null) {
         bootLid.current = true; // la tapa la abre el scroll, no la animación
         if (sp >= SCROLL_BOOT.press && !pressed.current) { pressed.current = true; optsRef.current.onPress?.(); }
@@ -115,13 +139,7 @@ export function useLaptop(skill, stageRef, options = {}) {
       setSt((s) => {
         const n = { ...s, t: s.t + 1 };
         if (s.boot !== null && sp !== null) {
-          // Encendido con el scroll: la tapa y la BIOS siguen a p (sin saltos: se acercan con suavidad)
-          const k = (a, b) => Math.min(1, Math.max(0, (sp - a) / (b - a)));
-          const lid = LID_OPEN * k(SCROLL_BOOT.lid0, SCROLL_BOOT.lid1);
-          n.open = s.open + (lid - s.open) * 0.35;
-          const frame = sp < SCROLL_BOOT.lid1 ? 0 : BOOT.bios + (BOOT.end - BOOT.bios) * k(SCROLL_BOOT.lid1, SCROLL_BOOT.end);
-          n.boot = Math.max(s.boot, Math.round(frame)); // nunca retrocede
-          if (sp >= SCROLL_BOOT.end || n.boot >= BOOT.end) { n.boot = null; n.typed = 0; n.open = LID_OPEN; }
+          Object.assign(n, scrubBoot(s, sp, dtFull));
         } else if (s.boot !== null) {
           n.boot = s.boot + 1 >= BOOT.end ? null : s.boot + 1;
           if (n.boot === null) n.typed = 0;
