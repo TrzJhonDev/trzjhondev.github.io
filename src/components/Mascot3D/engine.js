@@ -221,7 +221,8 @@ export class MascotEngine {
     document.addEventListener('visibilitychange', this.onVis);
     this.onMotion = () => this.kick();
     this.mqMotion.addEventListener?.('change', this.onMotion);
-    this.io = new IntersectionObserver(([e]) => { this.visible = e.isIntersecting; this.kick(); });
+    // Puede llegar más de un aviso junto (p. ej. fuera y dentro en el mismo fotograma): vale el último, no el primero
+    this.io = new IntersectionObserver((list) => { this.visible = list[list.length - 1].isIntersecting; this.kick(); });
     this.io.observe(host);
     this.ro = new ResizeObserver(() => this.resize()); this.ro.observe(host);
     // El tema se cambia con data-theme en <html> (useTheme.js)

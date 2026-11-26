@@ -164,7 +164,7 @@ export function GuideProvider({ children }) {
   useEffect(() => {
     const el = document.querySelector('.portrait');
     if (!el || !('IntersectionObserver' in window)) return undefined;
-    const io = new IntersectionObserver(([e]) => setHeroVisible(e.isIntersecting), { threshold: 0.15 });
+    const io = new IntersectionObserver((list) => setHeroVisible(list[list.length - 1].isIntersecting), { threshold: 0.15 });
     io.observe(el);
     return () => io.disconnect();
   }, []);
@@ -175,7 +175,7 @@ export function GuideProvider({ children }) {
   useEffect(() => {
     const el = document.querySelector('.cta__stage');
     if (!el || !('IntersectionObserver' in window)) return undefined;
-    const io = new IntersectionObserver(([e]) => setContactVisible(e.isIntersecting), { threshold: 0 });
+    const io = new IntersectionObserver((list) => setContactVisible(list[list.length - 1].isIntersecting), { threshold: 0 });
     io.observe(el);
     return () => io.disconnect();
   }, []);

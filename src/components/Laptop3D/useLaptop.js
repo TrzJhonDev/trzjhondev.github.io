@@ -96,7 +96,7 @@ export function useLaptop(skill, stageRef, options = {}) {
     const el = stageRef.current;
     let io;
     if (el && 'IntersectionObserver' in window) {
-      io = new IntersectionObserver(([entry]) => { visible.current = entry.isIntersecting; });
+      io = new IntersectionObserver((list) => { visible.current = list[list.length - 1].isIntersecting; });
       io.observe(el);
     }
     let raf, last = 0;

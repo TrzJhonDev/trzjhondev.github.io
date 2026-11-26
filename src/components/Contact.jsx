@@ -6,13 +6,15 @@ import { ContactStage } from '../lib/contactStage';
 import Mascot from './Mascot/Mascot';
 import MascotAuto from './Mascot/MascotAuto';
 import { useGuide } from './Mascot/Guide';
+import Footer from './Footer';
 import './Contact.css';
 
-// "¿Trabajamos juntos?" como un escenario (Jhon, 24/11/2026): la mascota 3D camina, se da la vuelta, se pone de
-// espaldas y lleva las tarjetas de contacto de un sitio a otro. Si le quitas (arrastras) la que lleva, se pone triste
-// y luego se le pasa. Las tarjetas son botones, enlaces y un formulario de verdad (con teclado funcionan igual).
+// "Abrir conexión" como un panel de puertos con cable (Jhon, 26/11/2026, opción C; sustituye a las tarjetas que la
+// mascota llevaba de un sitio a otro). El mensaje va arriba, junto al título. En el escenario, la mascota 3D pasea con
+// un conector en la mano y lo enchufa en los puertos (Copiar correo, GitHub, LinkedIn, CV: botones y enlaces reales);
+// si señalas uno, va y lo conecta; el conector se puede arrastrar (si se lo quitas, se pone triste).
 // El movimiento lo dirige lib/contactStage.js desde el bucle del motor 3D. En pantallas estrechas, con "reducir
-// movimiento" o sin WebGL, el bloque es fijo: las mismas tarjetas en una rejilla y la mascota a un lado.
+// movimiento" o sin WebGL, el bloque es fijo: el mismo panel y la mascota a un lado.
 // Mientras este bloque se ve, la mascota pequeña flotante se retira (Guide.jsx observa .cta__stage).
 
 const Mascot3D = lazy(() => import('./Mascot3D/Mascot3D'));
@@ -27,19 +29,65 @@ const hasEmail = isReal(profile.email) && profile.email.includes('@');
 const Icon = ({ d }) => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{d}</svg>
 );
+// Icono del formulario (los puertos llevan logotipos: GLYPHS y Logo, más abajo)
 const ICONS = {
-  copiar: <><rect x="9" y="9" width="12" height="12" rx="2" /><path d="M5 15V5a2 2 0 0 1 2-2h10" /></>,
-  github: <path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21" />,
-  linkedin: <><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6Z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /></>,
-  cv: <><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z" /><path d="M14 3v6h6M8 13h8M8 17h5" /></>,
   mensaje: <><path d="M4 4h16v12H8l-4 4Z" /><path d="M8 9h8M8 12h5" /></>,
 };
 
 const LINKS = [
   { id: 'github', label: 'GitHub', ready: isReal(profile.github), props: externalLink(profile.github) },
   { id: 'linkedin', label: 'LinkedIn', ready: isReal(profile.linkedin), props: externalLink(profile.linkedin) },
-  { id: 'cv', label: 'Ver CV', ready: isReal(profile.cvUrl), props: { ...localLink(profile.cvUrl), ...(isReal(profile.cvUrl) ? { target: '_blank', rel: 'noreferrer' } : {}) } },
+  { id: 'tiktok', label: 'TikTok', ready: isReal(profile.tiktok), props: externalLink(profile.tiktok) },
+  { id: 'instagram', label: 'Instagram', ready: isReal(profile.instagram), props: externalLink(profile.instagram) },
+  { id: 'youtube', label: 'YouTube', ready: isReal(profile.youtube), props: externalLink(profile.youtube) },
+  { id: 'cv', label: 'CV', ready: isReal(profile.cvUrl), props: { ...localLink(profile.cvUrl), ...(isReal(profile.cvUrl) ? { target: '_blank', rel: 'noreferrer' } : {}) } },
 ];
+
+/** Interior de un puerto: el nombre, el estado en palabras (no solo con la luz) y el enchufe con su luz. */
+// Marcas de cada puerto, rellenas, en una caja de 24: GitHub y LinkedIn con sus marcas; TikTok, Instagram y YouTube
+// con su forma conocida; correo y CV, iconos propios. Se pintan con currentColor (la ficha en blanco y negro) y en la
+// cara de color con los colores de cada marca (Contact.css). Solo enlazan a los perfiles de Jhon.
+const GLYPHS = {
+  copiar: <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5Zm2.4.6 5.6 4.3 5.6-4.3" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />,
+  github: <path fill="currentColor" d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.1c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.6 3.3-1.2 3.3-1.2.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3" />,
+  linkedin: <path fill="currentColor" d="M20.4 20.5h-3.6v-5.6c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9v5.7H9.3V9h3.4v1.6c.5-.9 1.6-1.9 3.4-1.9 3.6 0 4.3 2.4 4.3 5.5ZM5.3 7.4a2.1 2.1 0 1 1 0-4.1 2.1 2.1 0 0 1 0 4.1Zm1.8 13.1H3.6V9h3.5Z" />,
+  tiktok: <path fill="currentColor" d="M16.6 2h-3.4v13.4a2.9 2.9 0 1 1-2.9-2.9c.3 0 .6 0 .9.1V9.1a6.4 6.4 0 1 0 5.4 6.3V8.6a8.2 8.2 0 0 0 4.8 1.5V6.7a4.8 4.8 0 0 1-4.8-4.7Z" />,
+  instagram: <><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" strokeWidth="2" /><circle cx="12" cy="12" r="3.9" fill="none" stroke="currentColor" strokeWidth="2" /><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor" /></>,
+  youtube: <path fill="currentColor" d="M9.6 8.2c0-.8.9-1.3 1.6-.9l5.5 3.4c.7.4.7 1.4 0 1.8l-5.5 3.4c-.7.4-1.6-.1-1.6-.9Z" />,
+  cv: <><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M14 3v5h5M8.5 13h7M8.5 17h4.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></>,
+};
+
+/**
+ * Logotipo en 3D (ficha con grosor, brillo y algo de inclinación). Dos caras: en blanco y negro con los tonos de la
+ * página y la de color de la marca encima, que se "pinta" de abajo arriba al enchufar (data-link en el puerto).
+ * TikTok lleva su efecto de dos colores desplazados (cian y rojo) debajo del glifo blanco.
+ */
+function Logo({ id }) {
+  const glyph = (cls) => <svg className={cls} viewBox="0 0 24 24" aria-hidden="true">{GLYPHS[id]}</svg>;
+  return (
+    <span className={`cta__logo cta__logo--${id}`} aria-hidden="true">
+      <span className="cta__face cta__face--mono">{glyph('cta__glyph')}</span>
+      <span className="cta__face cta__face--brand">
+        {id === 'tiktok' && <>{glyph('cta__glyph cta__glyph--cyan')}{glyph('cta__glyph cta__glyph--red')}</>}
+        {glyph('cta__glyph')}
+      </span>
+    </span>
+  );
+}
+
+function PortBody({ id, label, ready }) {
+  return (
+    <>
+      <Logo id={id} />
+      <span className="cta__port-name">{label}</span>
+      <span className="cta__port-state">
+        {ready ? <><span className="st-idle">listo</span><span className="st-on">en línea</span></> : 'pendiente'}
+      </span>
+      {/* Enchufe abajo: el conector cuelga por debajo del panel y no tapa el nombre */}
+      <span className="cta__socket" aria-hidden="true"><i className="cta__led" /></span>
+    </>
+  );
+}
 
 function useMedia(query) {
   const [on, setOn] = useState(() => window.matchMedia(query).matches);
@@ -83,15 +131,44 @@ export default function Contact() {
   const onReady = useCallback((engine) => {
     if (!stageRef.current) return;
     director.current?.dispose();
-    const d = new ContactStage(stageRef.current, { say: sayKey });
+    const d = new ContactStage(stageRef.current, {
+      say: sayKey,
+      // Al enchufarse sola en un puerto, a veces dice para qué sirve (sin pisar un aviso como "copiado")
+      hint: (id) => { if (performance.now() >= holdUntil.current) sayFor(T.pista[id], 2600); },
+    });
     d.attach(engine);
     director.current = d;
+    if (import.meta.env.DEV) window.__contactStage = d; // para depurar desde la consola
     setLive(true);
-  }, [sayKey]);
+  }, [sayKey, sayFor]);
   const onFrame = useCallback((dt) => director.current?.update(dt), []);
   useEffect(() => () => { director.current?.dispose(); director.current = null; setLive(false); }, [staged]);
 
-  // Versión fija: la mascota mira la tarjeta (−1..1 respecto de su centro)
+  // Pista del conector (Jhon eligió "pista integrada", 26/11/2026; antes era el texto "Puedes arrastrar el conector"):
+  // la PRIMERA vez que el escenario se ve de verdad (en este navegador), el conector brilla con unos anillos suaves y la
+  // mascota lo dice una vez en su globo. Se recuerda en localStorage (mascota-conector) y no vuelve a salir.
+  // OJO: la clase .hint-plug se pone en el DOM, no con estado de React: si React reescribe el className del escenario,
+  // borra .is-live e .is-behind, que pone el director, y el globo y el conector se descolocan.
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!live || !el) return undefined;
+    try { if (localStorage.getItem('mascota-conector')) return undefined; } catch { /* sin almacenamiento */ }
+    let off = 0;
+    const io = new IntersectionObserver((list) => {
+      if (!list[list.length - 1].isIntersecting) return;
+      io.disconnect();
+      try { localStorage.setItem('mascota-conector', '1'); } catch { /* sin almacenamiento */ }
+      off = window.setTimeout(() => {
+        el.classList.add('hint-plug');
+        if (performance.now() >= holdUntil.current) sayFor(T.arrastrar, 4600);
+        off = window.setTimeout(() => el.classList.remove('hint-plug'), 4800);
+      }, 1200);
+    }, { threshold: 0.5 });
+    io.observe(el);
+    return () => { io.disconnect(); window.clearTimeout(off); el.classList.remove('hint-plug'); };
+  }, [live, sayFor]);
+
+  // Versión fija: la mascota mira el puerto (−1..1 respecto de su centro)
   const lookAt = useCallback((el) => {
     const bot = botRef.current?.getBoundingClientRect();
     if (!bot || !el) return;
@@ -107,8 +184,10 @@ export default function Contact() {
     setLine(ready ? T.pista[id] : T.pendiente);
   };
   const unhint = (ev) => {
-    // El foco sigue dentro de la tarjeta (del texto al botón de enviar): no cuenta como salir
+    // El foco sigue dentro del formulario (del texto al botón de enviar): no cuenta como salir
     if (ev.type === 'blur' && ev.currentTarget.contains(ev.relatedTarget)) return;
+    // El conector acaba de enchufarse bajo el puntero: sigues en el puerto
+    if (ev.type === 'pointerleave' && ev.relatedTarget?.closest?.('.cta__plug')) return;
     director.current?.attend(null);
     if (performance.now() >= holdUntil.current) setLine(fill(T.pregunta));
   };
@@ -156,38 +235,55 @@ export default function Contact() {
   return (
     <section id="contacto" className="container section section--tight">
       <div className="cta">
-        <div className="cta__head">
-          {/* Voz de la máquina (26/11/2026): antes "¿Trabajamos juntos? … Escríbeme." */}
-          <h2>Abrir conexión</h2>
-          <p>Busco prácticas y proyectos donde aprender. Deja tu mensaje y la mascota se lo lleva.</p>
+        <div className="cta__top">
+          <div className="cta__head">
+            {/* Voz de la máquina (26/11/2026): antes "¿Trabajamos juntos? … Escríbeme." */}
+            <h2>Abrir conexión</h2>
+            <p>Busco prácticas y proyectos donde aprender. Deja tu mensaje y la mascota se lo lleva.</p>
+          </div>
+          <form className="cta__msg" onSubmit={send} {...hover('mensaje', hasEmail)}>
+            <label htmlFor="cta-msg" className="cta__msg-head"><Icon d={ICONS.mensaje} />Escríbele un mensaje</label>
+            <textarea
+              data-lenis-prevent
+              id="cta-msg" rows={3} maxLength={1500} value={msg} onChange={(e) => setMsg(e.target.value)}
+              placeholder={`Hola ${profile.name}, me gustaría…`}
+            />
+            <button type="submit" className="btn btn--accent cta__send" {...(hasEmail ? {} : pending)}>
+              Enviar por correo
+            </button>
+          </form>
         </div>
 
         <div ref={stageRef} className={`cta__stage${staged ? '' : ' cta__stage--static'}`}>
           <div className="cta__bubble">{line}</div>
           {staged && <span className="cta__shadow" aria-hidden="true" />}
-          {staged && <p className="cta__tip">Puedes arrastrar las tarjetas</p>}
 
-          <div className="cta__cards">
-            <form className="cta__card cta__msg" data-card="mensaje" data-big="" onSubmit={send} {...hover('mensaje', hasEmail)}>
-              <label htmlFor="cta-msg" className="cta__msg-head"><Icon d={ICONS.mensaje} />Escríbele un mensaje</label>
-              <textarea
-                id="cta-msg" rows={4} maxLength={1500} value={msg} onChange={(e) => setMsg(e.target.value)}
-                placeholder={`Hola ${profile.name}, me gustaría…`}
-              />
-              <button type="submit" className="btn btn--accent cta__send" {...(hasEmail ? {} : pending)}>
-                Enviar por correo
+          {/* Panel de puertos (pared del fondo): cada puerto es un botón o un enlace de verdad */}
+          <div className="cta__panel" role="group" aria-label="Conexiones">
+            <p className="cta__panel-name" aria-hidden="true"><span>{profile.brand.toLowerCase()}-sw01</span><span>{1 + LINKS.length} puertos</span></p>
+            <div className="cta__ports">
+              <button type="button" className="cta__port" data-port="copiar" onClick={copy} {...(hasEmail ? {} : pending)} {...hover('copiar', hasEmail)}>
+                <PortBody id="copiar" label="Copiar correo" ready={hasEmail} />
               </button>
-            </form>
-
-            <button type="button" className="cta__card cta__chip cta__chip--accent" data-card="copiar" onClick={copy} {...(hasEmail ? {} : pending)} {...hover('copiar', hasEmail)}>
-              <Icon d={ICONS.copiar} />Copiar correo
-            </button>
-            {LINKS.map((l) => (
-              <a key={l.id} {...l.props} className="cta__card cta__chip" data-card={l.id} draggable={false} {...hover(l.id, l.ready)}>
-                <Icon d={ICONS[l.id]} />{l.label}
-              </a>
-            ))}
+              {LINKS.map((l) => (
+                <a key={l.id} {...l.props} className="cta__port" data-port={l.id} draggable={false} {...hover(l.id, l.ready)}>
+                  <PortBody id={l.id} label={l.label} ready={l.ready} />
+                </a>
+              ))}
+            </div>
           </div>
+
+          {/* Servidor del suelo (base del cable), cable y conector (solo en el escenario; los mueve lib/contactStage.js) */}
+          {staged && (
+            <>
+              <span className="cta__server" aria-hidden="true">
+                {[0, 1, 2, 3].map((u) => <span key={u} className="cta__unit"><i /><i /><b /></span>)}
+                <span className="cta__server-port" />
+              </span>
+              <svg className="cta__cable" aria-hidden="true" preserveAspectRatio="none"><path /></svg>
+              <span className="cta__plug" aria-hidden="true" title="Arrastra el conector a un puerto"><i /><b className="cta__plug-ring" /></span>
+            </>
+          )}
 
           {/* Mascota: en el escenario, la CSS hasta que la 3D está lista; en la versión fija, la automática */}
           {!live && (
@@ -202,6 +298,7 @@ export default function Contact() {
           )}
         </div>
         <p className="sr-only" role="status" aria-live="polite">{status}</p>
+        <Footer />
       </div>
     </section>
   );

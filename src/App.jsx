@@ -4,7 +4,6 @@ import Portrait from './components/Portrait';
 import Projects from './components/Projects';
 import Education from './components/Education';
 import Contact from './components/Contact';
-import Footer from './components/Footer';
 import { GuideProvider } from './components/Mascot/Guide';
 
 // El color de acento se cambia solo en --accent (src/index.css)
@@ -28,7 +27,6 @@ export default function App() {
         <Education />
         <Contact />
       </main>
-      <Footer />
     </GuideProvider>
   );
 }

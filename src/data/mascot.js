@@ -24,25 +24,32 @@ export const mascotLines = {
   // Al pasar el puntero por una tarjeta se para, la mira y explica qué hace; si el enlace aún es un marcador de
   // profile.js, lo dice. {email} = el correo de profile.js. Las listas se eligen al azar.
   contacto: {
-    pregunta: '¿Le dejo un mensaje a {name}? Escribe aquí o elige una tarjeta.',
+    pregunta: '¿Le dejo un mensaje a {name}? Escríbelo arriba o elige un puerto.',
     pista: {
       mensaje: 'Escribe tu mensaje y lo abro en tu correo, listo para enviar.',
       copiar: 'Copio su correo y lo pegas donde quieras.',
       github: 'Su GitHub: ahí está su código.',
       linkedin: 'Su perfil de LinkedIn.',
       cv: 'Su CV en PDF.',
+      tiktok: 'Su TikTok: videos cortos.',
+      instagram: 'Su Instagram.',
+      youtube: 'Su canal de YouTube.',
     },
-    pendiente: 'Este enlace todavía no está listo.',
+    pendiente: 'Ese puerto aún no tiene señal: falta su enlace.',
     copiado: '¡Copiado! El correo ya está en tu portapapeles.',
     sinCopiar: 'No pude copiarlo. Aquí lo tienes: {email}',
     vacio: 'Escribe algo primero y te lo preparo.',
     enviado: 'Abrí tu correo con el mensaje. Solo falta pulsar enviar.',
     asunto: 'Contacto desde tu portafolio',
-    // Mientras ordena las tarjetas (no siempre habla)
-    mover: ['Ordeno un poco la mesa…', 'Esta queda mejor aquí.', 'Un momento, que acomodo esto.'],
-    // Si le quitas la tarjeta que lleva
-    triste: ['¡Oye! La estaba llevando yo…', 'Vaya… me la quitaste.', 'Snif. Era mi tarjeta favorita.'],
-    recupera: ['Vale, te la presto. ¡Úsala tú!', 'Bueno, ya se me pasó.', 'Está bien, tú mandas.'],
+    // Panel de puertos (26/11/2026): cuando prueba un puerto por su cuenta (no siempre habla)
+    conectar: ['Pruebo este puerto…', 'Conectando…', 'A ver si hay señal aquí.'],
+    // Si se enchufa en un puerto cuyo dato aún es un marcador
+    sinSenal: ['Sin señal… a este puerto le falta su enlace.', 'Nada. Este aún no está conectado a nada.'],
+    // Si le quitas el conector de la mano
+    triste: ['¡Oye! Ese cable lo llevaba yo…', 'Vaya… me quitaste el conector.', 'Snif. Era mi cable favorito.'],
+    recupera: ['Vale, conéctalo tú.', 'Bueno, ya se me pasó.', 'Está bien, tú mandas.'],
+    // Una sola vez (la primera visita): el conector se puede arrastrar
+    arrastrar: 'Este cable se puede arrastrar: llévalo tú a un puerto.',
   },
 
   // Cuando pulsa el botón de su pecho y el portátil arranca con el scroll (Proyectos)

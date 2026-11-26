@@ -147,6 +147,9 @@ export function useTerminal({ getSkill, onPickSkill, onRun }) {
           line(`correo:   ${isReal(profile.email) && profile.email.includes('@') ? profile.email : 'pendiente de completar'}`),
           line(`github:   ${pending(profile.github)}`),
           line(`linkedin: ${pending(profile.linkedin)}`),
+          line(`tiktok:   ${pending(profile.tiktok)}`),
+          line(`instagram: ${pending(profile.instagram)}`),
+          line(`youtube:  ${pending(profile.youtube)}`),
         );
         break;
       case 'abrir': case 'open': {
@@ -157,8 +160,8 @@ export function useTerminal({ getSkill, onPickSkill, onRun }) {
         break;
       }
       case 'ir': case 'go': {
-        const links = { github: profile.github, linkedin: profile.linkedin, correo: isReal(profile.email) && profile.email.includes('@') ? `mailto:${profile.email}` : null };
-        if (!arg) print(line('Uso: ir <destino>  (github, linkedin, correo, proyectos, formacion, contacto)', C.dim));
+        const links = { github: profile.github, linkedin: profile.linkedin, tiktok: profile.tiktok, instagram: profile.instagram, youtube: profile.youtube, correo: isReal(profile.email) && profile.email.includes('@') ? `mailto:${profile.email}` : null };
+        if (!arg) print(line('Uso: ir <destino>  (github, linkedin, tiktok, instagram, youtube, correo, proyectos…)', C.dim));
         else if (SECTIONS[arg]) {
           print(line(`Yendo a ${arg}…`, C.ok));
           close();

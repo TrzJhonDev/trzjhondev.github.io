@@ -26,7 +26,7 @@ function Programs({ open, onToggle }) {
   return (
     <div className="progs">
       <p className="progs__path"><span>~/programas</span> — {projects.length} {projects.length === 1 ? 'elemento' : 'elementos'}</p>
-      <ul className="progs__list" aria-label="Proyectos">
+      <ul className="progs__list" aria-label="Proyectos" data-lenis-prevent>
         {projects.map((p, i) => {
           const on = open === i;
           const id = `prog-${i}`;

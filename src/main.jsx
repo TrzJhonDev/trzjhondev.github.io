@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 import { MASCOT_URL, boot, startBoot } from './lib/boot';
+import { startSmoothScroll } from './lib/smoothScroll';
 
 // ?mascota3d abre la página de prueba de la mascota modelada en Blender (PLAN-MASCOTA-3D.md).
 // Se carga aparte (import dinámico): la página normal no descarga Three.js.
@@ -16,7 +17,10 @@ const Page = params.has('mascota3d') ? Proto3D : params.has('portatil3d') ? Prot
 // Pantalla de carga (index.html, PLAN-PANTALLA-CARGA.md): se empieza a descargar todo a la vez antes de montar React.
 // El mismo import() de la mascota 3D lo reutiliza Portrait.jsx (el navegador no lo pide dos veces).
 if (Page) { document.getElementById('boot')?.remove(); boot.finish(); }
-else startBoot({ modelUrl: MASCOT_URL, importMascot: () => import('./components/Mascot3D/Mascot3D') });
+else {
+  startBoot({ modelUrl: MASCOT_URL, importMascot: () => import('./components/Mascot3D/Mascot3D') });
+  startSmoothScroll(); // scroll con inercia (lib/smoothScroll.js): se activa al terminar la carga
+}
 
 // Caché local (public/sw.js): solo en producción; en desarrollo estorbaría a la recarga en caliente
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {

@@ -352,7 +352,7 @@ export default function Mascot({ ptr, variant = 'hero', look, cmd, onAct, paused
     document.addEventListener('visibilitychange', onVis);
     const onScroll = () => { S.lastScroll = performance.now(); };
     window.addEventListener('scroll', onScroll, { passive: true });
-    const io = 'IntersectionObserver' in window ? new IntersectionObserver(([e]) => { visible = e.isIntersecting; start(); }) : null;
+    const io = 'IntersectionObserver' in window ? new IntersectionObserver((list) => { visible = list[list.length - 1].isIntersecting; start(); }) : null;
     io?.observe(root);
 
     return () => {

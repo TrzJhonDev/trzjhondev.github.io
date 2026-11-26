@@ -147,6 +147,8 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scrollbar-color: var(--accent) var(--bg); }
+/* Con el scroll con inercia (lib/smoothScroll.js) el desplazamiento suave lo hace Lenis: el del CSS lo estorbaría */
+html.lenis { scroll-behavior: auto; }
 /* Microdetalles con el azul de la marca */
 /* Superficies del navegador con la paleta: cursor de texto y controles nativos */
 :root { caret-color: var(--accent-ink); accent-color: var(--accent); }
@@ -362,13 +364,16 @@ main { overflow-x: clip; }
 
 /* La lista de Formación es una pista de circuito: estilos en src/components/Education.css */
 
-.cta { position: relative; border-radius: 32px; background: var(--cta-bg); color: var(--cta-text); border: 1px solid var(--line); padding: clamp(28px, 5vw, 56px); display: flex; flex-direction: column; gap: 22px; margin-bottom: 24px; }
+.cta { position: relative; border-radius: 32px; background: var(--cta-bg); color: var(--cta-text); border: 1px solid var(--line); padding: clamp(28px, 5vw, 56px) clamp(28px, 5vw, 56px) 22px; display: flex; flex-direction: column; gap: 22px; }
+/* Fin de la página: el bloque de Contacto cierra con su barra de estado (el pie); sin el hueco de antes (72 + 24 + 72 px) */
+#contacto { padding-bottom: 28px; }
+/* Su luz no baja más allá del final de la página (antes sumaba 40 px de scroll vacío bajo el bloque) */
+#contacto::before { bottom: 0; }
 .cta__head { display: flex; flex-direction: column; gap: 10px; max-width: 620px; }
 .cta h2 { font-size: clamp(34px, 4.8vw, 58px); line-height: 1; letter-spacing: -0.02em; }
 .cta__head p { font-size: 18px; line-height: 1.5; color: var(--cta-muted); }
 
-.footer { border-top: 1px solid var(--line); margin-top: 72px; }
-.footer__inner { padding-top: 28px; padding-bottom: 28px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--muted-2); }
+
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

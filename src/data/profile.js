@@ -19,6 +19,10 @@ export const profile = {
   email: '[TU CORREO]',
   github: '#',
   linkedin: '#',
+  // Redes (26/11/2026): enlaces completos a tus perfiles, p. ej. 'https://www.tiktok.com/@usuario'. Con '#' salen como pendientes.
+  tiktok: '#',
+  instagram: '#',
+  youtube: '#',
 };
 
 // Para agregar un proyecto, copia un bloque { ... } y cambia los datos.

@@ -70,9 +70,12 @@ export default function Portrait() {
         e?.welcome();
       };
       if (!fly) { settle(); removeBoot(600); return; }
-      // FLIP: se coloca ya en su sitio final (B), con la transformación que la deja donde estaba (A), y se anima a cero
+      // FLIP: se coloca ya en su sitio final (B), con la transformación que la deja donde estaba (A), y se anima a cero.
+      // En coordenadas de la PÁGINA (absolute + scroll), no de la ventana (Jhon, 26/11/2026: si hacía scroll rápido al
+      // cargar, la mascota se quedaba flotando sobre Proyectos con "LISTO" en el pecho): si la página se mueve durante el
+      // vuelo, la mascota se mueve con ella hacia su sitio. Y si el usuario hace scroll, aterriza al instante (scroll → end).
       Object.assign(holder.style, {
-        position: 'fixed', left: `${B.left}px`, top: `${B.top}px`, width: `${B.width}px`, height: `${B.height}px`, zIndex: 1001,
+        position: 'absolute', left: `${B.left + window.scrollX}px`, top: `${B.top + window.scrollY}px`, width: `${B.width}px`, height: `${B.height}px`, zIndex: 1001,
         transformOrigin: '50% 50%',
         transform: `translate(${A.left + A.width / 2 - (B.left + B.width / 2)}px, ${A.top + A.height / 2 - (B.top + B.height / 2)}px) scale(${A.width / B.width})`,
       });
@@ -82,8 +85,19 @@ export default function Portrait() {
       holder.style.transition = 'transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1)';
       holder.style.transform = 'none';
       let done = false;
-      const end = () => { if (done) return; done = true; settle(); removeBoot(100); };
-      holder.addEventListener('transitionend', end, { once: true });
+      const y0 = window.scrollY;
+      const onEnd = (ev) => { if (ev.target === holder && ev.propertyName === 'transform') end(); }; // no la de un hijo
+      const onScroll = () => { if (Math.abs(window.scrollY - y0) > 2) end(); };
+      const end = () => {
+        if (done) return;
+        done = true;
+        holder.removeEventListener('transitionend', onEnd);
+        window.removeEventListener('scroll', onScroll);
+        settle();
+        removeBoot(100);
+      };
+      holder.addEventListener('transitionend', onEnd);
+      window.addEventListener('scroll', onScroll, { passive: true });
       window.setTimeout(end, 1100);
     };
 

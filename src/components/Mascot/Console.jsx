@@ -200,7 +200,7 @@ export default function Console({ variant = 'hero', link }) {
     window.addEventListener('blur', onBlur);
 
     // Si la mascota sale de la vista, se sale del juego (no se capturan teclas de una consola que no se ve)
-    const io = 'IntersectionObserver' in window ? new IntersectionObserver(([e]) => { C.visible = e.isIntersecting; if (!C.visible && C.user) leave(); }) : null;
+    const io = 'IntersectionObserver' in window ? new IntersectionObserver((list) => { const e = list[list.length - 1]; C.visible = e.isIntersecting; if (!C.visible && C.user) leave(); }) : null;
     io?.observe(root);
 
     link.current.typing = (v) => { C.typing = v; refresh(); };

@@ -4,6 +4,7 @@ Portafolio personal de un estudiante de Ingeniería de Sistemas. Hecho con **Rea
 
 - **Paleta:** azul cielo sobre una base limpia, con modo oscuro (casi negro azulado) y claro (blanco cálido). El botón de la barra cambia de modo con un fundido; por defecto sigue al sistema. Los colores están en `PLAN-COLORES.md`.
 - **Tipografía:** la familia IBM Plex (Sans Condensed en los títulos, Sans en el texto y Mono en el código y la terminal).
+- **Scroll con inercia** (Lenis) con ratón o touchpad: la rueda se desliza en vez de saltar. En móvil y con "reducir movimiento", el scroll normal.
 - **Accesible:** contraste AA, todo funciona con teclado y respeta "reducir movimiento".
 - **Sin sonido** y sin usar micrófono ni cámara.
 
@@ -33,11 +34,11 @@ npm run preview  # sirve /dist para probar la versión final
    - A la derecha, la lista de programas (`proyecto-1.app`…). Al abrir uno se ve en la pantalla del portátil (captura, descripción y stack) y en la lista aparecen sus enlaces. Elegir una skill vuelve al código.
    - En móvil el portátil arranca al entrar en pantalla y la lista va debajo, con la descripción a la vista.
 4. **Formación.** Una pista de circuito que se enciende con el scroll; una mini mascota la recorre y cada tarjeta se descubre al llegar la luz.
-5. **Contacto.**
-   - En escritorio ancho, la mascota pasea por un escenario y cambia de sitio tus tarjetas: mensaje, copiar correo, GitHub, LinkedIn y CV.
-   - Puedes arrastrarlas; si le quitas la que lleva, se pone triste.
-   - El mensaje abre tu programa de correo con el texto listo; no hay servidor.
-   - En pantallas más estrechas, las tarjetas van en una rejilla fija.
+5. **Contacto ("Abrir conexión").**
+   - Arriba, el título y el mensaje: abre tu programa de correo con el texto listo; no hay servidor.
+   - Debajo, un panel de puertos (Copiar correo, GitHub, LinkedIn, TikTok, Instagram, YouTube y CV). En escritorio ancho la mascota pasea con un conector cuyo cable sale de un servidor del suelo, salta y lo enchufa en los puertos; si señalas uno, va a conectarlo. El cable la rodea, nunca la atraviesa.
+   - Puedes arrastrar el conector y enchufarlo tú; si se lo quitas de la mano, se pone triste.
+   - En pantallas más estrechas, el mismo panel en una rejilla fija.
 
 **La guía.** La mascota comenta cada sección una vez por sesión con globos cortos, que se pueden callar (se recuerda). Cuando la portada ya no se ve, aparece una versión pequeña abajo a la derecha, que se puede ocultar con la "×". Sus frases están en `src/data/mascot.js`.
 
