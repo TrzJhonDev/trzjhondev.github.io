@@ -1,0 +1,583 @@
+/* ───────────── Portátil 3D (solo CSS transforms) ─────────────
+   Colores de carcasa y escenario: variables --lap-* y --stage-* en index.css
+   (cambian con el modo claro/oscuro). --skill la pone el componente. */
+
+.laptop-wrap { position: absolute; inset: 0; }
+
+/* Escenario a pantalla completa. --cx / --cy (posición del portátil) los calcula el componente */
+.stage {
+  position: absolute; inset: 0; overflow: hidden; perspective: 1700px;
+  background:
+    radial-gradient(ellipse 40% 45% at var(--cx, 50%) var(--cy, 60%), color-mix(in srgb, var(--skill) 16%, transparent), transparent 70%),
+    radial-gradient(ellipse 120% 90% at var(--cx, 50%) 25%, var(--stage-1), var(--stage-2));
+  /* pan-y: en móvil el deslizamiento vertical sigue haciendo scroll; el horizontal gira */
+  touch-action: pan-y; user-select: none; -webkit-user-select: none;
+  cursor: grab; transition: background 0.4s, border-color 0.3s;
+}
+.stage.is-dragging { cursor: grabbing; }
+.stage:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: -4px; }
+/* Funde los bordes superior e inferior con el fondo de la página: sin corte con la portada ni con Formación */
+.stage::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 0; height: 180px; pointer-events: none;
+  background: linear-gradient(to bottom, var(--bg), transparent);
+}
+.stage::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 120px; pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--bg));
+}
+
+.parallax { position: absolute; inset: -40px; pointer-events: none; }
+.dot { position: absolute; border-radius: 50%; opacity: 0.5; }
+
+/* --fit la calcula el componente según el ancho del escenario */
+.scale-box {
+  position: absolute; inset: 0; transform-style: preserve-3d;
+  transform: scale(var(--fit, 1)); transform-origin: var(--cx, 50%) var(--cy, 60%);
+}
+/* El plano de .scale-box (z = 0) taparía en la detección de clics a todo lo que queda detrás,
+   como la tapa (z = -158). Se desactiva y solo las piezas interactivas reciben el puntero;
+   lo demás deja pasar el clic al escenario, que gira. */
+.scale-box { pointer-events: none; }
+.deck, .panel, .lid-shell, .lid-rim, .key, .mobo__part { pointer-events: auto; }
+
+.scene { position: absolute; left: var(--cx, 50%); top: var(--cy, 60%); width: 0; height: 0; transform-style: preserve-3d; }
+.scene > *, .lid > * { position: absolute; }
+
+.face { backface-visibility: hidden; }
+.shade { position: absolute; inset: 0; border-radius: inherit; background: #000; pointer-events: none; }
+
+/* Piezas interactivas */
+[data-hit="lid"], [data-hit="screen"] { cursor: ns-resize; touch-action: none; }
+[data-hit="keys"], [data-hit="pad"], [data-hit="power"], [data-hit="skill"] { cursor: pointer; }
+.stage.is-dragging [data-hit] { cursor: grabbing; }
+
+/* Suelo */
+.floor {
+  left: -800px; top: -800px; width: 1600px; height: 1600px; pointer-events: none;
+  background-image:
+    linear-gradient(var(--stage-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--stage-grid) 1px, transparent 1px);
+  background-size: 50px 50px; background-position: center;
+  -webkit-mask-image: radial-gradient(circle closest-side, #000 25%, transparent 100%);
+  mask-image: radial-gradient(circle closest-side, #000 25%, transparent 100%);
+}
+/* Sombras: ya son degradados radiales (bordes suaves), sin filter: blur. Dentro de la escena que gira, un blur
+   obliga a volver a pintarlas en cada fotograma (rendimiento). */
+.floor-shadow { left: -320px; top: -230px; width: 640px; height: 460px; pointer-events: none; }
+
+/* Base */
+.base-bottom {
+  left: -240px; top: -160px; width: 480px; height: 320px; border-radius: 14px; background-color: var(--lap-bottom);
+}
+.base-bottom > * { position: absolute; }
+/* Rejillas de ventilación (ranuras) */
+.base__vent {
+  top: 70px; width: 150px; height: 70px; border-radius: 8px;
+  background: repeating-linear-gradient(90deg, rgba(0,0,0,0.55) 0 3px, transparent 3px 7px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+}
+.base__vent--l { left: 36px; } .base__vent--r { right: 36px; }
+/* Patas de goma alargadas y tornillos */
+.base__foot { width: 120px; height: 10px; border-radius: 5px; background: linear-gradient(#232327, #0A0A0B); box-shadow: 0 0 0 1px #070708; }
+.base__foot--t { top: 20px; left: 180px; } .base__foot--b { bottom: 20px; left: 180px; }
+.base__foot--l { left: 18px; top: 160px; width: 10px; height: 110px; } .base__foot--r { right: 18px; top: 160px; width: 10px; height: 110px; }
+.base__screw { width: 7px; height: 7px; border-radius: 50%; background: radial-gradient(#8C8C92 25%, #3A3A42 60%); }
+/* Etiqueta del modelo */
+.base__label {
+  left: 170px; top: 200px; width: 140px; padding: 6px 8px; box-sizing: border-box; border-radius: 4px;
+  background: rgba(255,255,255,0.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
+  font: 500 5.5px/1.5 var(--mono); color: rgba(255,255,255,0.55); text-align: center;
+}
+.base__label strong { display: block; font: 700 9px var(--display); color: rgba(255,255,255,0.8); letter-spacing: -0.02em; }
+:root[data-theme="light"] .base__label { background: rgba(0,0,0,0.06); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12); color: rgba(0,0,0,0.55); }
+:root[data-theme="light"] .base__label strong { color: rgba(0,0,0,0.75); }
+
+/* Paredes de la base: lados rectos acortados + facetas en las esquinas (radio 14 px) */
+.rim {
+  top: 0; height: 14px; background: var(--lap-wall);
+  display: flex; align-items: center; gap: 8px; box-sizing: border-box;
+}
+.rim--front { justify-content: center; gap: 150px; border-radius: 0 0 3px 3px; }
+.rim__notch { width: 70px; height: 4px; align-self: flex-start; border-radius: 0 0 4px 4px; background: var(--lap-bottom); }
+.rim__led { width: 6px; height: 3px; border-radius: 2px; }
+/* Puertos (posición absoluta a lo largo de la pared) */
+.rim .port, .rim .port-led { position: absolute; }
+.port { top: 4px; height: 6px; background: #0A0A0B; box-shadow: inset 0 0 0 1px #34343B; }
+.port--usbc { width: 14px; height: 5px; top: 4.5px; border-radius: 3px; }
+.port--usbc::after { content: ''; position: absolute; left: 3px; right: 3px; top: 2px; height: 1px; background: #4A4A52; }
+.port--hdmi { width: 18px; clip-path: polygon(0 0, 100% 0, 100% 55%, 84% 100%, 16% 100%, 0 55%); }
+.port--usba { width: 14px; border-radius: 1px; }
+.port--usba::after { content: ''; position: absolute; left: 2px; right: 2px; top: 1px; height: 2px; background: #6D5A8A; }
+.port--jack { width: 6px; height: 6px; border-radius: 50%; }
+.port-led { left: 26px; top: 5.5px; width: 4px; height: 3px; border-radius: 2px; transition: background 0.3s, box-shadow 0.3s; }
+
+/* Placa base */
+.mobo {
+  left: -220px; top: -145px; width: 440px; height: 290px; border-radius: 12px;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.04), transparent 60%),
+    #17402F;
+  box-shadow: inset 0 0 0 2px #1F5A41; backface-visibility: hidden; transform-style: preserve-3d;
+}
+.trace { position: absolute; background: #C9A15A; opacity: 0.5; }
+.smd { position: absolute; border-radius: 1px; background: #18181B; box-shadow: inset 0 0 0 1px #3A3A42; }
+.screw { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: radial-gradient(#9A9AA2 30%, #5A5A63 70%); }
+.mobo__ports { position: absolute; left: 400px; top: 196px; width: 30px; height: 60px; border-radius: 3px; background: #2C2C31; box-shadow: inset 0 0 0 1px #4A4A52; }
+.mobo__part {
+  position: absolute; padding: 0; border: 2px solid #3A3A42; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font: 600 9px var(--mono); color: #E6E6EA; transition: border-color 0.15s;
+}
+.mobo__part:hover { border-color: #8C8C92; }
+.mobo__part.is-active { border-color: var(--accent); outline: 2px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 2px; }
+/* Tubo de calor de cobre: sombreado de cilindro (borde oscuro, brillo especular, reflejo inferior) y extremos aplastados */
+.mobo__part--pipe {
+  border: 1px solid #5A2E12; overflow: hidden;
+  background: linear-gradient(to bottom, #6B3714 0%, #C77A3E 14%, #F0B07A 28%, #D58A50 45%, #B2662F 68%, #8A4A1F 88%, #5E3010 100%) !important;
+}
+.mobo__part--pipe::before {
+  content: ''; position: absolute; left: 7%; right: 7%; top: 17%; height: 14%; border-radius: 999px; pointer-events: none;
+  background: linear-gradient(90deg, rgba(255, 240, 225, 0), rgba(255, 240, 225, 0.75) 28%, rgba(255, 240, 225, 0.5) 72%, rgba(255, 240, 225, 0));
+}
+.mobo__part--pipe::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(90deg, rgba(40, 18, 6, 0.6), transparent 10%, transparent 90%, rgba(40, 18, 6, 0.6));
+}
+.mobo__part--speaker { background-image: radial-gradient(#0A0A0B 1.3px, transparent 1.7px) !important; background-size: 5px 5px !important; background-color: #1D1D21 !important; }
+
+/* Carcasa superior (piezas en posiciones fijas, alineadas con keyLayout.js) */
+.deck {
+  left: -240px; top: -160px; width: 480px; height: 320px; box-sizing: border-box;
+  border-radius: 14px; background: var(--lap-deck); transform-style: preserve-3d;
+}
+.deck > * { position: absolute; }
+.deck__glow { inset: 0; border-radius: inherit; pointer-events: none; transition: opacity 0.3s; }
+/* Altavoz: una ranura fina y limpia (antes eran cientos de puntitos) */
+.deck__grill { left: 40px; top: 36px; width: 380px; height: 4px; border-radius: 2px; background: rgba(0, 0, 0, 0.45); box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.06); }
+.deck__power { left: 428px; top: 30px; width: 16px; height: 16px; border-radius: 50%; background: #2C2C31; transition: box-shadow 0.25s, transform 0.1s; transform: translateZ(0.6px); }
+.deck__power:hover { transform: translateZ(0.6px) scale(1.15); }
+.deck__power:active { transform: translateZ(0.6px) scale(0.9); }
+.deck__well { left: 42px; top: 56px; width: 396px; height: 139px; border-radius: 10px; background: var(--lap-well); box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5); }
+.deck__pad {
+  left: 155px; top: 207px; width: 170px; height: 92px; border-radius: 10px; background: var(--lap-pad);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25); transition: filter 0.15s;
+}
+.deck__pad:hover { filter: brightness(1.08); }
+.deck__pad:active { filter: brightness(0.92); }
+.deck__sticker { left: 360px; top: 262px; width: 52px; height: 28px; border-radius: 4px; background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03)); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
+
+/* Teclado */
+.keys-layer { left: -240px; top: -160px; width: 480px; height: 320px; pointer-events: none; }
+/* Teclas con altura: la cara superior es el elemento y el faldón (cara frontal) es una sombra
+   desplazada hacia delante en el plano del teclado. Al pulsar, la tecla baja y el faldón se acorta. */
+.key {
+  --skirt: #070708;
+  position: absolute; box-sizing: border-box; padding: 0; border: none; border-radius: 3px;
+  display: flex; align-items: center; justify-content: center; overflow: visible;
+  background: radial-gradient(ellipse 80% 70% at 50% 40%, #1E1E22, #151518 75%); color: #8C8C92;
+  font: 600 6px var(--mono); line-height: 1; white-space: nowrap; pointer-events: auto; cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 2.5px 0 var(--skirt), 0 3.5px 3px rgba(0,0,0,0.55);
+  transition: transform 0.08s, background 0.08s, box-shadow 0.08s;
+}
+.key--fn { font-size: 4.5px; }
+.key--word { font-size: 5px; }
+.key:hover { background: radial-gradient(ellipse 80% 70% at 50% 40%, #2A2A30, #1C1C20 75%); color: #C4C4CA; }
+.key.is-pressed, .key:active { background: #2C2C31; color: #FFFFFF; transform: translateY(2px); }
+
+/* Teclas de skills */
+.key--skill {
+  background: radial-gradient(ellipse 80% 70% at 50% 40%, #1E1E22, #111113 75%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 38%, transparent), 0 2.5px 0 var(--skirt), 0 3.5px 3px rgba(0,0,0,0.5);
+  /* el texto se aclara un poco para que las categorías oscuras (Fundamentos) lleguen a 4,5:1 sobre la tecla */
+  color: color-mix(in srgb, var(--c) 78%, #FFFFFF); font-size: 6.5px; font-weight: 700; letter-spacing: -0.02em;
+}
+.key--skill:hover, .key--skill.is-hover, .key--skill:focus-visible {
+  background: color-mix(in srgb, var(--c) 25%, #131315); color: #FFFFFF;
+  box-shadow: inset 0 0 0 1px var(--c), 0 2.5px 0 var(--skirt), 0 0 12px var(--c); outline: none;
+}
+.key--skill.is-active {
+  --skirt: color-mix(in srgb, var(--c) 45%, #000);
+  background: var(--c); color: var(--on, #0A0A0B); box-shadow: 0 2.5px 0 var(--skirt), 0 0 10px color-mix(in srgb, var(--c) 65%, transparent);
+}
+.key--skill:active { transform: translateY(2px); box-shadow: 0 0.5px 0 var(--skirt), 0 0 14px var(--c); }
+
+/* Tapa */
+.lid { left: 0; top: 0; width: 0; height: 0; transform-style: preserve-3d; }
+.panel {
+  left: -240px; top: -322px; width: 480px; height: 316px; box-sizing: border-box;
+  border-radius: 16px 16px 6px 6px; background: #0A0A0B; padding: 14px 14px 22px; backface-visibility: hidden;
+}
+.panel__brand { position: absolute; left: 50%; bottom: 7px; transform: translateX(-50%); font: 500 7px var(--mono); letter-spacing: 0.2em; color: #6B7686; text-transform: uppercase; }
+.webcam { position: absolute; left: 50%; top: 4px; transform: translateX(-50%); display: flex; gap: 5px; align-items: center; }
+.webcam__lens { width: 6px; height: 6px; border-radius: 50%; background: #12202B; box-shadow: inset 0 0 0 1.5px #34343B; }
+.webcam__led { width: 3px; height: 3px; border-radius: 50%; }
+.lid-shell {
+  left: -240px; top: -322px; width: 480px; height: 316px; border-radius: 16px 16px 6px 6px; background: var(--lap-lid);
+  transform: rotateY(180deg) translateZ(3px); backface-visibility: hidden; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.lid-shell__logo { font: 700 42px var(--display); letter-spacing: -0.03em; }
+/* Canto de la tapa: lados rectos + facetas en las esquinas (radios 16 px arriba, 6 px abajo) */
+.lid-rim { top: -3px; height: 6px; background: var(--lap-edge); backface-visibility: hidden; }
+
+/* Pantalla */
+.screen {
+  position: relative; width: 100%; height: 100%; border-radius: 6px; overflow: hidden;
+  background: #08131B; display: flex; flex-direction: column; font-family: var(--mono);
+  transition: opacity 0.35s, filter 0.35s;
+}
+.screen.is-off { opacity: 0.04; filter: brightness(0.4); }
+.screen__bar { height: 24px; flex: none; display: flex; align-items: center; gap: 10px; padding: 0 10px; background: #060E14; border-bottom: 1px solid #12202B; }
+.dots { display: flex; gap: 4px; }
+.dots i { width: 7px; height: 7px; border-radius: 50%; }
+.screen__tab { display: flex; align-items: center; height: 24px; padding: 0 10px; background: #08131B; border-top: 2px solid; box-sizing: border-box; font-size: 9px; color: #E6E6EA; }
+.screen__status { margin-left: auto; font-size: 8.5px; }
+.screen__battery { margin-left: auto; display: flex; align-items: center; gap: 3px; font-size: 8px; }
+.screen__status + .screen__battery { margin-left: 8px; }
+.screen__code { flex: 1; display: flex; flex-direction: column; padding: 8px 0; gap: 1px; overflow: hidden; }
+.code-line { display: flex; gap: 12px; font-size: 10.5px; line-height: 16px; white-space: pre; }
+.code-line__n { width: 22px; text-align: right; color: #5A6574; }
+.caret { width: 6px; height: 13px; margin-top: 2px; }
+.screen__term { flex: none; padding: 6px 10px 8px; background: #060E14; border-top: 1px solid #12202B; display: flex; flex-direction: column; gap: 2px; font-size: 10px; line-height: 14px; color: #E6E6EA; white-space: pre; }
+.screen__term-label { font-size: 8px; letter-spacing: 0.1em; color: #8C8C92; }
+.screen__foot { height: 18px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; color: #0A0A0B; font-size: 8.5px; font-weight: 600; }
+.screen__flash { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen; }
+
+/* Elementos que miran a la cámara */
+.anchor { left: 0; top: 0; width: 0; height: 0; }
+
+/* Holograma de skill (proyectado desde la tecla) */
+.holo {
+  position: absolute; left: 0; bottom: 0; width: 0; height: 0;
+  --k: var(--holo, 1);
+  animation: holo-in 0.22s ease-out both;
+}
+.holo__beam {
+  position: absolute; left: calc(-55px * var(--k)); bottom: 0; width: calc(110px * var(--k)); height: calc(70px * var(--k));
+  clip-path: polygon(0 0, 100% 0, 54% 100%, 46% 100%);
+  background: linear-gradient(to top, color-mix(in srgb, var(--hc) 75%, transparent), color-mix(in srgb, var(--hc) 12%, transparent));
+  opacity: 0.7;
+  animation: holo-beam 1.6s ease-in-out infinite;
+}
+.holo__card {
+  position: absolute; left: calc(-75px * var(--k)); bottom: calc(68px * var(--k)); width: calc(150px * var(--k));
+  box-sizing: border-box; padding: calc(10px * var(--k)) calc(12px * var(--k));
+  display: flex; flex-direction: column; align-items: center; gap: calc(3px * var(--k));
+  border-radius: calc(12px * var(--k)); border: 1px solid color-mix(in srgb, var(--hc) 80%, transparent);
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 4px),
+    linear-gradient(180deg, color-mix(in srgb, var(--hc) 30%, rgba(10, 10, 11, 0.78)), rgba(10, 10, 11, 0.72));
+  box-shadow: 0 0 22px color-mix(in srgb, var(--hc) 55%, transparent), inset 0 0 18px color-mix(in srgb, var(--hc) 30%, transparent);
+  color: #F2F2F4; text-align: center; font-family: var(--sans);
+  animation: holo-float 2.4s ease-in-out infinite, holo-flicker 3.2s steps(1) infinite;
+}
+.holo__card::after { /* línea de barrido */
+  content: ''; position: absolute; left: 0; right: 0; height: 30%; top: -30%; pointer-events: none;
+  background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--hc) 30%, transparent), transparent);
+  animation: holo-scan 1.8s linear infinite;
+}
+.holo__card { overflow: hidden; }
+.holo__badge { font: 700 calc(22px * var(--k)) var(--mono); color: var(--hc); text-shadow: 0 0 10px var(--hc); line-height: 1.1; }
+.holo__name { font-size: calc(13px * var(--k)); font-weight: 600; text-shadow: 0 0 8px color-mix(in srgb, var(--hc) 70%, transparent); }
+.holo__cat { font-size: calc(10px * var(--k)); color: color-mix(in srgb, var(--hc) 55%, #F2F2F4); letter-spacing: 0.08em; text-transform: uppercase; }
+.holo__cta { margin-top: calc(4px * var(--k)); font: 500 calc(9px * var(--k)) var(--mono); color: #B9B9C0; }
+.holo--flying { animation: none; transform-origin: 0 0; }
+.holo--flying .holo__card { bottom: 0; left: calc(-34px * var(--k)); width: calc(68px * var(--k)); padding: calc(8px * var(--k)); animation: none; }
+
+@keyframes holo-in { from { opacity: 0; transform: scale(0.6) translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes holo-float { 50% { transform: translateY(-4px); } }
+@keyframes holo-beam { 50% { opacity: 0.45; } }
+@keyframes holo-flicker { 0%, 100% { opacity: 1; } 47% { opacity: 0.82; } 48% { opacity: 1; } 76% { opacity: 0.9; } 77% { opacity: 1; } }
+@keyframes holo-scan { to { top: 100%; } }
+
+.part-label { position: absolute; left: 0; top: -12px; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.part-label--left { flex-direction: row-reverse; transform: translateX(-100%); }
+.part-label i { width: 28px; height: 1px; background: var(--accent-ink); }
+.part-label span { padding: 4px 8px; border-radius: 6px; background: var(--surface); border: 1px solid var(--accent-ink); font: 600 11px var(--mono); color: var(--text); }
+
+/* Capas de información sobre el escenario */
+.stage__bottom {
+  position: absolute; left: var(--cx, 50%); bottom: 18px; z-index: 2; transform: translateX(-50%);
+  width: min(560px, 100%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none;
+}
+.stage__hint {
+  display: flex; align-items: center; gap: 8px; max-width: calc(100% - 32px); text-align: center;
+  font-size: 13px; color: var(--stage-hint);
+}
+.stage__scroll {
+  display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px;
+  border-radius: 50%; border: 1px solid var(--line-2); background: var(--surface); color: var(--text);
+  pointer-events: auto; animation: bob 2.2s ease-in-out infinite;
+}
+.stage__scroll:hover { color: var(--text); border-color: var(--muted-2); }
+@keyframes bob { 50% { transform: translateY(4px); } }
+
+/* Etiqueta de la skill cargada. Discreta (Jhon, 24/11/2026: "se nota mucho" en la unión con la portada):
+   fondo translúcido y borde suave, y aparece con el scroll (ver @supports más abajo) en vez de estar ahí de golpe */
+.stage__skill {
+  position: absolute; right: 24px; bottom: 26px; z-index: 2; display: flex; align-items: center; gap: 8px;
+  padding: 6px 12px; border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
+  font-size: 13px; font-weight: 600; color: var(--text); pointer-events: none;
+}
+/* Aparece poco a poco mientras la sección entra en pantalla (animación ligada al scroll, solo opacidad: no cuesta).
+   Donde el navegador no lo admite, se ve directamente. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .stage__skill { animation: skill-in linear both; animation-timeline: view(); animation-range: entry 0% cover 35%; }
+  }
+}
+@keyframes skill-in { from { opacity: 0; } to { opacity: 1; } }
+/* borde fino: las categorías claras (plata, azul cielo) casi desaparecen sobre el fondo claro */
+.stage__skill i { width: 8px; height: 8px; border-radius: 2px; box-shadow: 0 0 0 1px color-mix(in srgb, var(--text) 30%, transparent); }
+.stage__skill small { font-weight: 400; color: var(--muted-2); font-size: 12px; }
+@media (max-width: 899px) {
+  .stage__skill { top: 96px; bottom: auto; left: 50%; right: auto; transform: translateX(-50%); }
+  .stage__hint { font-size: 12px; }
+}
+
+/* Ficha de la vista despiece (flota sobre la escena) */
+/* Escritorio: ocupa la columna del texto de presentación (que se oculta en el despiece) */
+.part-info {
+  position: absolute; right: var(--col-left, 24px); top: 50%; z-index: 3; width: 340px; transform: translateY(-50%);
+  padding: 20px; border-radius: 20px; background: var(--surface); border: 1px solid var(--accent-ink);
+  display: flex; flex-direction: column; gap: 12px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+  animation: part-in 0.35s ease-out both;
+}
+@keyframes part-in { from { opacity: 0; transform: translate(12px, -50%); } to { opacity: 1; transform: translate(0, -50%); } }
+@media (max-width: 899px) {
+  .part-info { left: 16px; right: 16px; width: auto; top: auto; bottom: 96px; transform: none; animation: none; }
+}
+.part-info__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.part-info__badge { padding: 4px 10px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-size: 12px; font-weight: 600; }
+.part-info__close {
+  min-height: 36px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line-2);
+  background: transparent; color: var(--text); font: 500 13px var(--sans); cursor: pointer;
+}
+.part-info__close:hover { border-color: var(--muted-2); }
+.part-info h3 { margin: 0; font: 600 20px var(--display); letter-spacing: -0.02em; }
+.part-info p { margin: 0; font-size: 15px; line-height: 1.6; color: var(--muted); }
+
+
+.part-info__tip { font-size: 13px; color: var(--muted-2); }
+
+/* Interior de la carcasa inferior (nervios de refuerzo) */
+.base-inner {
+  left: -240px; top: -160px; width: 480px; height: 320px; border-radius: 14px;
+  background: color-mix(in srgb, var(--lap-bottom) 80%, #000);
+  box-shadow: inset 0 0 0 3px var(--lap-wall);
+  display: flex; justify-content: space-evenly; align-items: stretch; padding: 30px 0;
+  box-sizing: border-box;
+}
+.base-inner i { width: 3px; background: var(--lap-wall); border-radius: 2px; opacity: 0.8; }
+
+/* La etiqueta de la skill cargada va arriba a la derecha, bajo la barra superior */
+/* En escritorio, más abajo que antes (era 24 px) para que no quede sobre la zona de fundido con la portada */
+@media (min-width: 900px) { .stage__skill { top: 88px; bottom: auto; right: auto; left: var(--cx, 50%); transform: translateX(-50%); } }
+
+/* ── Luz dinámica (paso 1) ─────────────────────────────────────
+   La luz sigue al puntero: .shade oscurece cada cara, .sheen es el reflejo
+   especular que se desplaza por ella y .chamfer ilumina los bordes biselados. */
+.sheen {
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(ellipse 60% 48% at var(--sx, 50%) var(--sy, 50%), rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 70%);
+  mix-blend-mode: soft-light;
+}
+.sheen--glass {
+  mix-blend-mode: screen; border-radius: 6px; inset: 14px 14px 22px;
+  background: radial-gradient(ellipse 34% 26% at var(--sx, 50%) var(--sy, 50%), rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 70%),
+              linear-gradient(115deg, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.06) 50%, rgba(255, 255, 255, 0) 60%);
+}
+:root[data-theme="light"] .sheen:not(.sheen--glass) { mix-blend-mode: overlay; }
+.chamfer { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; }
+
+/* Acabado satinado: un degradado suave. Antes llevaba líneas finas de aluminio cepillado, pero con la perspectiva
+   y el zoom se veían como ruido de puntos y, en modo claro, aclaraban la carcasa (se veía gris lila en vez de grafito). */
+.deck, .lid-shell, .base-bottom {
+  background-image: linear-gradient(100deg, rgba(255, 255, 255, 0.045), rgba(0, 0, 0, 0.05));
+}
+/* El canto de las paredes atrapa luz en su borde superior */
+.rim { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14); }
+:root[data-theme="light"] .rim { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55); }
+
+/* Ventilador: gira con CSS (sin redibujar React) */
+@keyframes fan-spin { to { transform: rotate(360deg); } }
+
+/* Bisagra: dos cilindros de facetas */
+.hinge-part { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-style: preserve-3d; }
+.hinge-part > * { position: absolute; }
+.hinge__facet { background: linear-gradient(to bottom, color-mix(in srgb, var(--lap-hinge) 70%, #fff), var(--lap-hinge)); }
+.hinge__cap { border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--lap-hinge) 60%, #fff) 0 35%, var(--lap-hinge) 40%); }
+
+/* Cargador: conector USB-C de carga (Charger.jsx) */
+.charger { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-style: preserve-3d; }
+.charger > * { position: absolute; }
+.plug-shadow { left: -34px; top: -22px; width: 68px; height: 44px; border-radius: 50%; pointer-events: none; background: radial-gradient(closest-side, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0)); }
+
+/* Conector: cajas 3D de seis caras; cada cara lleva su sombreado según la luz */
+.box3d { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-style: preserve-3d; }
+.box3d__face { position: absolute; backface-visibility: hidden; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.16); border-radius: 2px; }
+.box3d__face[data-hit="plug"], .plug--grab { pointer-events: auto; cursor: grab; touch-action: none; }
+.stage.is-dragging .box3d__face[data-hit="plug"], .stage.is-dragging .plug--grab { cursor: grabbing; }
+.plug--grab { background: transparent; }
+
+/* Funda acanalada (flexible) */
+.plug-boot { background: repeating-linear-gradient(90deg, #343842 0 2px, #2B2E35 2px 4px); border-radius: 3px; }
+
+/* Cuerpo: aluminio claro con bisel (reborde brillante arriba, sombra abajo) */
+.plug-body { background: linear-gradient(#F0F2F6, #D2D6DE); border-radius: 3px; }
+:root:not([data-theme="light"]) .plug-body { background: linear-gradient(#DDE1E8, #B7BDC8); }
+.plug-body--front, .plug-body--back { box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.7), inset 0 -1.5px 0 rgba(0, 0, 0, 0.22), inset 0 0 0 1px rgba(0, 0, 0, 0.14); }
+.plug-body--top { box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.55), inset 0 0 0 2.5px rgba(0, 0, 0, 0.12); }
+.plug-body--bottom { background: #8E949E; }
+.plug-body--nose { background: #AEB4BE; }
+/* laterales: rótulo y franja con el color de acento */
+/* Batería portátil (el cable termina aquí). Colores físicos fijos, iguales en los dos modos. */
+.bank { background: #2A2A2F; border-radius: 5px; }
+.bank--top { background: linear-gradient(#3E3E46, #2F2F36); }
+.bank--bottom { background: #1B1B1F; }
+.bank--nose, .bank--tail { background: #222227; }
+.bank--front, .bank--back { background: #27272C; }
+.bank-leds { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px; }
+.bank-led { width: 5px; height: 5px; border-radius: 50%; background: #3A3A42; box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.5); transition: background 0.3s, box-shadow 0.3s; }
+.bank-led.is-on { background: #8FD8FF; box-shadow: 0 0 6px #8FD8FF; }
+.bank-stripe { position: absolute; left: 8px; right: 8px; bottom: 6px; height: 1.5px; border-radius: 1px; background: #BDBBC6; opacity: 0.5; }
+.bank-port { position: absolute; left: 50%; top: 50%; width: 16px; height: 7px; transform: translate(-50%, -50%); border-radius: 3.5px; background: #0A0A0B; box-shadow: 0 0 0 1.5px #8E8C99, inset 0 0 0 1px #34343B; }
+.bank-shadow { position: absolute; left: -44px; top: -76px; width: 88px; height: 152px; pointer-events: none; background: radial-gradient(closest-side, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0)); }
+.plug-text { position: absolute; left: 3px; top: 2px; font: 700 5.5px/1 var(--mono); letter-spacing: 0.06em; color: rgba(20, 22, 27, 0.72); }
+.plug-stripe { position: absolute; left: 3px; right: 3px; bottom: 3px; height: 2px; border-radius: 1px; background: var(--accent); box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.25); }
+/* arriba: surcos para agarrarlo y LED de estado */
+.plug-grip { position: absolute; left: 5px; top: 4px; bottom: 4px; width: 56%; border-radius: 2px; background: repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.24) 0 1.5px, rgba(255, 255, 255, 0.35) 1.5px 2.2px, transparent 2.2px 4px); }
+.plug-led { position: absolute; right: 4px; top: 50%; width: 3px; height: 12px; transform: translateY(-50%); border-radius: 2px; }
+
+/* Collar y punta metálica */
+.plug-collar { background: linear-gradient(#2C2C31, #0F1115); }
+.plug-metal { background: linear-gradient(#F4F6F9, #8E949E); border-radius: 1.5px; }
+.plug-metal--nose { background: #5F656F; }
+.plug-slot { position: absolute; left: 50%; top: 50%; width: 62%; height: 26%; transform: translate(-50%, -50%); border-radius: 2px; background: #0A0A0B; }
+.plug-notch { position: absolute; left: 3px; top: 50%; width: 2.5px; height: 2.5px; transform: translateY(-50%); border-radius: 1px; background: #3A3A42; box-shadow: 4px 0 0 #3A3A42; }
+
+/* Vidrio de la pantalla: reflejo del entorno y rejilla de píxeles */
+.glass-env {
+  position: absolute; inset: 14px 14px 22px; border-radius: 6px; pointer-events: none; mix-blend-mode: screen;
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0) 28%, rgba(255,255,255,0) 58%, rgba(255,255,255,0.035) 64%, rgba(255,255,255,0) 72%),
+    linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.03) 30%, rgba(255,255,255,0) 45%);
+  background-size: 140% 160%, 260% 100%;
+}
+.pixels {
+  position: absolute; inset: 14px 14px 22px; border-radius: 6px; pointer-events: none;
+  background-image:
+    linear-gradient(90deg, rgba(0,0,0,0.6) 0.4px, transparent 0.4px),
+    linear-gradient(rgba(0,0,0,0.6) 0.4px, transparent 0.4px);
+  background-size: 1.5px 1.5px;
+}
+
+/* Pantalla viva: BIOS, terminal y cursor del touchpad */
+.screen__bios, .screen__shell {
+  flex: 1; display: flex; flex-direction: column; gap: 1px; padding: 10px 12px; overflow: hidden;
+  font-size: 9.5px; line-height: 14px; white-space: pre; color: #E6E6EA;
+}
+.screen__bios { background: #07040A; }
+.screen__bios-bar { display: block; width: 60%; height: 6px; margin-top: 4px; border: 1px solid #4A4A52; border-radius: 2px; }
+.screen__bios-bar i { display: block; height: 100%; background: #8FD8FF; }
+.screen__shell { justify-content: flex-end; background: #060E14; }
+.screen__cursor { position: absolute; z-index: 2; pointer-events: none; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.6)); }
+/* Campo real (oculto) donde se escribe en la terminal; 16px evita el zoom automático en iOS */
+.term-input { position: absolute; left: 50%; bottom: 0; width: 1px; height: 1px; padding: 0; border: 0; opacity: 0; font-size: 16px; pointer-events: none; }
+/* Teclas de skills todavía apagadas durante el arranque, y pulsadas desde el teclado físico */
+.key--skill.is-dark { color: #3A3A42; background: #111113; box-shadow: 0 2.5px 0 var(--skirt), 0 3.5px 3px rgba(0,0,0,0.55); }
+.key--skill.is-pressed { transform: translateY(2px); box-shadow: 0 0.5px 0 var(--skirt), 0 0 10px #FFFFFF; }
+.pad-mark { position: absolute; width: 1px; height: 1px; pointer-events: none; }
+
+/* Ventilador: gira con CSS; la velocidad depende de la temperatura (nivel 1 a 3) */
+.fan--1, .fan--2, .fan--3 { animation: fan-spin var(--fan-t) linear infinite; }
+.fan--1 { --fan-t: 0.9s; } .fan--2 { --fan-t: 0.45s; } .fan--3 { --fan-t: 0.2s; }
+/* Resplandor de la CPU al calentarse */
+.cpu-glow { position: absolute; inset: -8px; border-radius: 10px; pointer-events: none; background: radial-gradient(circle, rgba(255, 107, 107, 0.85), rgba(255, 107, 107, 0) 70%); transition: opacity 0.4s; }
+
+/* Partículas de código al ejecutar */
+.glyphs { position: absolute; left: 0; top: 0; width: 0; height: 0; }
+.glyph { position: absolute; top: 40px; white-space: nowrap; font-family: var(--mono); font-weight: 600; opacity: 0; text-shadow: 0 0 8px currentColor; animation: glyph-rise 2s ease-out both; }
+@keyframes glyph-rise {
+  0% { opacity: 0; transform: translateY(0) rotate(0); }
+  15% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-250px) rotate(8deg); }
+}
+@media (prefers-reduced-motion: reduce) { .glyph { display: none; } }
+
+/* Temperatura en la barra de la pantalla */
+.screen__temp { margin-left: auto; font-size: 8px; color: #E6E6EA; }
+.screen__temp + .screen__battery, .screen__status + .screen__temp { margin-left: 8px; }
+.screen__temp.is-hot { color: #BDBBC6; } .screen__temp.is-max { color: #FF6B6B; }
+
+/* Rompecabezas del despiece */
+.mobo-mark { position: absolute; width: 1px; height: 1px; pointer-events: none; }
+.mobo__slot { position: absolute; pointer-events: none; border: 2px dashed rgba(255, 255, 255, 0.35); background: rgba(255, 255, 255, 0.04); transition: border-color 0.15s, background 0.15s; }
+.mobo__slot.is-near { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.mobo__part.is-puzzle { cursor: grab; touch-action: none; }
+.mobo__part.is-held { cursor: grabbing; border-color: var(--accent); }
+.mobo__part.is-placed { border-color: #8FD8FF; }
+.mobo.is-done { box-shadow: inset 0 0 0 2px #8FD8FF, 0 0 24px rgba(143, 216, 255, 0.6); }
+
+.puzzle { display: flex; flex-direction: column; gap: 8px; }
+.puzzle__count { font-weight: 600; font-size: 14px; }
+.puzzle__bar { height: 6px; border-radius: 3px; background: var(--line-2); overflow: hidden; }
+.puzzle__bar i { display: block; height: 100%; background: var(--accent); transition: width 0.25s; }
+.puzzle__btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.part-info__puzzle, .puzzle__btns button {
+  min-height: 36px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line-2);
+  background: transparent; color: var(--text); font: 500 13px var(--sans); cursor: pointer;
+}
+.part-info__puzzle { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+.puzzle__btns button:hover { border-color: var(--muted-2); }
+.mobo__part.is-puzzle { transition: transform 0.25s, border-color 0.15s; }
+
+/* Cable del cargador: 4 cintas cruzadas por tramo, cada una más o menos oscura según la luz (--sh, lo pone Charger.jsx) */
+.cable {
+  --cable-c: #DDE1E8; position: absolute; border-radius: 4px; pointer-events: none;
+  background: color-mix(in srgb, var(--cable-c) calc((1 - var(--sh, 0)) * 100%), #000);
+}
+:root:not([data-theme="light"]) .cable { --cable-c: #6A717E; }
+.cable-shadow { position: absolute; border-radius: 6px; pointer-events: none; background: #000; filter: blur(3px); }
+
+/* Resaltado de sintaxis en la pantalla (la pantalla es siempre oscura, en ambos temas) */
+.tk--plain { color: #E6E6EA; }
+.tk--keyword { color: #5CC6F7; }
+.tk--string { color: #8FC9A8; }
+.tk--number { color: #D9A27A; }
+.tk--comment { color: #6B7686; font-style: italic; }
+.tk--func { color: #8FA8E8; }
+.tk--type { color: #D9B97A; }
+.tk--const { color: #F78C6C; }
+.tk--tag { color: #F07178; }
+.tk--attr { color: #8FC7D9; }
+.tk--punct { color: #8C8C92; }
+.tk--prompt { color: var(--skill); font-weight: 700; }
+.tk--caret { color: var(--skill); }
+
+/* ── Modelo WebGL (gl/glEngine.js, PLAN-PORTATIL-3D.md) ──
+   El canvas va entre la caja del suelo y la de las piezas. Con el modelo listo (.is-gl) las piezas CSS del cuerpo se
+   vuelven invisibles pero siguen ahí, en el mismo sitio (la cámara WebGL copia la proyección CSS), para recibir clics y
+   arrastres. Se ocultan solo hojas (caras), nunca contenedores con preserve-3d: opacity < 1 en ellos aplana la escena. */
+.stage__gl-host { position: absolute; inset: 0; pointer-events: none; }
+.stage__gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.stage.is-gl .face,
+.stage.is-gl .lid-rim,
+.stage.is-gl .lid-shell,
+.stage.is-gl .key,
+.stage.is-gl .hinge__facet,
+.stage.is-gl .hinge__cap,
+.stage.is-gl .mobo > *,
+.stage.is-gl .box3d__face,
+.stage.is-gl .cable,
+.stage.is-gl .cable-shadow,
+.stage.is-gl .plug-shadow,
+.stage.is-gl .bank-shadow { opacity: 0 !important; }
+.stage.is-gl .mobo { background: none; box-shadow: none; }
+.stage.is-gl .mobo.is-done { box-shadow: none; }
+/* Los huecos punteados del rompecabezas sí se ven (sobre la placa del modelo) */
+.stage.is-gl .mobo > .mobo__slot { opacity: 1 !important; }

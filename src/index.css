@@ -1,0 +1,361 @@
+/* ───────────── Tema global: azul cielo (elegido por Jhon el 24/11/2026; sustituye al purple gothic) ─────────────
+   Base limpia (casi negro azulado en oscuro, blanco cálido en claro) con un azul cielo vivo como protagonista
+   y un azul algo más profundo de apoyo (decisiones y valores en PLAN-COLORES.md).
+   Modo oscuro por defecto; [data-theme="light"] lo cambia.
+   Dos capas: 1) paleta cruda (--sky-*, --azure-*), 2) tokens semánticos que usan los componentes.
+   --accent es el relleno de botones con --on-accent encima (texto oscuro en oscuro, blanco en claro);
+   --accent-ink es el azul para texto, enlaces y detalles; --accent-2 el azul de apoyo (kicker y etiquetas);
+   --accent-rgb sirve para brillos: rgba(var(--accent-rgb), 0.3); --haze-rgb para las luces de ambiente (halo, niebla,
+   aura de la mascota): en claro es un azul más claro y saturado, porque el azul de texto a poca opacidad sobre el crema
+   se veía como una mancha gris. Todos con contraste AA (ver PLAN-COLORES.md).
+   Revisión de color del 25/11/2026: azul del claro más vivo, azul de apoyo separado hacia el índigo (217–222°, antes
+   207°: a 8° del principal no se distinguía) y un solo renglón del titular en azul.
+   Ningún estado se comunica solo con color: siempre va con icono o texto. */
+:root {
+  /* Paleta cruda · azul cielo (tono 199–203°), azul (207°) e índigo de apoyo (217–222°) */
+  --sky-200: #8FD8FF;
+  --sky-300: #5CC6F7;
+  --sky-400: #2AB4F4;
+  --sky-600: #097AAE;
+  --sky-700: #0973A5;
+  --sky-650: #0879B8; /* botón del modo claro: 4,73:1 con blanco */
+  --sky-750: #0A70B4; /* texto azul del modo claro: 4,96:1 sobre #FAF8F4 y 4,55:1 sobre #F1EEE8 */
+  --indigo-400: #4C8DF6; /* apoyo en oscuro: 5,93:1 sobre #0C0E13 */
+  --indigo-700: #2F63D6; /* apoyo en claro: 5,11:1 sobre #FAF8F4 y 4,68:1 sobre #F1EEE8 */
+  --sky-800: #075F88;
+  --sky-900: #05405C;
+  --azure-400: #2A99F4;
+  --azure-700: #0968B6;
+
+  /* Superficies y texto (casi negro con un toque azul, y blanco) */
+  --bg: #0C0E13;
+  --surface: #12151B;
+  --surface-2: #181C24;
+  --line: #222731;
+  --line-2: #343A46;
+  --text: #F2F4F7;
+  --muted: #B4BAC6;
+  --muted-2: #8B93A1;
+
+  /* Acento */
+  --accent: var(--sky-400);
+  --accent-hover: var(--sky-300);
+  --on-accent: #0C0E13;
+  --accent-ink: var(--sky-400);
+  --accent-2: var(--indigo-400);
+  --accent-rgb: 42, 180, 244;
+  --haze-rgb: 42, 180, 244;
+  --glow: rgba(42, 180, 244, 0.35);
+  --link-hover: var(--sky-200);
+  --focus: var(--sky-200);
+
+  /* Apoyo: plata sutil */
+  --silver: #BCC2CC;
+  --silver-dim: #8A92A0;
+
+  /* Estados (verde solo para "disponible"; errores en rojo coral con icono y texto; avisos en plata) */
+  --ok: #5FD39A;
+  --danger: #FF6B6B;
+  --warn: #BCC2CC;
+
+  /* Atmósfera: luz azul tenue, viñeta y niebla (suave) */
+  --halo: rgba(42, 180, 244, 0.14);
+  --halo-soft: rgba(42, 180, 244, 0.08);
+  --vignette: rgba(0, 0, 0, 0.55);
+  --fog: 0.14;
+
+  /* Bloque final "¿Trabajamos juntos?": sigue el tema de la página (Jhon, 24/11/2026: no un bloque claro en modo oscuro) */
+  --cta-bg: var(--surface);
+  --cta-text: var(--text);
+  --cta-muted: var(--muted);
+
+  /* Escenario 3D */
+  --stage-1: #12151B;
+  --stage-2: #08090C;
+  --stage-border: #222731;
+  --stage-grid: rgba(42, 180, 244, 0.12);
+  --stage-hint: #8B93A1;
+  --floor-shadow: rgba(0, 0, 0, 0.7);
+  --dot: #8B93A1;
+
+  /* Carcasa del portátil (grafito oscuro, igual en los dos modos) */
+  --lap-deck: #34343B;
+  --lap-wall: #26262B;
+  --lap-bottom: #18181B;
+  --lap-lid: #2B2B31;
+  --lap-edge: #202025;
+  --lap-hinge: #18181B;
+  --lap-pad: #3A3A42;
+  --lap-well: #18181B;
+  --lap-logo-off: #4E4E57;
+
+  --sans: Inter, system-ui, sans-serif;
+  --display: 'Space Grotesk', Inter, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  color-scheme: dark;
+}
+
+/* Modo claro: blanco cálido. El portátil conserva su carcasa grafito. */
+:root[data-theme="light"] {
+  --bg: #FAF8F4;
+  --surface: #FFFFFF;
+  --surface-2: #F1EEE8;
+  --line: #E3DFD7;
+  --line-2: #CFCAC0;
+  --text: #1A1D24;
+  --muted: #4A505C;
+  --muted-2: #5E6470;
+
+  --accent: var(--sky-650);
+  --accent-hover: var(--sky-800);
+  --on-accent: #FFFFFF;
+  --accent-ink: var(--sky-750);
+  --accent-2: var(--indigo-700);
+  --accent-rgb: 8, 121, 184;
+  --haze-rgb: 96, 178, 240;
+  --glow: rgba(8, 121, 184, 0.25);
+  --link-hover: var(--sky-900);
+  --focus: var(--sky-800);
+
+  --silver: #868C97;
+  --silver-dim: #A9AEB8;
+
+  --ok: #1F8A5B;
+  --danger: #C62828;
+  --warn: #4A505C;
+
+  --halo: rgba(96, 178, 240, 0.14);
+  --halo-soft: rgba(96, 178, 240, 0.09);
+  --vignette: rgba(26, 29, 36, 0.08);
+  --fog: 0.08;
+
+  /* Bloque final: superficie de la página (como en oscuro) */
+  --cta-bg: var(--surface);
+  --cta-text: var(--text);
+  --cta-muted: var(--muted);
+
+  --stage-1: #F7F5F0;
+  --stage-2: #E2DED6;
+  --stage-border: #E3DFD7;
+  --stage-grid: rgba(9, 115, 165, 0.12);
+  --stage-hint: #4A505C;
+  --floor-shadow: rgba(26, 29, 36, 0.38);
+  --dot: #868C97;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scrollbar-color: var(--accent) var(--bg); }
+/* Microdetalles con el azul de la marca */
+::selection { background: rgba(var(--accent-rgb), 0.4); color: var(--text); }
+body {
+  margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans);
+  overflow-x: hidden; -webkit-font-smoothing: antialiased;
+}
+
+/* Cambio de tema: fundido suave entre el aspecto viejo y el nuevo (lo lanza useTheme.js con View Transitions).
+   Se usa el cruce por defecto del navegador y solo se ajusta su duración. Una revelación circular quedaba mal:
+   la capa vieja es una foto fija y el portátil gira solo, así que en el borde del círculo no coincidían. */
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.6s; animation-timing-function: ease-in-out; }
+/* Navegadores sin View Transitions: fundido de colores durante un instante */
+html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
+  transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, fill 0.5s ease, stroke 0.5s ease !important;
+}
+.theme-icon { display: inline-flex; animation: theme-icon 0.55s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
+@keyframes theme-icon {
+  from { opacity: 0; transform: rotate(-120deg) scale(0.3); }
+  to { opacity: 1; transform: none; }
+}
+a { color: var(--accent-ink); text-decoration-color: var(--accent); text-underline-offset: 3px; }
+a:hover { color: var(--link-hover); }
+a[aria-disabled="true"] { opacity: 0.55; cursor: not-allowed; }
+h1, h2, h3 { font-family: var(--display); letter-spacing: -0.03em; margin: 0; }
+p { margin: 0; }
+button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+section[id], div[id] { scroll-margin-top: 16px; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.container { max-width: 1200px; margin: 0 auto; padding-left: 24px; padding-right: 24px; }
+@media (max-width: 480px) { .container { padding-left: 16px; padding-right: 16px; } }
+.row { display: flex; flex-wrap: wrap; gap: 12px; }
+.mono { font-family: var(--mono); }
+.accent { color: var(--accent-ink); }
+.kicker { font-family: var(--mono); font-size: 13px; color: var(--accent-2); }
+
+/* Botones */
+.btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 999px; font-weight: 600; text-decoration: none; transition: transform 0.15s, background 0.15s; }
+.btn:not([aria-disabled="true"]):hover { transform: translateY(-1px); }
+.btn--lg { min-height: 48px; padding: 0 24px; }
+.btn--accent { background: var(--accent); color: var(--on-accent); }
+.btn--accent:hover { color: var(--on-accent); }
+.btn--accent:not([aria-disabled="true"]):hover { background: var(--accent-hover); }
+.btn--ghost { border: 1px solid var(--line-2); color: var(--text); font-weight: 500; }
+.btn--ghost:hover { color: var(--text); border-color: var(--silver); }
+/* Botón secundario dentro del bloque final: usa los colores del propio bloque (claro en oscuro, negro en claro) */
+.btn--cta-outline { border: 2px solid var(--cta-text); color: var(--cta-text); }
+.btn--cta-outline:hover { color: var(--cta-text); }
+
+.icon-btn {
+  display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex: none;
+  border-radius: 12px; border: 1px solid var(--line-2); background: var(--surface); color: var(--text); cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.icon-btn:hover { border-color: var(--silver); }
+.icon-btn:active { transform: scale(0.94); }
+
+/* Navegación (flota sobre la portada 3D) */
+.nav { position: absolute; top: 0; left: 0; right: 0; z-index: 10; pointer-events: none; }
+.nav__inner > * { pointer-events: auto; }
+.nav__inner { padding-top: 20px; padding-bottom: 20px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
+.brand:hover { color: var(--text); }
+.brand__mark { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line-2); font: 600 14px var(--mono); color: var(--accent-ink); }
+/* Cursor de la firma: parpadea suave (con "reducir movimiento" se queda fijo por la regla global del final) */
+.cursor-blink { animation: cursor-blink 1.2s steps(2, jump-none) infinite; }
+@keyframes cursor-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.15; } }
+.brand__name { font: 700 19px var(--display); letter-spacing: -0.02em; }
+.nav__links { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; font-size: 15px; }
+.nav__links a:not(.btn) { color: var(--muted); text-decoration: none; }
+.nav__links a:not(.btn):hover { color: var(--text); }
+@media (max-width: 640px) {
+  .nav__inner { flex-wrap: nowrap; gap: 10px; }
+  .nav__links { gap: 10px; flex-wrap: nowrap; flex: none; }
+  .nav__links a:not(.btn) { display: none; }
+  .nav__links .btn { padding: 0 16px; }
+  .brand { min-width: 0; }
+  .brand__name { font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+/* Portada: texto de presentación a la izquierda y el retrato en capas 3D (Portrait.jsx) a la derecha */
+.hero { position: relative; height: 100vh; height: 100svh; min-height: 620px; overflow-x: clip; }
+/* Atmósfera: luz azul tenue detrás de la mascota y viñeta en los bordes (detrás del contenido).
+   La primera capa funde el borde inferior con el color de la página (--bg): así la portada y Proyectos se encuentran
+   en el mismo tono y no se ve un corte (Jhon, 24/11/2026). El escenario hace lo mismo arriba (.stage::before). */
+.hero::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    linear-gradient(to bottom, transparent calc(100% - 160px), var(--bg)),
+    radial-gradient(ellipse 55% 60% at 76% 40%, var(--halo), transparent 70%),
+    radial-gradient(ellipse at 50% 45%, transparent 55%, var(--vignette));
+}
+.hero__content { position: relative; z-index: 1; height: 100%; display: flex; align-items: center; gap: 24px; padding-top: 72px; padding-bottom: 72px; }
+.hero__content .intro { max-width: 440px; flex: none; }
+@media (max-width: 899px) {
+  .hero { height: auto; min-height: 0; }
+  .hero__content { height: auto; flex-direction: column; align-items: stretch; gap: 40px; padding-top: 112px; padding-bottom: 56px; }
+  .hero__content .intro { max-width: 560px; }
+}
+/* Niebla azul muy tenue que se mueve despacio detrás de la portada. Decoración: no se dibuja en modo ligero
+   (< 900 px) ni con "reducir movimiento" (regla de CLAUDE.md para decoraciones animadas). */
+.fog { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+/* Rendimiento: las manchas son degradados radiales (el borde difuso sale del degradado), no filter: blur(70px),
+   que en una capa grande y animada costaba mucho en GPU */
+.fog i { position: absolute; border-radius: 50%; background: radial-gradient(closest-side, rgba(var(--haze-rgb), var(--fog)), rgba(var(--haze-rgb), calc(var(--fog) * 0.45)) 45%, transparent); will-change: transform; }
+.fog i:nth-child(1) { width: 46vw; height: 34vw; left: -8vw; top: 12%; animation: fog-a 38s ease-in-out infinite alternate; }
+.fog i:nth-child(2) { width: 40vw; height: 30vw; right: -6vw; bottom: -6%; animation: fog-b 46s ease-in-out infinite alternate; }
+@keyframes fog-a { to { transform: translate(18vw, 8vh) scale(1.12); } }
+@keyframes fog-b { to { transform: translate(-16vw, -10vh) scale(0.92); } }
+@media (max-width: 899px), (prefers-reduced-motion: reduce) { .fog { display: none; } }
+
+/* Palabra rotatoria del titular */
+/* Ventana con overflow oculto: las palabras entran por abajo y salen por arriba sin pisar el texto de debajo */
+.rotor { display: inline-grid; overflow: hidden; padding-bottom: 0.14em; margin-bottom: -0.14em; }
+.rotor__w { grid-area: 1 / 1; opacity: 0; transform: translateY(100%); transition: opacity 0.45s, transform 0.45s; }
+.rotor__w.is-on { opacity: 1; transform: none; transition-delay: 0.12s; }
+/* La que sale se apaga rápido: antes las dos se veían a la vez a media transición, montadas sobre "Construyo" */
+.rotor__w.is-out { transform: translateY(-100%); transition: opacity 0.18s, transform 0.45s; }
+@media (prefers-reduced-motion: reduce) { .rotor__w { transition: none; } }
+
+/* Proyectos: el escenario 3D ocupa toda la sección (portátil a la izquierda) y a la derecha va el carrusel */
+.work { --cards-w: clamp(380px, 36vw, 460px); position: relative; height: 100vh; height: 100svh; min-height: 680px; }
+.work__stage { position: absolute; inset: 0; }
+.work__panel { position: relative; z-index: 2; height: 100%; display: flex; justify-content: flex-end; pointer-events: none; /* el resto sigue girando el portátil */ }
+.work__col { width: var(--cards-w); height: 100%; display: flex; flex-direction: column; gap: 20px; padding: 88px 0 40px; pointer-events: auto; transition: opacity 0.35s, transform 0.35s; }
+.work__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+@media (min-width: 900px) {
+  /* En el despiece las tarjetas se ocultan y la ficha de la pieza ocupa su columna */
+  .work--exploded .work__col { opacity: 0; transform: translateX(16px); pointer-events: none; visibility: hidden; transition: opacity 0.35s, transform 0.35s, visibility 0s 0.35s; }
+}
+/* Pantallas estrechas: primero el portátil a pantalla completa y debajo el carrusel */
+@media (max-width: 899px) {
+  .work { height: auto; min-height: 0; }
+  .work__stage { position: relative; height: 92vh; height: 92svh; min-height: 520px; }
+  .work__panel { pointer-events: auto; }
+  .work__col { width: 100%; height: auto; padding: 40px 0 48px; }
+}
+
+/* Carrusel vertical: circula despacio de arriba hacia abajo, en bucle, y con el puntero encima se mueve con la rueda.
+   El movimiento lo escribe useCarousel (Projects.jsx) en .carousel__track; overscroll-behavior evita que la rueda
+   en un trackpad "rebote" a la página. */
+.carousel { flex: 1; min-height: 0; overflow: hidden; overscroll-behavior: contain; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 9%, #000 91%, transparent); mask-image: linear-gradient(to bottom, transparent, #000 9%, #000 91%, transparent); }
+.carousel__track { display: flex; flex-direction: column; will-change: transform; }
+.carousel__set { list-style: none; margin: 0; padding: 0 0 20px; display: flex; flex-direction: column; gap: 20px; }
+@media (max-width: 899px) { .carousel { flex: none; height: 560px; } }
+@media (prefers-reduced-motion: reduce) {
+  .carousel { overflow-y: auto; -webkit-mask-image: none; mask-image: none; }
+  .carousel__set + .carousel__set { display: none; }
+}
+.intro { display: flex; flex-direction: column; gap: 20px; }
+.intro h1 { font-size: clamp(40px, 5.4vw, 68px); line-height: 1; letter-spacing: -0.035em; }
+.lead { max-width: 460px; font-size: 18px; line-height: 1.6; color: var(--muted); }
+/* Acto 1 (scroll-craft): el titular entra por renglones al cargar; luego no se mueve, para leerse bien */
+.h1-line { display: block; }
+/* Con pantalla de carga, la entrada empieza cuando termina (al quitarse .is-booting de <html>) */
+@media (prefers-reduced-motion: no-preference) {
+  html:not(.is-booting) .h1-line { animation: line-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both; }
+  html:not(.is-booting) .h1-line:nth-child(2) { animation-delay: 0.27s; }
+  html:not(.is-booting) .h1-line:nth-child(3) { animation-delay: 0.39s; }
+  html:not(.is-booting) .intro .lead, html:not(.is-booting) .intro .row { animation: line-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 0.5s both; }
+  html:not(.is-booting) .nav { animation: nav-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+}
+@keyframes nav-in { from { opacity: 0; transform: translateY(-12px); } }
+@keyframes line-in { from { opacity: 0; transform: translateY(0.5em); } }
+
+/* Acto 2, el pico (scroll-craft): en escritorio Proyectos queda fijado mientras el scroll enciende el portátil
+   (useBootRunway en Projects.jsx; 2,4 pantallas = RUNWAY) */
+.boot-runway.is-pinned { height: calc(100svh + 240vh); }
+.boot-runway.is-pinned > .work { position: sticky; top: 0; }
+
+/* Secciones */
+.section { padding-top: 72px; padding-bottom: 72px; display: flex; flex-direction: column; gap: 36px; }
+.section--line { border-top: 1px solid var(--line); }
+.section--tight { padding-top: 0; position: relative; }
+/* Luz azul tenue a un lado de Formación y Contacto (detrás del contenido; main recorta lo que se sale del ancho) */
+main { overflow-x: clip; }
+
+.section--tight::before {
+  content: ''; position: absolute; z-index: -1; inset: -40px -50vw; pointer-events: none;
+  background: radial-gradient(ellipse 60% 70% at 18% 45%, var(--halo-soft), transparent 70%);
+}
+.section__head { display: flex; flex-direction: column; gap: 12px; max-width: 640px; }
+.section__head h2 { font-size: clamp(30px, 4vw, 46px); line-height: 1.05; }
+
+.card { padding: 28px; border-radius: 24px; background: var(--surface); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 16px; transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s; }
+/* Al pasar el puntero: filete plateado fino, como un herraje, y un resplandor azul muy suave */
+.card:hover { transform: translateY(-4px); border-color: var(--silver); box-shadow: 0 12px 32px rgba(var(--accent-rgb), 0.1); }
+.card__img { width: 100%; height: 150px; border-radius: 14px; object-fit: cover; }
+.card__img--empty { background: var(--surface-2); border: 1px dashed var(--line-2); display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--muted-2); }
+.card h3 { font-size: 22px; letter-spacing: -0.02em; }
+.card p { font-size: 15px; line-height: 1.6; color: var(--muted); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; font: 400 12px var(--mono); }
+.tags span { padding: 4px 10px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); color: var(--muted); }
+.card__links { display: flex; gap: 20px; font-size: 15px; font-weight: 500; }
+
+/* La lista de Formación es una pista de circuito: estilos en src/components/Education.css */
+
+.cta { position: relative; border-radius: 32px; background: var(--cta-bg); color: var(--cta-text); border: 1px solid var(--line); padding: clamp(28px, 5vw, 56px); display: flex; flex-direction: column; gap: 22px; margin-bottom: 24px; }
+.cta__head { display: flex; flex-direction: column; gap: 10px; max-width: 620px; }
+.cta h2 { font-size: clamp(32px, 4.4vw, 54px); line-height: 1; letter-spacing: -0.035em; }
+.cta__head p { font-size: 18px; line-height: 1.5; color: var(--cta-muted); }
+
+.footer { border-top: 1px solid var(--line); margin-top: 72px; }
+.footer__inner { padding-top: 28px; padding-bottom: 28px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--muted-2); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}

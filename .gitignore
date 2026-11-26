@@ -1,0 +1,21 @@
+node_modules
+dist
+.DS_Store
+*.log
+
+# Privado: fotos personales de Jhon (de una prueba antigua; no se usan en la web)
+tools/fuente/
+
+# Vídeos sueltos (grabaciones de fallos para revisar) y copias automáticas de Blender
+*.mp4
+*.blend1
+
+# Renders de revisión de Blender (se regeneran desde los .blend; ~20 MB)
+blender/*.png
+
+# Capturas y vídeos de verificación (se regeneran con los scripts); sí se guardan los scripts .mjs
+scrollcraft/builds/*/lab/*
+!scrollcraft/builds/*/lab/*.mjs
+
+# Ajustes locales de Claude Code (si aparecen)
+.claude/settings.local.json

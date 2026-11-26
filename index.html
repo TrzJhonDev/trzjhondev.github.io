@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Portafolio de Jhon, estudiante de Ingeniería de Sistemas." />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230E0F12'/><text x='5' y='22' font-family='monospace' font-size='16' font-weight='700' fill='%237CF7C8'>J_</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <!-- Pantalla de carga (PLAN-PANTALLA-CARGA.md): el modelo de la mascota empieza a bajar ya, a la vez que el resto -->
+    <link rel="preload" href="./models/mascota.glb?v=%MASCOTA_V%" as="fetch" crossorigin="anonymous" />
+    <!-- Versiones de los modelos (huella del archivo, la pone vite.config.js): las URL las usan lib/boot.js y LaptopGL.jsx -->
+    <meta name="model-versions" content="mascota=%MASCOTA_V%;portatil=%PORTATIL_V%" />
+    <title>Jhon — Portafolio | Ingeniería de Sistemas</title>
+    <script>
+      // Aplica el tema antes de pintar para evitar un destello de color
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem('theme'); } catch (e) {}
+        if (t !== 'light' && t !== 'dark') {
+          t = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+        document.documentElement.dataset.theme = t;
+        // Pantalla de carga: mientras dura, la página está maquetada pero oculta (sin saltos al aparecer)
+        document.documentElement.classList.add('is-booting');
+        // Tras la carga se empieza arriba (o en el #ancla): el navegador no salta a la posición anterior a mitad de la entrada
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        // La imagen del robot dormido (la del tema) se pide ya, con prioridad alta
+        var l = document.createElement('link');
+        l.rel = 'preload'; l.as = 'image'; l.setAttribute('fetchpriority', 'high');
+        l.href = './img/mascota-dormida-' + (t === 'light' ? 'claro' : 'oscuro') + '.webp';
+        document.head.appendChild(l);
+      })();
+    </script>
+    <style>
+      /* Pantalla de carga: CSS en línea. La imagen del robot va quieta (sin "respirar"): así coincide con el 3D en el relevo.
+         CSS en línea para que se pinte antes que nada (no espera a la hoja de la página).
+         Colores = tokens de index.css (--bg y la pantalla de la mascota, igual en los dos temas). */
+      html.is-booting { overflow: hidden; }
+      html.is-booting #root { visibility: hidden; }
+      #boot { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; }
+      #boot .boot__bg { position: absolute; inset: 0; background: #0C0E13; transition: opacity 0.55s ease-out; }
+      html[data-theme="light"] #boot .boot__bg { background: #FAF8F4; }
+      #boot .boot__stage { position: relative; width: min(68vw, 340px); aspect-ratio: 3 / 4; }
+      #boot .boot__img, #boot .boot__chest, #boot .boot__z { transition: opacity 0.25s; }
+      #boot .boot__img { position: absolute; inset: 0; width: 100%; height: 100%; }
+      #boot .boot__chest {
+        position: absolute; left: 31.4%; top: 60.2%; width: 37.2%; height: 15.7%;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6%;
+        font: 600 clamp(9px, 3.2vw, 15px) / 1 "JetBrains Mono", ui-monospace, monospace; color: #8FD8FF; letter-spacing: 0.06em;
+        text-shadow: 0 0 6px rgba(143, 216, 255, 0.45);
+      }
+      #boot .boot__bar { display: block; width: 72%; height: 7%; min-height: 3px; border-radius: 2px; background: #12313F; overflow: hidden; }
+      #boot .boot__bar i { display: block; height: 100%; background: #8FD8FF; transform-origin: left; transform: scaleX(0); }
+      #boot .boot__pct { font-size: 0.72em; color: #2AB4F4; }
+      #boot .boot__z { position: absolute; left: 76%; top: 2%; font: 700 clamp(14px, 4vw, 22px) "JetBrains Mono", ui-monospace, monospace; color: #2AB4F4; }
+      #boot .boot__z i { position: absolute; font-style: normal; opacity: 0; }
+      #boot .boot__gl { position: absolute; inset: 0; }
+      #boot.has-gl .boot__img, #boot.has-gl .boot__chest { opacity: 0; }
+      /* El CARGANDO del pecho no aparece flotando solo: espera a la imagen (o al 3D) */
+      #boot:not(.img-ok):not(.has-gl) .boot__chest, #boot:not(.img-ok):not(.has-gl) .boot__z { opacity: 0; }
+      #boot.is-leaving .boot__bg, #boot.is-leaving .boot__z { opacity: 0; }
+      #boot.is-leaving { pointer-events: none; }
+      @media (prefers-reduced-motion: no-preference) {
+        #boot .boot__z i { animation: boot-z 3s ease-out infinite; }
+        #boot .boot__z i:nth-child(2) { animation-delay: 1s; font-size: 0.8em; }
+        #boot .boot__z i:nth-child(3) { animation-delay: 2s; font-size: 0.62em; }
+      }
+      @keyframes boot-z { 0% { opacity: 0; transform: translate(0, 0); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(28px, -46px); } }
+      .boot-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    </style>
+  </head>
+  <body>
+    <!-- Pantalla de carga: el robot dormido (imagen del mismo motor 3D) con CARGANDO en el pecho. Al terminar, el robot
+         3D despierta y vuela a su sitio en la portada (Portrait.jsx). Esc o un clic la saltan. -->
+    <div id="boot" role="status">
+      <div class="boot__bg"></div>
+      <div class="boot__stage">
+        <img class="boot__img" alt="" width="680" height="907" fetchpriority="high" />
+        <div class="boot__chest" aria-hidden="true"><span>CARGANDO</span><span class="boot__bar"><i></i></span><span class="boot__pct">0%</span></div>
+        <div class="boot__z" aria-hidden="true"><i>z</i><i>z</i><i>z</i></div>
+        <div class="boot__gl"></div>
+      </div>
+      <span class="boot-sr">Cargando el portafolio</span>
+    </div>
+    <script>
+      // La imagen del tema actual (solo una se descarga)
+      (function () {
+        var img = document.querySelector('#boot .boot__img');
+        img.onload = function () { document.getElementById('boot').classList.add('img-ok'); };
+        img.src = './img/mascota-dormida-' + (document.documentElement.dataset.theme === 'light' ? 'claro' : 'oscuro') + '.webp';
+      })();
+    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

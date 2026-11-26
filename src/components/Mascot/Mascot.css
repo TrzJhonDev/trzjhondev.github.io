@@ -1,0 +1,206 @@
+/* ── Mascota (robot 3D de CSS) ─────────────────────────────────────
+   Importante: ningún ancestro de las caras (.mf) puede tener overflow, filter u opacity < 1,
+   o aplanaría la escena. Los colores se definen aquí por tema. */
+/* Las variables de color también las usa la mascota en miniatura de la pista de Formación (.track__bot) */
+.mascot, .track__bot {
+  /* Oscuro: carcasa grafito, auriculares azules, ojos y brillo azul cielo claro (ver PLAN-COLORES.md) */
+  --m-shell: #5B5E67; --m-joint: #26282D; --m-cup: #1E88C2; --m-frame: #0A0B0D; --m-chest: #181A1E;
+  --m-screen-1: #0B1A24; --m-screen-2: #061016; --m-pupil: #061016;
+  --m-lit: #8FD8FF; --m-lit-rgb: 143, 216, 255; --m-btn: #2AB4F4; --m-on-btn: #04202E;
+  /* Colores de la pantallita de la consola (siempre oscura, igual en los dos modos): azul medio, ámbar y plata */
+  --m-mid: #2AB4F4; --m-hot: #FFB454; --m-silver: #BCC2CC;
+}
+/* Claro: lo opuesto al grafito: carcasa BLANCO PERLA con detalles azules (Jhon, 24/11/2026: la plata se veía apagada;
+   quiere en claro el color contrario, que combine con el blanco y el azul de la página). Las articulaciones van en azul
+   pizarra para que la silueta se lea sobre el fondo claro sin bordes; la pantalla de la cara y la consola siguen oscuras. */
+:root[data-theme="light"] .mascot, :root[data-theme="light"] .track__bot {
+  --m-shell: #E8EEF4; --m-joint: #4E6075; --m-cup: #1E88C2; --m-btn: #097AAE; --m-on-btn: #FFFFFF;
+}
+.mascot {
+  position: absolute; inset: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none;
+}
+.mascot:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 4px; border-radius: 24px; }
+/* Con la consola abierta (menú o juego) las flechas harían aparecer el anillo de foco: se oculta solo entonces; con Tab sigue viéndose */
+.mascot.is-gaming:focus-visible { outline: none; }
+
+/* Escala (--ms la calcula Mascot.jsx) y cámara */
+.mascot__fit { position: absolute; left: 50%; top: 54%; width: 0; height: 0; transform: scale(var(--ms, 1)); }
+.mascot__stage {
+  position: absolute; left: 0; top: 0; width: 0; height: 0; perspective: 1100px; perspective-origin: 0 -60px;
+  animation: mascot-in 0.8s cubic-bezier(0.2, 1.3, 0.4, 1) both;
+}
+@keyframes mascot-in { from { opacity: 0; transform: translateY(24px) scale(0.92); } to { opacity: 1; transform: none; } }
+.mascot__world { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-style: preserve-3d; transform: translateY(14px) rotateX(6deg); }
+
+/* Grupos y piezas */
+.mg, .mp { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-style: preserve-3d; }
+/* outline transparente: fuerza el suavizado (antialiasing) de los bordes de las caras con transformación 3D */
+.mf { position: absolute; backface-visibility: hidden; background: var(--pc, var(--m-shell)); outline: 1px solid transparent; }
+.ms { position: absolute; inset: 0; background: #000; border-radius: inherit; pointer-events: none; }
+
+/* Sombra en el suelo */
+.mshadow {
+  position: absolute; left: -120px; top: -60px; width: 240px; height: 120px; pointer-events: none; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.5), transparent); transform: translateY(131px) rotateX(90deg);
+}
+
+/* Cara: pantalla, brillo de cristal y gafas */
+.mscreen {
+  position: absolute; left: -80px; top: -62px; width: 160px; height: 124px; border-radius: 30px; overflow: hidden;
+  background: linear-gradient(150deg, var(--m-screen-1), var(--m-screen-2));
+  box-shadow: inset 0 0 0 3px rgba(0, 0, 0, 0.45), inset 0 0 26px rgba(var(--m-lit-rgb), 0.14);
+}
+.mscreen svg { display: block; fill: var(--m-lit); filter: drop-shadow(0 0 4px rgba(var(--m-lit-rgb), 0.75)); }
+.mpupil { fill: var(--m-pupil); }
+.mscreen__glare { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(125deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 38%); }
+
+.mframes { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
+.mframe {
+  position: absolute; width: 58px; height: 62px; box-sizing: border-box; border: 5px solid var(--m-frame); border-radius: 15px;
+  background: rgba(var(--m-lit-rgb), 0.06); box-shadow: 0 0 0 1.5px rgba(var(--m-lit-rgb), 0.4);
+}
+.mframes--hi .mframe { border: 1.5px solid rgba(255, 255, 255, 0.22); background: transparent; box-shadow: none; }
+.mframe__bridge { position: absolute; left: -9px; top: -26.5px; width: 18px; height: 5px; border-radius: 3px; background: var(--m-frame); box-shadow: 0 0 0 1.5px rgba(var(--m-lit-rgb), 0.4); }
+
+/* Auriculares: diadema y copas */
+.mband { box-sizing: border-box; background: transparent; border: var(--band, 10px) solid var(--m-cup); border-bottom: 0; }
+.mband .ms { background: transparent; border: var(--band, 10px) solid #000; border-bottom: 0; box-sizing: border-box; border-radius: inherit; }
+
+
+/* ── Consola del pecho (Console.jsx): pantalla de píxeles, cruceta, botones A/B y el botón del ecualizador ── */
+.mchest {
+  position: absolute; left: 4px; top: 5px; width: 108px; height: 86px; border-radius: 14px; background: var(--m-chest);
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(255, 255, 255, 0.28);
+}
+.mconsole__screen {
+  position: absolute; left: 6px; top: 5px; width: 96px; height: 54px; border-radius: 6px; overflow: hidden; cursor: pointer;
+  background: linear-gradient(150deg, var(--m-screen-1), var(--m-screen-2));
+  box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, 0.55), inset 0 0 12px rgba(var(--m-lit-rgb), 0.12);
+}
+.mconsole__screen canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.mconsole__text {
+  position: absolute; inset: 4px 5px; box-sizing: border-box; pointer-events: none; white-space: pre; overflow: hidden;
+  font: 600 8.2px/9.6px var(--mono); color: var(--m-lit); text-shadow: 0 0 2px rgba(var(--m-lit-rgb), 0.4); text-rendering: geometricPrecision; -webkit-font-smoothing: antialiased;
+}
+.mconsole__text.is-center { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.mconsole__text.mc-over { inset: 0; padding: 4px 5px; background: rgba(6, 16, 22, 0.8); }
+.mc-dim { color: var(--m-mid); }
+.mc-logo { font-size: 26px; line-height: 26px; font-weight: 700; letter-spacing: 0.02em; }
+.mc-sm { font-size: 7px; line-height: 9px; color: var(--m-mid); animation: mc-blink 1.4s steps(1) infinite; }
+.mc-cur { font-style: normal; animation: mc-blink 1s steps(1) infinite; }
+.mc-block { display: inline-block; width: 4px; height: 7.4px; margin-left: 1px; vertical-align: -1.2px; background: var(--m-lit); animation: mc-blink 1s steps(1) infinite; }
+@keyframes mc-blink { 50% { opacity: 0; } }
+.mc-hud {
+  position: absolute; left: 0; right: 0; top: 0; display: none; justify-content: space-between; padding: 1.5px 3px; box-sizing: border-box; pointer-events: none;
+  font: 700 6.8px/7.6px var(--mono); color: var(--m-silver);
+}
+.mconsole__dpad { position: absolute; left: 9px; top: 62px; width: 21px; height: 21px; }
+.mc-pad { position: absolute; width: 7px; height: 7px; border-radius: 1.5px; background: #3A3A42; cursor: pointer; touch-action: none; }
+.mc-pad::before { content: ''; position: absolute; inset: -1.5px; } /* zona de clic un poco mayor que la tecla */
+.mc-pad--up { left: 7px; top: 0; } .mc-pad--left { left: 0; top: 7px; } .mc-pad--mid { left: 7px; top: 7px; cursor: default; }
+.mc-pad--right { left: 14px; top: 7px; } .mc-pad--down { left: 7px; top: 14px; }
+.mc-pad.is-down, .mconsole__btn.is-down { background: var(--m-lit); }
+.mconsole__btn {
+  position: absolute; width: 11px; height: 11px; border-radius: 50%; background: #3A3A42; color: var(--m-lit); cursor: pointer; touch-action: none;
+  display: flex; align-items: center; justify-content: center; font: 700 5.4px/1 var(--mono);
+}
+.mconsole__btn.is-down { color: #061016; }
+.mconsole__btn--b { left: 74px; top: 70px; } .mconsole__btn--a { left: 88px; top: 64px; }
+
+/* Ecualizador de adorno: no oye nada. Mientras se juega (.is-playing) las barras bailan, como si sonara una música.
+   La pantalla NO parpadea ni late (Jhon no quiso el contorno de color parpadeando). */
+.mconsole__eq {
+  position: absolute; left: 36px; top: 69px; width: 32px; height: 11px; border-radius: 3px; background: #26262D;
+  display: flex; align-items: flex-end; justify-content: center; gap: 2px; padding: 2.5px 0; box-sizing: border-box; pointer-events: none;
+}
+.mconsole__eq b { display: block; width: 2.4px; height: 2px; border-radius: 0.6px; background: #6A6A75; transition: background 0.3s; }
+.mconsole.is-playing .mconsole__eq b { background: var(--m-lit); animation: mc-eq 0.7s ease-in-out infinite; }
+.mconsole.is-playing .mconsole__eq b:nth-child(2) { animation-duration: 0.55s; animation-delay: -0.2s; }
+.mconsole.is-playing .mconsole__eq b:nth-child(3) { animation-duration: 0.83s; animation-delay: -0.45s; }
+.mconsole.is-playing .mconsole__eq b:nth-child(4) { animation-duration: 0.62s; animation-delay: -0.1s; }
+.mconsole.is-playing .mconsole__eq b:nth-child(5) { animation-duration: 0.77s; animation-delay: -0.3s; }
+@keyframes mc-eq { 0%, 100% { height: 2px; } 30% { height: 6.5px; } 55% { height: 3.5px; } 80% { height: 5.5px; } }
+@media (prefers-reduced-motion: reduce) {
+  .mc-sm, .mc-cur, .mc-block, .mconsole.is-playing .mconsole__eq b { animation: none; }
+  .mconsole.is-playing .mconsole__eq b { height: 5px; }
+}
+
+/* El mini teclado (estante delantero) solo sale mientras la mascota teclea; antes tapaba la cruceta y los botones de la consola */
+.mkb { transform-origin: 0 78px 52px; transform: scale(0.001); visibility: hidden; transition: transform 0.25s ease-in, visibility 0s 0.25s; }
+.is-typing .mkb { transform: scale(1); visibility: visible; transition: transform 0.4s cubic-bezier(0.2, 1.3, 0.4, 1), visibility 0s; }
+@media (prefers-reduced-motion: reduce) { .mkb, .is-typing .mkb { transition: none; } }
+
+/* Mini teclado: las teclas se encienden por turnos mientras teclea */
+.mkeys {
+  position: absolute; inset: 7px 9px; border-radius: 4px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 9px, rgba(0, 0, 0, 0.7) 9px 11px),
+    repeating-linear-gradient(0deg, rgba(var(--m-lit-rgb), 0.55) 0 7px, rgba(0, 0, 0, 0.7) 7px 9px);
+  opacity: 0.55; transition: opacity 0.3s;
+}
+.is-typing .mkeys { opacity: 1; animation: mkeys 0.28s steps(2) infinite; }
+@keyframes mkeys { 50% { opacity: 0.6; } }
+
+/* ── Mascota pequeña: fija abajo a la derecha cuando la de la portada ya no se ve ── */
+.mascot-mini {
+  position: fixed; right: 14px; bottom: 12px; width: 104px; height: 140px; z-index: 30; pointer-events: none;
+  /* Sin entrada animada ni salto (Jhon, 24/11/2026: "se verá más fluido"): aparece en su sitio y saluda (greet en Mascot) */
+}
+.mascot-mini .mascot { pointer-events: auto; }
+/* La grande de la portada se esconde (y pausa su bucle) mientras la pequeña está en la esquina */
+.portrait.is-away .mascot { visibility: hidden; }
+@keyframes mini-in { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+@media (max-width: 899px) { .mascot-mini { width: 72px; height: 96px; right: 8px; bottom: 8px; } }
+@media print { .mascot-mini, .mascot-call { display: none; } }
+
+/* Botón para esconder la mascota pequeña (queda discreto) y botón para volver a llamarla */
+.mascot-mini__hide {
+  position: absolute; left: 0; top: 14px; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%; border: 1px solid var(--line-2); background: var(--surface); color: var(--muted); cursor: pointer;
+  opacity: 0.75; transition: opacity 0.2s; pointer-events: auto;
+}
+.mascot-mini__hide:hover, .mascot-mini__hide:focus-visible { opacity: 1; color: var(--text); border-color: var(--muted-2); }
+.mascot-call {
+  position: fixed; right: 14px; bottom: 14px; z-index: 30; width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%; border: 1px solid var(--line-2); background: var(--surface); color: var(--accent-ink); cursor: pointer;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3); animation: mini-in 0.4s ease-out both;
+}
+.mascot-call:hover { border-color: var(--accent-ink); }
+@media (max-width: 899px) { .mascot-call { right: 8px; bottom: 8px; } }
+
+/* ── Globo de mensaje ── */
+.mbubble {
+  position: absolute; z-index: 5; display: flex; flex-direction: column; gap: 6px; padding: 10px 12px 8px; border-radius: 16px;
+  background: var(--surface); color: var(--text); border: 1px solid color-mix(in srgb, var(--accent-ink) 40%, var(--line-2));
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3); pointer-events: auto;
+  animation: bubble-in 0.25s ease-out both;
+}
+@keyframes bubble-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.mbubble::after { /* pico del globo, apuntando a la mascota */
+  content: ''; position: absolute; width: 12px; height: 12px; background: var(--surface);
+  border: 1px solid color-mix(in srgb, var(--accent-ink) 40%, var(--line-2)); border-top: 0; border-left: 0;
+  transform: rotate(45deg);
+}
+.mbubble__text { margin: 0; font: 500 13px/1.45 var(--sans); }
+.mbubble__actions { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+.mbubble__actions button {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 28px; padding: 0 8px; border: 0; border-radius: 8px;
+  background: transparent; color: var(--muted); font: 500 11.5px var(--sans); cursor: pointer;
+}
+.mbubble__actions button:hover { color: var(--text); background: var(--surface-2); }
+.mbubble__actions .mbubble__act { margin-right: auto; padding: 0 12px; background: var(--accent); color: var(--on-accent); font-weight: 600; }
+.mbubble__actions .mbubble__act:hover { background: var(--accent); color: var(--on-accent); filter: brightness(1.1); }
+/* Portada: encima de la cabeza (hay un hueco) */
+.mbubble--hero { left: 50%; top: -1%; width: min(88%, 270px); transform: translateX(-50%); animation-name: bubble-in-center; }
+@keyframes bubble-in-center { from { opacity: 0; transform: translate(-50%, 6px); } to { opacity: 1; transform: translateX(-50%); } }
+.mbubble--hero::after { left: 50%; bottom: -7px; margin-left: -6px; }
+/* Mascota pequeña: encima de ella, alineado a la derecha */
+.mbubble--mini { right: 0; bottom: calc(100% + 8px); width: min(270px, calc(100vw - 28px)); }
+.mbubble--mini::after { right: 30px; bottom: -7px; }
+
+/* Con "reducir movimiento" no hay entrada ni engranaje girando */
+@media (prefers-reduced-motion: reduce) {
+  .mascot__stage, .mascot-mini, .mascot-call, .mbubble { animation: none; }
+  .mchest__gear { animation: none; }
+  .is-typing .mkeys { animation: none; }
+}

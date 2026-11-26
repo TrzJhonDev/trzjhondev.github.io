@@ -1,0 +1,70 @@
+/* ── Formación: pista de circuito ─────────────────────────────────
+   Una traza vertical a la izquierda (x = 20 px) con una vía por etapa y un tramo corto hasta cada tarjeta.
+   .track__lit (escala en Y) y .track__bot (traslación) los mueve Education.jsx al hacer scroll;
+   .is-lit lo pone el mismo bucle cuando la pista llega a esa vía. Colores: solo tokens. */
+.track { position: relative; }
+.track__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 18px; }
+
+.track__rail { position: absolute; left: 18.5px; width: 3px; border-radius: 3px; background: var(--line-2); }
+.track__lit {
+  position: absolute; inset: 0; border-radius: inherit; transform-origin: top; transform: scaleY(0);
+  background: var(--accent-ink); box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.45);
+}
+
+.track__node { position: relative; padding-left: 64px; }
+/* Tramo de la vía a la tarjeta */
+.track__node::before {
+  content: ''; position: absolute; left: 26px; top: 33px; width: 38px; height: 3px;
+  background: var(--line-2); transition: background-color 0.3s, box-shadow 0.3s;
+}
+.track__via {
+  position: absolute; left: 12px; top: 26px; width: 16px; height: 16px; border-radius: 50%; z-index: 1;
+  background: var(--bg); border: 3px solid var(--line-2); transition: border-color 0.3s, box-shadow 0.3s;
+}
+.track__node.is-lit::before { background: var(--accent-ink); box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.4); }
+.track__node.is-lit .track__via { border-color: var(--accent-ink); box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.5); }
+.track__node--next .track__via { border-style: dashed; }
+
+.track__card {
+  display: flex; flex-direction: column; gap: 6px; padding: 18px 22px; border-radius: 18px;
+  background: var(--surface); border: 1px solid var(--line); transition: border-color 0.3s;
+}
+.track__node.is-lit .track__card { border-color: rgba(var(--accent-rgb), 0.35); }
+.track__card:hover, .track__node.is-lit .track__card:hover { border-color: var(--silver); }
+.track__card--next { background: transparent; border-style: dashed; border-color: var(--line-2); }
+
+.track__meta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px 16px; }
+.track__kind { display: inline-flex; align-items: center; gap: 6px; font: 400 12px var(--mono); color: var(--muted-2); }
+.track__kind svg { color: var(--accent-ink); }
+.track__date { font-size: 13px; color: var(--muted); }
+.track__card strong { font-weight: 600; font-size: 17px; }
+.track__place { font-size: 15px; color: var(--muted); }
+.track__now {
+  display: inline-flex; align-items: center; gap: 8px; width: fit-content; margin-top: 4px; padding: 3px 10px;
+  border-radius: 999px; border: 1px solid rgba(var(--accent-rgb), 0.4); font: 400 12px var(--mono); color: var(--accent-ink);
+}
+.track__now i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-ink); }
+
+/* Mascota en miniatura que recorre la pista (centrada sobre la traza) */
+.track__bot {
+  position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; will-change: transform;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35)) drop-shadow(0 0 8px rgba(var(--m-lit-rgb), 0.25));
+}
+/* Render del modelo 3D en los dos temas: se muestra el del tema actual */
+.track__bot-img { display: block; width: 40px; height: 34px; object-fit: contain; }
+.track__bot-img--light { display: none; }
+:root[data-theme="light"] .track__bot-img--dark { display: none; }
+:root[data-theme="light"] .track__bot-img--light { display: block; }
+
+/* Acto 3 (scroll-craft): cada tarjeta se descubre con una cortinilla de izquierda a derecha cuando la luz de la pista
+   llega a su vía. Solo transform/clip-path; con "reducir movimiento" todas se ven desde el principio. */
+@media (prefers-reduced-motion: no-preference) {
+  .track__card { clip-path: inset(0 100% 0 0 round 18px); transition: clip-path 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s; }
+  .track__node.is-seen .track__card { clip-path: inset(0 0 0 0 round 18px); }
+}
+
+@media (max-width: 480px) {
+  .track__node { padding-left: 56px; }
+  .track__node::before { width: 30px; }
+  .track__card { padding: 16px 18px; }
+}
