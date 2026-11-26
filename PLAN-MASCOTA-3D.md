@@ -38,7 +38,7 @@ Objetivo: modelar la mascota en Blender, animarla y probarla en la web **sin toc
 ## 3. Modelado limpio
 - Cubos con *Bevel* (segmentos 6–8) y *Weighted Normal*: curvas suaves sin franjas, pocas caras.
 - Meta: ≤ 8.000 triángulos en total. Cada pieza con nombre claro (`cabeza`, `cuerpo`, `brazo.L`…).
-- Materiales por papel, no por color: `carcasa`, `articulacion`, `auricular`, `boton`, `pantalla_cara`, `pantalla_consola`, `marco`. La web los recolorea según el tema (grafito en oscuro, blanco perla en claro, ver `PLAN-COLORES.md`).
+- Materiales por papel, no por color: `carcasa`, `articulacion`, `auricular`, `boton`, `pantalla_cara`, `pantalla_consola`, `marco`. La web los recolorea según el tema con `THEMES` de `Mascot3D/engine.js`: marfil y mandarina desde el 26/11/2026, la misma identidad en los dos temas (en claro el marfil va algo más tostado); `orejaL`, `orejaR` y `diadema` usan el material de las articulaciones en el modelo y el motor les pone el del auricular (`ACCENT_PIECES`). Ver `PLAN-COLORES.md`.
 - Estilo: acabado satinado y limpio (como la carcasa del portátil), sin bordes de contorno (decisión de Jhon).
 
 ## 4. Pantallas (cara y consola)

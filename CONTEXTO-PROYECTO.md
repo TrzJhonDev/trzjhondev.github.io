@@ -1,6 +1,6 @@
 # Contexto del proyecto (traspaso a otra cuenta de Claude)
 
-Actualizado el **26/11/2026**. Sirve para que un Claude nuevo, sin acceso a las conversaciones ni a la memoria de la cuenta anterior, sepa:
+Actualizado el **26/11/2026** (al final del día). Sirve para que un Claude nuevo, sin acceso a las conversaciones ni a la memoria de la cuenta anterior, sepa:
 - qué es el proyecto y en qué estado está;
 - cómo trabaja Jhon y qué decisiones no hay que pisar;
 - qué falta y cómo verificar los cambios.
@@ -16,7 +16,7 @@ Actualizado el **26/11/2026**. Sirve para que un Claude nuevo, sin acceso a las 
 | `CLAUDE.md` | **Fuente de verdad técnica** y de decisiones. Claude Code lo carga solo. Es muy denso: léelo entero antes de tocar algo. |
 | `PLAN-COLORES.md` | **Fuente de verdad de colores** (paleta azul cielo, tokens, contrastes). |
 | `PLAN-MASCOTA-3D.md`, `PLAN-PORTATIL-3D.md`, `PLAN-PANTALLA-CARGA.md` | Planes de la migración a Blender y de la pantalla de carga, con su estado. |
-| `scrollcraft/builds/portafolio/BRIEF.md` y `SCORE.md` | Guion de la experiencia de scroll (entrevista con Jhon del 25/11/2026). |
+| `scrollcraft/builds/portafolio/BRIEF.md` y `SCORE.md` | Guion de la experiencia de scroll (entrevista con Jhon del 25/11/2026; llevan una nota con lo que cambió después). |
 | `README.md` | Manual de uso del sitio (actualizado el 26/11/2026). |
 | Este archivo | Lo que no está en el repositorio: cómo trabaja Jhon, historia, pendientes, trucos y memoria. |
 
@@ -48,12 +48,13 @@ npm run build  # debe pasar sin errores antes de dar algo por terminado
 **Recorrido de la página:**
 1. **Pantalla de carga** (`index.html` + `src/lib/boot.js`): el robot dormido con "CARGANDO" y el progreso real. Despierta y vuela a la portada (FLIP).
 2. **Portada:** titular con la voz de la máquina ("> sesión iniciada" / "Sistema listo. Usuario: Jhon.", desde el 26/11/2026; antes era la plantilla "Hola, soy… Construyo <palabra que rota>"). La mascota 3D va a la derecha, con parallax de 3 planos al bajar. Los títulos de sección también hablan así: "Programas instalados", "Historial de versiones", "Abrir conexión".
-3. **Proyectos:** en escritorio la sección queda fija ~2,4 pantallas. La mascota pulsa el botón A de su pecho y el scroll enciende el portátil (tapa, BIOS, teclas). A la derecha, una lista quieta de programas (`proyecto-1.app`…): al abrir uno se ve en la pantalla del portátil y la lista despliega sus enlaces.
-4. **Formación:** pista de circuito que se enciende con el scroll, con una mini mascota.
-5. **Contacto:** escenario donde la mascota 3D pasea y lleva tus tarjetas (mensaje por `mailto:`, copiar correo, GitHub, LinkedIn, CV). Por debajo de 1100 px es una rejilla fija.
-6. **Mascota pequeña** en la esquina cuando la portada ya no se ve. Saluda con la mano, sin entrada animada.
+3. **Proyectos ("Programas instalados"):** en escritorio la sección queda fija 1,6 pantallas mientras el portátil se enciende con el scroll (la mascota pulsa el botón A de su pecho; tapa, BIOS y teclas, a 60 fps). Al terminar se suelta para siempre, sin salto. A la derecha, una lista quieta de programas (`proyecto-1.app`…): al abrir uno se ve en la pantalla del portátil y la lista despliega sus enlaces.
+4. **Formación ("Historial de versiones"):** mapa de niveles. Fichas con volumen sobre un camino SVG que serpentea; certificados = superados, carrera = nivel actual, prácticas = bloqueado. La línea azul sigue al scroll y la cabeza de la mascota salta de nivel en nivel (uno a uno, por tiempo).
+5. **Contacto ("Abrir conexión"):** formulario `mailto:` y un switch de 7 puertos con volumen (correo, GitHub, LinkedIn, TikTok, Instagram, YouTube, CV) con logos que se colorean al enchufar. La mascota 3D pasea con un conector cuyo cable sale de un servidor renderizado en Blender; el pie de página va en el suelo del escenario. Por debajo de 1100 px es una rejilla fija.
+6. **Mascota pequeña** en la esquina cuando la portada ya no se ve. Saluda con la mano, sin entrada animada, cambia de pose según la sección y no se puede ocultar (Jhon quitó la ×).
+7. **Barra flotante** que se esconde al bajar, vuelve al subir y subraya la sección activa. Tarjeta para compartir (`public/og.jpg`) y ajustes de móvil nativo.
 
-**Mascota:** robot con gafas, orejas, headset y micrófono, y una **consola en el pecho** con 3 juegos (Serpiente, Salto, Ladrillos). Si el ratón está quieto 8 s, escribe datos útiles (`tips.js`). Guía con globos (`mascot.js`). Aún **sin nombre**. Hay una versión CSS 3D de respaldo (sin WebGL o mientras carga).
+**Mascota:** robot con gafas, orejas, headset y micrófono, y una **consola en el pecho** con 3 juegos (Serpiente, Salto, Ladrillos). Colores **marfil y mandarina**, iguales en los dos temas. Se acomoda las gafas cada 16–30 s (su gesto propio). Si el ratón está quieto 8 s, escribe datos útiles (`tips.js`). Guía con globos (`mascot.js`). Aún **sin nombre** (Jhon lo dejó para más adelante). Hay una versión CSS 3D de respaldo (sin WebGL o mientras carga).
 
 **Portátil:** modelo de Blender dibujado con WebGL sobre las piezas CSS invisibles, que siguen recibiendo los clics (método híbrido). Conserva todo:
 - teclas-skill con hologramas;
@@ -71,27 +72,26 @@ npm run build  # debe pasar sin errores antes de dar algo por terminado
 - 26/11/2026: arreglados dos fallos de móvil:
   - la mascota flotante se solapaba con la de Contacto;
   - los globos se quedaban abiertos encima de otra sección y tenían textos de escritorio ("pasa el puntero", "a la derecha").
+- Publicado en **https://trzjhondev.github.io/** (GitHub Pages; cada push a `main` publica solo).
 
 **Pendiente**
 1. **Datos de `profile.js`** (los pone Jhon): apellido (se ve "[APELLIDO]" en el pie), correo, GitHub, LinkedIn, CV (PDF en `public/`), los **3 proyectos** con capturas (`public/proyectos/`), el ciclo, los años y los 2 certificados. La universidad ya está.
 2. **Nombre de la mascota.** Propuestos: Cron, Nodo, Trazo, Bitzy, Trizo.
-3. **Rendimiento en móvil real.** Medir en un teléfono. Los planes dejan pendiente unir las mallas fijas del portátil (218 llamadas de dibujo) y decidir si se retira la mascota CSS de respaldo (hoy obliga a mantener dos versiones).
-4. **Antes de publicar:**
-   - quitar o dejar las páginas de prueba (`?mascota3d`, `?portatil3d`, `?posar`), que van en el build;
-   - corregir el pie, que dice "hecho con React, CSS 3D y café" y ahora también usa Three.js;
-   - decidir Vercel, Netlify o GitHub Pages.
-5. **Orden:** desde el 26/11/2026 hay repositorio git local (sin remoto). El `.gitignore` deja fuera las fotos de `tools/fuente/`, los vídeos, las copias `.blend1` y las capturas de `scrollcraft/…/lab/`.
+3. **Rendimiento en móvil real.** Medir en un teléfono (con `npm run dev -- --host` o en la página publicada). Los planes dejan pendiente unir las mallas fijas del portátil (218 llamadas de dibujo) y decidir si se retira la mascota CSS de respaldo (hoy obliga a mantener dos versiones).
+4. **Páginas de prueba** (`?mascota3d`, `?portatil3d`, `?posar`): van en el build publicado; decidir si se quitan. `?posar` la usan `poster.mjs`, `cabeza.mjs` y `tools/og.mjs`.
+5. **Orden:** el repositorio está en GitHub (`TrzJhonDev/trzjhondev.github.io`). El `.gitignore` deja fuera las fotos de `tools/fuente/`, los vídeos, las copias `.blend1`, las skills y las capturas de `scrollcraft/…/lab/`.
 
 ## 4. Decisiones que no hay que pisar (resumen; el detalle está en `CLAUDE.md`)
 
 - **Paleta azul cielo** desde el 24/11/2026. El morado "purple gothic" se descartó ("se ve muy triste, apagado, la página se ve muerta"): **no volver a proponerlo**.
   - En oscuro, el texto sobre el botón azul es oscuro, por contraste.
-  - En claro, la mascota es lo opuesto: blanco perla con detalles azules, nunca gris ni plata.
+- **Mascota marfil y mandarina** (26/11/2026, regla 60-30-10, la misma en los dos temas). Jhon descartó las paletas frías o apagadas (grafito/perla, marino, acero): "no se vea frío, muerto, apagado, es alegre".
 - **Portátil:**
   - colores físicos fijos (grafito);
   - **placa base verde con trazas doradas y tubo de cobre**;
   - acabado liso, sin aluminio cepillado ni rejillas de puntos;
   - el cable del cargador nunca "sale de la nada" ni da rodeos.
+- **Contacto:** el cable de la mascota nunca la atraviesa ni se "teletransporta" de un lado a otro; los módulos y el puerto tienen volumen (nada plano); el servidor es un render de Blender (el de CSS se veía suspendido y recortado).
 - **Mascota:**
   - sin bordes de contorno;
   - orejas y headset, nunca auriculares de cubo;
@@ -106,7 +106,11 @@ npm run build  # debe pasar sin errores antes de dar algo por terminado
   - el carrusel de tarjetas que bajaba solo (y su botón de Pausar);
   - la etiqueta "Disponible para prácticas" en la portada;
   - el kicker `// proyectos`;
-  - las pistas de scroll ("Bajar a…", "Más abajo hay…").
+  - las pistas de scroll ("Bajar a…", "Más abajo hay…");
+  - la × para ocultar la mascota pequeña;
+  - la "pista de circuito" de Formación (sustituida por el mapa de niveles);
+  - que la sección Proyectos siga fijada cuando el portátil ya está encendido ("el scroll no hace nada");
+  - los saltos de varios niveles de golpe en Formación ("va muy rápido y termina en una").
 - **Animaciones 3D sin tirones:** las acciones sueltas usan `clampWhenFinished`. En reposo la cabeza no se mueve y la mirada de la cara va ajustada a la rejilla de píxeles. Iluminación sin tono de cine, sin entorno ni luces de color.
 - **Rendimiento:**
   - nada de `filter: blur()` en capas grandes o que se mueven;
@@ -124,16 +128,16 @@ npm run build  # debe pasar sin errores antes de dar algo por terminado
 | 21/11 | Fases 4–5 del morado. Orejas y headset. Consola del pecho con 3 juegos (el ecualizador real con micrófono y después con pantalla compartida, ambos descartados). Arreglo de retraso al seguir el ratón. Skills de Emil Kowalski e Impeccable (solo texto). |
 | 24/11 | **Paleta azul cielo**. **Mascota y portátil modelados en Blender** y llevados a la página con Three.js. Nueva Formación (pista de circuito). Contacto rediseñado con escenario. Aparición de la mascota pequeña sin animación. Reglas de rendimiento. |
 | 25/11 | Revisión de color razonada (aprobada). **Experiencia de scroll** (skill scroll-craft: el pico "Encendido"). **Pantalla de carga** con el robot dormido. |
-| 26/11 | Puente de las gafas rehecho. URLs de modelos con versión. Análisis del proyecto y arreglos de móvil. README y este documento actualizados. Repositorio git creado. |
+| 26/11 | Puente de las gafas rehecho. URLs de modelos con versión. Análisis del proyecto y arreglos de móvil. Repositorio en GitHub y publicación en Pages. Voz de la máquina (titulares), lista de programas en el portátil, tipografía IBM Plex, scroll con inercia (Lenis). Contacto como switch de puertos con cable, servidor de Blender y pie en el escenario. Mascota marfil y mandarina con el gesto de las gafas y pose por sección; brazos sin parpadeo. Formación como mapa de niveles. Barra flotante con sección activa, móvil nativo y tarjeta para compartir. Scroll fluido en Proyectos y Formación. |
 
 ## 6. Cómo verificar (trucos)
 
 - **Entorno:** Windows 11, Git Bash y PowerShell. **Sin Python** (usa Node; para importar módulos ES usa URLs `file:///C:/...`).
 - **Recorrido automático:** `node scrollcraft/builds/portafolio/lab/walk.mjs --url http://localhost:5173/ --out <carpeta> [--mobile] [--dark] [--reduced]`. Usa el Chrome instalado sin ventana y gráficos por software, así que la fluidez real es mejor que lo que mide. Saca capturas por paso, una hoja de contactos y los errores de consola. Guarda las capturas fuera del repositorio o en `lab/`, que está ignorada.
-- **Otras herramientas de `lab/`:** `carga.mjs` (pantalla de carga), `poster.mjs` (imágenes del robot con `?posar`) y `video.mjs`.
+- **Otras herramientas de `lab/`:** `carga.mjs` (pantalla de carga), `poster.mjs` (robot dormido con `?posar`), `cabeza.mjs` (cabeza de Formación, fondo transparente) y `video.mjs`. En `tools/`: `og.mjs` (tarjeta para compartir) e `iconos.mjs` (iconos del sitio).
 - **El navegador integrado de Claude** a veces se niega a abrir `localhost`; entonces usa `walk.mjs`. Si funciona, recuerda que va estrangulado (casi no anima) y que hay que restaurar el tamaño de ventana y el tema al terminar.
 - **Vite** a veces deja en caché versiones intermedias (`... is not defined`): haz `touch` al archivo que importa y recarga.
-- **Blender:** para modelar desde Claude hace falta Blender abierto con el complemento MCP (puerto 9876). Antes de reexportar, compara los nodos con el `.glb` anterior y comprueba la altura de la mascota (~2,86 m). Si cambias el modelo, vuelve a sacar las imágenes de `public/img/`.
+- **Blender:** para modelar desde Claude hace falta Blender abierto con el complemento MCP (puerto 9876). El servidor de Contacto (`blender/servidor.blend`) es una imagen renderizada con Cycles: si lo cambias, vuelve a renderizar y a proyectar las posiciones de sus luces (`SRV` en `Contact.jsx`). Antes de reexportar, compara los nodos con el `.glb` anterior y comprueba la altura de la mascota (~2,86 m). Si cambias el modelo, vuelve a sacar las imágenes de `public/img/`.
 
 ## 7. Skills instaladas (`.claude/skills/`)
 
@@ -152,7 +156,7 @@ La cuenta anterior guardaba estas notas. Recréalas si quieres; el contenido est
 
 ## 9. Siguientes pasos sugeridos
 
-1. Que Jhon complete los datos de `profile.js` y elija el nombre de la mascota.
+1. Que Jhon complete los datos de `profile.js` (al hacerlo, revisar que los nombres largos no rompan las tarjetas del mapa ni los puertos) y elija el nombre de la mascota.
 2. Probar en su teléfono y en su navegador con teclado y ratón reales, y recoger capturas.
 3. Medir el rendimiento en móvil y, si hace falta, unir las mallas del portátil.
-4. Preparar la publicación: pie de página, páginas de prueba, despliegue y un remoto de git (GitHub) si lo quiere.
+4. Decidir si se quitan las páginas de prueba del build publicado.

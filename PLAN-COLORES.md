@@ -56,7 +56,11 @@ Es decir: **un azul cielo vivo** como protagonista y **un azul algo más profund
 - **Terminal** (`useTerminal.js`): prompt y títulos `#8FD8FF`, error `#FF6B6B`, azul `#5B8DEF`, texto `#E6E8EC`.
 - **Mascota** (`--m-*` en `Mascot.css` y `THEMES` en `Mascot3D/engine.js`): MARFIL Y MANDARINA desde el 26/11/2026 (Jhon eligió la opción A de cuatro paletas alegres; las de grafito/perla, marino y acero se veían frías). La misma identidad en los dos temas con la regla 60-30-10: carcasa marfil cálido (60 %; en claro algo más tostada para separarse del crema), articulaciones grafito `#2E3138` (30 %) y acento mandarina `#FF8A3D` / `#F27A2E` en claro (10 %: orejas, auriculares, diadema, micrófono y botones). La mandarina es el complementario del azul cielo, así que la mascota se hace notar sin competir con los botones azules. Ojos y pantallas, azul cielo claro.
 
+- **Objetos físicos de Contacto**: el servidor es un render de Blender (`public/img/servidor.webp`, grafito y metal, una sola imagen para los dos temas) con luces `#8FD8FF`; el conector es grafito y metal salvo su cuerpo, del color del cable (`--muted`). Los módulos del switch y el puerto integrado siguen el tema con `color-mix` de `--text`; al enchufar, el canto toma el color de la marca (`--edge` por puerto) y la luz del puerto es `--accent` (en línea) o `--danger` (sin señal), siempre con la palabra.
+- **Formación (mapa de niveles)**: todo con tokens. Camino `--line-2` punteado y la parte recorrida `--accent-ink`; ficha superada `--accent` con `--on-accent`; nivel actual con borde `--accent-ink`; bloqueado con borde discontinuo `--line-2`. Cada estado lleva su palabra ("superado", "nivel actual", "bloqueado").
+- **Barra del navegador en el móvil** (`theme-color`): el `--bg` del tema (`#0C0E13` / `#FAF8F4`), lo cambian el script de `index.html` y `applyTheme()`.
+
 ## 4. Reglas
-- Usa los tokens; no escribas hex nuevos en la página. El portátil y la mascota tienen sus colores físicos fijos (arriba).
+- Usa los tokens; no escribas hex nuevos en la página. El portátil, la mascota y los objetos de Contacto tienen sus colores físicos fijos (arriba).
 - Ningún estado se comunica solo con color.
 - Si cambias un token, vuelve a comprobar el contraste en los dos modos (texto ≥ 4,5:1).

@@ -64,3 +64,5 @@ If you want to see what a filled-in table looks like, and which shapes tend to
 collide, read `EXAMPLES.md` in the scroll-craft repository. Treat it as
 illustration only: those rows are somebody else's builds and they do **not**
 constrain yours.
+
+> Nota (26/11/2026): en el portafolio, el pin del acto 2 bajó a 1,6 pantallas y se quita al terminar el encendido; el acto 3 es ahora un mapa de niveles (la línea sigue al scroll y la mascota salta de nivel en nivel) y la conversación de Contacto es un switch de puertos con cable. Ver `builds/portafolio/BRIEF.md`.

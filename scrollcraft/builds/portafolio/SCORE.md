@@ -47,3 +47,12 @@ El registro (`scrollcraft/FINGERPRINTS.md`) está vacío: es la primera construc
 - El pico tiene el mayor recorrido.
 - El acto anterior al pico (el final de la portada) es más tranquilo.
 - Son 4 actos y unas 8,5 pantallas en total: fuera de la franja de 6–7 actos y 13,6–13,8 pantallas.
+
+## Actualización (26/11/2026, después de este guion)
+
+Lo que cambió en la página desde la entrevista; el resto del guion sigue valiendo. El detalle está en `CLAUDE.md`.
+
+- **Acto 2 (Encendido):** la pista fijada es de 1,6 pantallas (no 2,4) y, al terminar el encendido, se quita para siempre sin salto: al volver a pasar, Proyectos ya no se fija ("el scroll no hace nada"). El encendido con el scroll va a 60 fps.
+- **Acto 3 (Formación):** la "pista de circuito" se sustituyó por un **mapa de niveles** (fichas con volumen sobre un camino que serpentea). La línea azul sigue al scroll y la cabeza de la mascota salta de nivel en nivel, uno a uno y por tiempo; cada tarjeta se descubre al asomar.
+- **Acto 4 (Contacto):** switch de puertos con cable (la mascota enchufa el conector), servidor renderizado en Blender y pie de página en el suelo del escenario.
+- **Todo el recorrido:** scroll con inercia (Lenis) y barra flotante que se esconde al bajar y subraya la sección activa.
