@@ -137,6 +137,8 @@ npm run build  # debe pasar sin errores antes de dar algo por terminado
 
 ## 7. Skills instaladas (`.claude/skills/`)
 
+**No se suben a GitHub** (decisión de Jhon, 26/11/2026): la carpeta está en `.gitignore` y solo existe en su equipo. Si el proyecto se abre en otro equipo, hay que reinstalarlas con los pasos de `CLAUDE.md`. Además de las de abajo, el 26/11/2026 se instaló **taste-skill** (`design-taste-frontend`, de Leonxlnx/taste-skill) y se actualizó Impeccable a la 4.11.1.
+
 - **Emil Kowalski** (20, solo texto): animación y pulido (`animate`, `review-animations`, `improve-animations`, `animation-performance`, `emil-design-eng`, `mobile-native`, `break-ui`…).
 - **Impeccable** (solo `SKILL.md` y `reference/`). Jhon eligió no instalar su lanzador ni sus hooks: no los añadas sin su permiso.
 - **scroll-craft** (completa, 25/11/2026). Su `kie.mjs` usa una API de pago: solo con la clave de Jhon y su permiso para cada gasto. No hay clave configurada.

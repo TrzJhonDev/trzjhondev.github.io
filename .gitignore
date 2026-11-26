@@ -17,5 +17,9 @@ blender/*.png
 scrollcraft/builds/*/lab/*
 !scrollcraft/builds/*/lab/*.mjs
 
+# Skills de Claude Code (Emil Kowalski, Impeccable, scroll-craft, taste-skill...): son de terceros y NO se suben
+# a GitHub (decisión de Jhon, 26/11/2026). Viven solo en este equipo; cómo reinstalarlas, en CLAUDE.md
+.claude/skills/
+
 # Ajustes locales de Claude Code (si aparecen)
 .claude/settings.local.json
