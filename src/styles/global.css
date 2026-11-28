@@ -130,3 +130,21 @@ p { margin: 0; }
 }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.3s; }
 ::view-transition-group(*) { animation-duration: 0.55s; animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+/* ── Títulos que se revelan (data-reveal; el script de index.astro pone html.js-reveal y .is-in) ──
+   La línea de consola se escribe de izquierda a derecha, el título sube desde abajo descubriéndose y el texto llega
+   después. Una sola vez. Sin JavaScript o con "reducir movimiento" se ve todo desde el principio. */
+html.js-reveal [data-reveal] > .kicker { clip-path: inset(0 100% 0 0); }
+html.js-reveal [data-reveal] > h2 { clip-path: inset(100% 0 -25% 0); transform: translateY(0.35em); }
+html.js-reveal [data-reveal] > p:not(.kicker) { opacity: 0; transform: translateY(10px); }
+html.js-reveal [data-reveal].is-in > .kicker { clip-path: inset(0 0 0 0); transition: clip-path 0.45s steps(18, end); }
+html.js-reveal [data-reveal].is-in > h2 { clip-path: inset(-15% 0 -25% 0); transform: none; transition: clip-path 0.8s var(--ease) 0.3s, transform 0.8s var(--ease) 0.3s; }
+html.js-reveal [data-reveal].is-in > p:not(.kicker) { opacity: 1; transform: none; transition: opacity 0.6s var(--ease) 0.55s, transform 0.6s var(--ease) 0.55s; }
+
+/* ── D · Enlaces de texto: el subrayado se dibuja al pasar el puntero ── */
+p a, li > a:not([class]) { text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size 0.3s var(--ease), color 0.15s; }
+@media (hover: hover) { p a:hover, li > a:not([class]):hover { background-size: 100% 1px; } }
+
+/* D · Flecha de los botones principales: se desliza al pasar el puntero */
+.btn .arr { display: inline-block; transition: transform 0.2s var(--ease); }
+@media (hover: hover) { .btn:hover .arr { transform: translateX(3px); } a[href^="#"].btn:hover .arr { transform: translateY(2px); } }

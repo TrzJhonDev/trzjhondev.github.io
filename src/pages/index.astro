@@ -38,7 +38,7 @@ import MiniMascot from '../components/MiniMascot.jsx';
         <h1><span class="line">{profile.hero.title}</span><span class="line accent">{accent}</span></h1>
         <p class="hero__lead">{profile.role} en la {profile.university}, {profile.city}. {profile.bio}</p>
         <div class="hero__cta">
-          <a class="btn btn--accent" href="#proyectos">Ver proyectos</a>
+          <a class="btn btn--accent" href="#proyectos">Ver proyectos<span class="arr" aria-hidden="true">↓</span></a>
           <a class="btn btn--ghost" {...localLink(profile.cvUrl)} download={isReal(profile.cvUrl) ? '' : undefined}>Descargar CV</a>
         </div>
       </div>
@@ -57,7 +57,7 @@ import MiniMascot from '../components/MiniMascot.jsx';
   <!-- Proyectos: vitrina con la captura fija que cambia mientras bajas (Showcase.astro) -->
   <section id="proyectos" class="section">
     <div class="wrap">
-      <header class="section__head">
+      <header class="section__head" data-reveal>
         <p class="kicker">~/programas — {list.length} instalados</p>
         <h2>Proyectos</h2>
         <p>Lo que he construido: qué problema resuelve cada uno, cómo lo hice y con qué.</p>
@@ -69,7 +69,7 @@ import MiniMascot from '../components/MiniMascot.jsx';
   <!-- Habilidades -->
   <section id="habilidades" class="section">
     <div class="wrap">
-      <header class="section__head">
+      <header class="section__head" data-reveal>
         <p class="kicker">$ skills --list</p>
         <h2>Habilidades</h2>
         <p>Las herramientas con las que trabajo, por áreas. En <a href={`${BASE}/lab/`}>el laboratorio</a> puedes probarlas en el portátil 3D.</p>
@@ -88,7 +88,7 @@ import MiniMascot from '../components/MiniMascot.jsx';
   <!-- Formación -->
   <section id="formacion" class="section">
     <div class="wrap">
-      <header class="section__head">
+      <header class="section__head" data-reveal>
         <p class="kicker">historial de versiones</p>
         <h2>Formación</h2>
       </header>
@@ -102,14 +102,15 @@ import MiniMascot from '../components/MiniMascot.jsx';
             {isCurrent(e) && <p class="tl__now mono"><i aria-hidden="true"></i>En curso</p>}
           </li>
         ))}
-        {profile.available && (
-          <li class="tl is-next">
-            <span class="tl__dot" aria-hidden="true"></span>
-            <p class="tl__meta mono"><span>próxima versión</span></p>
-            <h3>Prácticas pre‑profesionales<span class="cursor-blink" aria-hidden="true">_</span></h3>
-          </li>
-        )}
       </ol>
+      {/* Próxima versión: fuera de la lista, así la línea azul se para en la carrera en curso y este tramo va punteado */}
+      {profile.available && (
+        <div class="tl-next">
+          <span class="tl__dot" aria-hidden="true"></span>
+          <p class="tl__meta mono"><span>próxima versión</span><span>bloqueada</span></p>
+          <h3>Prácticas pre‑profesionales<span class="cursor-blink" aria-hidden="true">_</span></h3>
+        </div>
+      )}
     </div>
   </section>
 
@@ -117,7 +118,7 @@ import MiniMascot from '../components/MiniMascot.jsx';
   <section id="contacto" class="section">
     <div class="wrap">
       <div class="contact">
-        <header class="section__head">
+        <header class="section__head" data-reveal>
           <p class="kicker">&gt; abrir conexión</p>
           <h2>Contacto</h2>
           <p>Busco prácticas y proyectos donde aprender. Escríbeme y te respondo.</p>
@@ -154,6 +155,14 @@ import MiniMascot from '../components/MiniMascot.jsx';
 </Base>
 
 <script>
+  // C · Títulos que se revelan: al entrar en pantalla, la línea de consola se "escribe" y el título sube desde abajo,
+  // una sola vez. Las clases las pone este script (sin JavaScript se ve todo); con "reducir movimiento", nada.
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+    document.documentElement.classList.add('js-reveal');
+    const io = new IntersectionObserver((list) => list.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -12% 0px' });
+    document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el));
+  }
+
   // Formulario: abre el programa de correo con asunto y texto (sin servidor). Si está vacío, lo dice junto al campo.
   const form = document.querySelector<HTMLFormElement>('.contact__form');
   form?.addEventListener('submit', (ev) => {
@@ -194,7 +203,7 @@ import MiniMascot from '../components/MiniMascot.jsx';
   .hero__cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
   .hero__stage { position: relative; width: min(100%, 440px); justify-self: center; aspect-ratio: 3 / 4; }
   /* Escenario de la mascota: un panel con su luz (en claro, azul noche: el marfil sobre crema casi no se veía) */
-  .hero__panel { position: absolute; inset: 14% 0 3% 0; border-radius: 32px; pointer-events: none; background: var(--stage-glow), var(--stage-panel); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 30px 80px -40px rgba(0, 0, 0, 0.6); }
+  .hero__panel { position: absolute; transform-origin: 50% 70%; inset: 14% 0 3% 0; border-radius: 32px; pointer-events: none; background: var(--stage-glow), var(--stage-panel); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 30px 80px -40px rgba(0, 0, 0, 0.6); }
   :global(.hero-bot) { position: absolute; inset: 0; }
   :global(.hero-bot__img) { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity 0.5s var(--ease); }
   :global(.hero-bot__img--light) { display: none; }
@@ -207,6 +216,30 @@ import MiniMascot from '../components/MiniMascot.jsx';
     .hero__stage { width: min(78vw, 340px); order: -1; }
   }
 
+
+  /* A · Portada. Entrada al cargar: la línea de consola, cada renglón del titular, el texto y los botones, escalonados;
+     el panel y la mascota aparecen a la vez. Salida con el scroll (CSS scroll-driven): el texto sube y se apaga antes,
+     la mascota se aleja más despacio (profundidad). Solo transform y opacity; con "reducir movimiento", nada. */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__text > *, .hero .line { animation: enter 0.75s var(--ease) both; }
+    .hero__text > .kicker { animation-delay: 0.05s; }
+    .hero .line:first-child { animation-delay: 0.14s; }
+    .hero .line:last-child { animation-delay: 0.26s; }
+    .hero__text > h1 { animation: none; }
+    .hero__lead { animation-delay: 0.4s !important; }
+    .hero__cta { animation-delay: 0.52s !important; }
+    .hero__panel, :global(.hero-bot) { animation: enter-stage 0.9s var(--ease) 0.1s both; }
+    @supports (animation-timeline: view()) {
+      .hero__text { animation: hero-out linear both; animation-timeline: view(); animation-range: exit 5% exit 85%; }
+      .hero__stage { animation: stage-out linear both; animation-timeline: view(); animation-range: exit 0% exit 100%; }
+    }
+  }
+  @keyframes enter { from { opacity: 0; transform: translateY(0.45em); } }
+  @keyframes enter-stage { from { opacity: 0; transform: translateY(18px) scale(0.97); } }
+  @keyframes hero-out { to { opacity: 0; transform: translateY(-48px); } }
+  @keyframes stage-out { to { opacity: 0.35; transform: translateY(64px) scale(0.94); } }
+  .btn .arr { display: inline-block; transition: transform 0.2s var(--ease); }
+  @media (hover: hover) { .btn:hover .arr { transform: translateY(2px); } }
   .tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
   .tags li { font: 500 13px var(--mono); padding: 4px 11px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--muted); }
 
@@ -222,7 +255,10 @@ import MiniMascot from '../components/MiniMascot.jsx';
   .tl { position: relative; display: grid; gap: 6px; view-timeline-name: --tl-item; }
   .tl__dot { position: absolute; left: -28px; top: 6px; width: 14px; height: 14px; border-radius: 50%; background: var(--bg); border: 2px solid var(--accent-ink); }
   .tl.is-current .tl__dot { background: var(--accent-ink); }
-  .tl.is-next .tl__dot { border-style: dashed; border-color: var(--line-2); }
+  .tl-next { position: relative; display: grid; gap: 6px; max-width: 760px; margin-top: 34px; padding-left: 28px; }
+  .tl-next::before { content: ''; position: absolute; left: 6px; top: -34px; height: 40px; border-left: 2px dashed var(--line-2); }
+  .tl-next .tl__dot { left: 0; border-style: dashed; border-color: var(--line-2); }
+  .tl-next h3 { font-size: 24px; }
   .tl__meta { display: flex; gap: 14px; font-size: 13px; color: var(--muted-2); }
   .tl h3 { font-size: 24px; }
   .tl__place { color: var(--muted); }
@@ -234,7 +270,7 @@ import MiniMascot from '../components/MiniMascot.jsx';
   @supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {
       .timeline::after { content: ''; position: absolute; left: 6px; top: 8px; bottom: 8px; width: 2px; background: var(--accent-ink); transform-origin: top; animation: tl-draw linear both; animation-timeline: --tl; animation-range: entry 35% cover 62%; }
-      .tl:not(.is-next) .tl__dot { animation: tl-dot linear both; animation-timeline: --tl-item; animation-range: entry 70% cover 45%; }
+      .tl .tl__dot { animation: tl-dot linear both; animation-timeline: --tl-item; animation-range: entry 70% cover 45%; }
       .skill-group { animation: rise linear both; animation-timeline: view(); animation-range: entry 0% entry 70%; }
     }
   }

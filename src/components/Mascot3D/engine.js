@@ -55,8 +55,10 @@ const SECTION_POSE = {
 };
 const SCREEN = ['#0B1A24', '#061016'];
 const EXPR = { dormir: 'sleep', despertar: 'happy', saludo: 'happy', hola: 'happy', susto: 'surprised', risa: 'laugh', celebrar: 'happy', teclear: 'focus', salto: 'happy',
-  cargar: 'happy', caminar_carga: 'happy', triste: 'sad' };
-const LOOPS = new Set(['reposo', 'teclear', 'caminar', 'cargar', 'caminar_carga', 'triste', 'dormir']);
+  cargar: 'happy', caminar_carga: 'happy', triste: 'sad', triste_reposo: 'sad' };
+// triste_reposo (27/11/2026, hecha en Blender para la página 404): cabeza 17° hacia delante, brazos caídos y solo la
+// respiración del cuerpo; su primer y último fotograma son iguales, así el bucle no se nota
+const LOOPS = new Set(['reposo', 'teclear', 'caminar', 'cargar', 'caminar_carga', 'triste', 'triste_reposo', 'dormir']);
 // Escenario de Contacto (opts.stage): alto de la mascota en px según el alto de la caja y el suelo (px desde abajo)
 const STAGE_FLOOR = 30;
 const stagePx = (h) => Math.max(150, Math.min(220, h * 0.58));
@@ -450,7 +452,7 @@ export class MascotEngine {
    * Bajar rápido (> 2.200 px/s durante 0,15 s) = mareo; subir rápido = sorpresa; al parar, una sonrisa de 0,9 s.
    */
   scrollMood(now) {
-    if (this.stage || !this.model) return;
+    if (this.stage || this.o.still || !this.model) return;
     const still = now - this.lastScroll > 220;
     if (still) this.vel *= 0.5;
     const loopName = this.current?.getClip().name;
@@ -665,12 +667,13 @@ export class MascotEngine {
     // Se acomoda las gafas cuando lleva un rato quieta (en su bucle de reposo, sin teclear ni otra acción)
     // (en el escenario de Contacto, solo si te mira de frente: de espaldas o de lado no se ve la mano en las gafas)
     // (no en el escenario de Contacto: allí camina y el director cambia de pose a mitad del gesto)
-    const calm = this.current === this.actions.reposo && !this.typing && !this.oneShot() && this.pressT0 < 0 && !this.sleeping && !this.mood && !this.stage;
+    // still (página 404): sin gafas, sin teclear y sin reaccionar al scroll; se queda en su bucle (pose)
+    const calm = this.current === this.actions.reposo && !this.typing && !this.oneShot() && this.pressT0 < 0 && !this.sleeping && !this.mood && !this.stage && !this.o.still;
     if (this.glassT0 < 0 && calm && now > this.nextGlasses && this.glassPieces?.length) { this.glassT0 = now; this.setExpr('focus'); }
     // Teclear con el ratón quieto (no mientras se juega en la consola)
     const busy = this.o.link?.current?.busy;
     const idle = this.current === this.actions.reposo || this.current === this.actions.teclear;
-    const want = !this.mini && idle && !busy && now - this.lastMove > IDLE_TYPING_MS; // la pequeña no teclea
+    const want = !this.mini && !this.o.still && idle && !busy && now - this.lastMove > IDLE_TYPING_MS; // la pequeña no teclea
     if (want !== this.typing) {
       this.typing = want;
       this.o.link?.current?.typing?.(want);

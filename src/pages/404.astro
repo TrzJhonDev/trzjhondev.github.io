@@ -1,0 +1,38 @@
+---
+// Página 404 (GitHub Pages la sirve sola para cualquier dirección que no exista). Antes salía la página gris de
+// GitHub en inglés; ahora, la mascota triste y la voz de la máquina. Los enlaces son absolutos: esta página se ve
+// en cualquier ruta.
+import Base from '../layouts/Base.astro';
+import SadMascot from '../components/SadMascot.jsx';
+---
+<Base title="Página no encontrada — TrzJhonDev" description="Esta dirección no existe en el portafolio de TrzJhonDev.">
+  <section class="wrap nf">
+    <div class="nf__text">
+      <p class="kicker">&gt; error 404 · archivo no encontrado</p>
+      <h1>Esta página no existe.</h1>
+      <p class="nf__lead">Puede que el enlace esté mal escrito o que el proyecto haya cambiado de nombre. La mascota lo ha buscado por todas partes.</p>
+      <div class="nf__cta">
+        <a class="btn btn--accent" href="/">Volver al inicio</a>
+        <a class="btn btn--ghost" href="/#proyectos">Ver proyectos</a>
+      </div>
+      <p class="mono nf__exit">exit 1</p>
+    </div>
+    <div class="nf__stage">
+      <div class="nf__panel" aria-hidden="true"></div>
+      <SadMascot client:only="react" />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf { min-height: min(100svh, 860px); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: clamp(24px, 5vw, 64px); align-items: center; padding-block: 120px 40px; }
+  .nf__text { display: grid; gap: 18px; }
+  .nf h1 { font-size: clamp(40px, 6vw, 72px); }
+  .nf__lead { color: var(--muted); font-size: 18px; max-width: 48ch; }
+  .nf__cta { display: flex; flex-wrap: wrap; gap: 12px; }
+  .nf__exit { font-size: 13px; color: var(--danger); }
+  .nf__stage { position: relative; aspect-ratio: 3 / 4; width: 100%; }
+  .nf__panel { position: absolute; inset: 14% 0 3% 0; border-radius: 32px; background: var(--stage-glow), var(--stage-panel); }
+  :global(.sad-bot) { position: absolute; inset: 0; }
+  @media (max-width: 760px) { .nf { grid-template-columns: 1fr; } .nf__stage { width: min(70vw, 300px); justify-self: center; order: -1; } }
+</style>

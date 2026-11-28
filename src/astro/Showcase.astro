@@ -50,7 +50,7 @@ const marker = (s: string) => s.includes('[');
         <p class="step__meta mono"><span class:list={{ pending: marker(p.data.role) }}>{p.data.role}</span><span aria-hidden="true">·</span><span class:list={{ pending: marker(p.data.year) }}>{p.data.year}</span></p>
         <ul class="tags">{p.data.tags.map((t) => <li>{t}</li>)}</ul>
         <div class="step__links">
-          <a class="btn btn--accent" href={url(p.id)}>Ver caso de estudio</a>
+          <a class="btn btn--accent" href={url(p.id)}>Ver caso de estudio<span class="arr" aria-hidden="true">→</span></a>
           <a class="btn btn--ghost" {...externalLink(p.data.code)}>Código{!isReal(p.data.code) && <span class="sr-only"> (pendiente)</span>}</a>
           <a class="btn btn--ghost" {...externalLink(p.data.demo)}>Demo{!isReal(p.data.demo) && <span class="sr-only"> (pendiente)</span>}</a>
         </div>
@@ -71,13 +71,22 @@ const marker = (s: string) => s.includes('[');
     const count = root.querySelector('[data-count]');
     const file = root.querySelector('[data-file]');
     const bar = root.querySelector('[data-progress]');
-    let current = 0;
+    let current = 0, clear = 0;
     const setActive = (i: number) => {
       if (i === current) return;
+      const dir = i > current ? 'down' : 'up';
+      const prev = shots[current], next = shots[i];
+      // La captura nueva entra con una cortinilla desde abajo (bajando) o desde arriba (subiendo) y tapa a la anterior,
+      // que se queda debajo hasta que termina. Si cambió el sentido, la nueva se coloca sin transición antes de entrar.
+      if (root.dataset.dir !== dir) { next.style.transition = 'none'; root.dataset.dir = dir; void next.offsetWidth; next.style.transition = ''; }
+      shots.forEach((s) => s.classList.remove('was-active'));
+      prev?.classList.add('was-active');
+      clearTimeout(clear);
+      clear = window.setTimeout(() => prev?.classList.remove('was-active'), 800);
       current = i;
       shots.forEach((s, k) => s.classList.toggle('is-active', k === i));
       steps.forEach((s, k) => s.classList.toggle('is-active', k === i));
-      if (count) count.textContent = String(i + 1).padStart(2, '0');
+      if (count) { count.textContent = String(i + 1).padStart(2, '0'); count.classList.remove('roll'); void (count as HTMLElement).offsetWidth; count.classList.add('roll'); }
       if (file) file.textContent = steps[i].dataset.file ?? '';
     };
 
@@ -111,10 +120,18 @@ const marker = (s: string) => s.includes('[');
   .frame__bar i { width: 9px; height: 9px; border-radius: 50%; background: var(--line-2); }
   .frame__file { margin-left: 10px; font-size: 12.5px; color: var(--muted-2); }
   .frame__count { margin-left: auto; font-size: 12.5px; color: var(--muted-2); }
-  .frame__count b { color: var(--accent-ink); font-weight: 600; }
+  .frame__count b { display: inline-block; color: var(--accent-ink); font-weight: 600; }
+  .frame__count b.roll { animation: roll 0.45s var(--ease); }
+  @keyframes roll { from { opacity: 0; transform: translateY(70%); } }
   .frame__view { position: relative; aspect-ratio: 16 / 10; overflow: hidden; }
-  .shot { position: absolute; inset: 0; display: block; opacity: 0; transform: scale(1.03); pointer-events: none; transition: opacity 0.6s var(--ease), transform 0.8s var(--ease); }
-  .shot.is-active { opacity: 1; transform: none; pointer-events: auto; }
+  /* B · Cortinilla: la captura nueva se descubre desde abajo al bajar (desde arriba al subir) encima de la anterior */
+  .shot { --hide: inset(100% 0 0 0); position: absolute; inset: 0; display: block; z-index: 1; pointer-events: none; clip-path: var(--hide); transition: clip-path 0.75s var(--ease); }
+  .showcase[data-dir="up"] .shot { --hide: inset(0 0 100% 0); }
+  .shot.is-active { clip-path: inset(0 0 0 0); z-index: 2; pointer-events: auto; }
+  .shot.was-active { clip-path: inset(0 0 0 0); transition: none; }
+  /* D · Al pasar el puntero, la captura se acerca un 2 % dentro de su ventana (propiedad scale: no pisa el transform de GSAP) */
+  .shot > * { transition: scale 0.5s var(--ease); }
+  @media (hover: hover) { .shot.is-active:hover > * { scale: 1.02; } }
   .shot img, .shot .shot__empty { position: absolute; inset: -4% 0; width: 100%; height: 108%; object-fit: cover; }
   .shot__empty { display: grid; place-items: center; color: var(--muted-2); font-size: 14px; background: repeating-linear-gradient(135deg, transparent 0 14px, color-mix(in srgb, var(--line) 50%, transparent) 14px 15px); }
   .frame__progress { height: 3px; background: var(--line); }
@@ -125,6 +142,13 @@ const marker = (s: string) => s.includes('[');
   .step { display: grid; gap: 14px; align-content: center; padding-block: 24px; }
   .showcase.is-live .step { min-height: 78svh; opacity: 0.4; transition: opacity 0.5s var(--ease); }
   .showcase.is-live .step.is-active { opacity: 1; }
+  .showcase.is-live .step > * { transition: transform 0.55s var(--ease); }
+  .showcase.is-live .step:not(.is-active) > * { transform: translateY(12px); }
+  .showcase.is-live .step.is-active > :nth-child(3) { transition-delay: 0.05s; }
+  .showcase.is-live .step.is-active > :nth-child(4) { transition-delay: 0.1s; }
+  .showcase.is-live .step.is-active > :nth-child(5) { transition-delay: 0.15s; }
+  .showcase.is-live .step.is-active > :nth-child(6) { transition-delay: 0.2s; }
+  .showcase.is-live .step.is-active > :nth-child(7) { transition-delay: 0.25s; }
   .step__shot { display: none; }
   .step__num { font-size: 13px; color: var(--accent-2); }
   .step h3 { font-size: clamp(30px, 3.4vw, 42px); }
