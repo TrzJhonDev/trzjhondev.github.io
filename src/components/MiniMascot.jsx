@@ -13,6 +13,7 @@ const SECTIONS = ['proyectos', 'habilidades', 'formacion', 'contacto'];
 
 export default function MiniMascot() {
   const [show, setShow] = useState(false);
+  const [away, setAway] = useState(false); // la mascota de Contacto está a la vista: la pequeña se aparta
   const ptr = useRef({ x: 0, y: 0, mx: -1e4, my: -1e4 });
   const section = useRef(null);
 
@@ -22,6 +23,10 @@ export default function MiniMascot() {
     // Los IntersectionObserver leen el ÚLTIMO aviso de la lista (con el primero, a veces se quedaba con uno viejo)
     const io = new IntersectionObserver((list) => setShow(!list[list.length - 1].isIntersecting), { threshold: 0.15 });
     io.observe(hero);
+    // Con la mascota de Contacto a la vista (aunque sea un poco), no tiene sentido que haya otra en la esquina
+    const bot = document.querySelector('[data-contact-bot]');
+    const cio = bot ? new IntersectionObserver((list) => setAway(list[list.length - 1].isIntersecting), { threshold: 0 }) : null;
+    if (bot) cio.observe(bot);
     // Sección de la franja central de la pantalla
     const band = new IntersectionObserver((list) => {
       list.forEach((e) => { if (e.isIntersecting) section.current = e.target.id; });
@@ -29,10 +34,10 @@ export default function MiniMascot() {
     SECTIONS.forEach((id) => { const el = document.getElementById(id); if (el) band.observe(el); });
     const move = (ev) => { ptr.current.mx = ev.clientX; ptr.current.my = ev.clientY; };
     window.addEventListener('pointermove', move, { passive: true });
-    return () => { io.disconnect(); band.disconnect(); window.removeEventListener('pointermove', move); };
+    return () => { io.disconnect(); cio?.disconnect(); band.disconnect(); window.removeEventListener('pointermove', move); };
   }, []);
 
-  if (!show) return null;
+  if (!show || away) return null;
   return (
     <div className="mascot-mini">
       <Suspense fallback={null}>

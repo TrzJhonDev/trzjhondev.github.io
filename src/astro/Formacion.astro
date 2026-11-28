@@ -1,0 +1,118 @@
+---
+// Formación con tarjetas (opción F1, elegida por Jhon el 27/11/2026). La carrera en una tarjeta grande con su barra de
+// avance por ciclos (cycle / totalCycles de profile.js; la barra se llena al entrar en pantalla, CSS scroll-driven);
+// cada certificado en una ficha con el logo de quien lo emite (issuerLogo, de simple-icons) y "Ver credencial" (url);
+// al final, la próxima versión, bloqueada (Prácticas, si profile.available). Lo pendiente lo dice en palabras.
+import * as si from 'simple-icons';
+import { profile, education } from '../data/profile.js';
+import { externalLink, isReal } from '../lib/links.js';
+
+const isCurrent = (e) => /presente/i.test(e.date);
+const marker = (s) => typeof s === 'string' && s.includes('[');
+const career = education.filter((e) => e.type === 'carrera');
+const certs = education.filter((e) => e.type !== 'carrera');
+const progress = (e) => (Number.isFinite(e.cycle) && Number.isFinite(e.totalCycles) && e.totalCycles > 0 ? Math.min(1, e.cycle / e.totalCycles) : null);
+const issuer = (key) => (key && si[key] ? si[key] : null);
+---
+<div class="edu">
+  {career.map((e) => {
+    const p = progress(e);
+    return (
+      <article class="edu-career">
+        <span class="edu-career__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 9 12 4 2 9l10 5 10-5Z" /><path d="M6 11v5c3 2.5 9 2.5 12 0v-5" /></svg>
+        </span>
+        <div class="edu-career__body">
+          <p class="edu__meta mono"><span>carrera</span><span class:list={{ pending: marker(e.date) }}>{e.date}</span></p>
+          <h3>{e.title}</h3>
+          <p class:list={['edu__place', { pending: marker(e.place) }]}>{e.place}</p>
+          <div class="edu-progress">
+            <div class="edu-progress__bar" role="img" aria-label={p == null ? 'Avance pendiente de completar' : `Ciclo ${e.cycle} de ${e.totalCycles}`}>
+              <i style={`--p: ${p ?? 0}`} class:list={{ 'is-empty': p == null }}></i>
+            </div>
+            <p class="mono edu-progress__label">
+              {p == null ? <span class="pending">avance: pendiente</span> : <span>ciclo {e.cycle} de {e.totalCycles} · {Math.round(p * 100)} %</span>}
+              {isCurrent(e) && <span class="edu__now"><i aria-hidden="true"></i>En curso</span>}
+            </p>
+          </div>
+        </div>
+      </article>
+    );
+  })}
+
+  {certs.length > 0 && (
+    <ul class="edu-certs">
+      {certs.map((e) => {
+        const logo = issuer(e.issuerLogo);
+        return (
+          <li class="edu-cert" style={logo ? `--brand: #${logo.hex}` : undefined}>
+            <span class="edu-cert__logo" aria-hidden="true">
+              {logo
+                ? <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" set:html={`<path d="${logo.path}"/>`} />
+                : <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6" /><path d="m9 14.5-1.5 7L12 19l4.5 2.5-1.5-7" /></svg>}
+            </span>
+            <p class="edu__meta mono"><span>certificado</span><span class:list={{ pending: marker(e.date) }}>{e.date}</span></p>
+            <h3 class:list={{ pending: marker(e.title) }}>{e.title}</h3>
+            <p class:list={['edu__place', { pending: marker(e.place) }]}>{e.place}</p>
+            <a class="edu-cert__link" {...externalLink(e.url)}>{isReal(e.url) ? 'Ver credencial ↗' : 'Credencial pendiente'}</a>
+          </li>
+        );
+      })}
+      {profile.available && (
+        <li class="edu-cert edu-cert--next">
+          <span class="edu-cert__logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
+          </span>
+          <p class="edu__meta mono"><span>próxima versión</span><span>bloqueada</span></p>
+          <h3>Prácticas pre‑profesionales<span class="cursor-blink" aria-hidden="true">_</span></h3>
+          <p class="edu__place">Lo siguiente que quiero desbloquear.</p>
+        </li>
+      )}
+    </ul>
+  )}
+</div>
+
+<style>
+  .edu { display: grid; gap: 16px; }
+  .edu__meta { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--muted-2); }
+  .edu__place { color: var(--muted); }
+  /* Carrera: tarjeta grande */
+  .edu-career { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 22px; padding: clamp(22px, 3vw, 32px); border-radius: 20px; background: var(--surface); border: 1px solid var(--line); }
+  .edu-career__icon { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 16px; color: var(--accent-ink); background: rgba(var(--accent-rgb), 0.12); }
+  .edu-career__body { display: grid; gap: 8px; }
+  .edu-career h3 { font-size: clamp(26px, 3vw, 34px); }
+  .edu-progress { display: grid; gap: 8px; margin-top: 10px; max-width: 620px; }
+  .edu-progress__bar { height: 10px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); overflow: hidden; }
+  .edu-progress__bar i { display: block; height: 100%; border-radius: inherit; background: var(--accent-ink); transform-origin: left; transform: scaleX(var(--p)); }
+  .edu-progress__bar i.is-empty { transform: none; background: repeating-linear-gradient(90deg, var(--line-2) 0 8px, transparent 8px 14px); }
+  .edu-progress__label { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; font-size: 13px; color: var(--muted); }
+  .edu__now { display: inline-flex; align-items: center; gap: 7px; padding: 3px 10px; border-radius: 999px; border: 1px solid rgba(var(--accent-rgb), 0.4); color: var(--accent-ink); }
+  .edu__now i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-ink); }
+  /* La barra se llena al entrar en pantalla (sin soporte o con "reducir movimiento", llena desde el principio) */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .edu-progress__bar i:not(.is-empty) { animation: edu-fill linear both; animation-timeline: view(); animation-range: entry 20% cover 45%; }
+    }
+  }
+  @keyframes edu-fill { from { transform: scaleX(0); } }
+  /* Certificados: fichas */
+  .edu-certs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; }
+  .edu-cert {
+    --brand: var(--accent-ink);
+    display: grid; gap: 6px; align-content: start; padding: 22px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line);
+    transition: translate 0.25s var(--ease), border-color 0.25s;
+  }
+  .edu-cert__logo { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 12px; margin-bottom: 8px; background: var(--surface-2); color: var(--muted-2); transition: color 0.25s; }
+  .edu-cert h3 { font-size: 21px; }
+  .edu-cert__link { justify-self: start; margin-top: 8px; font-size: 14.5px; font-weight: 600; text-decoration: none; }
+  .edu-cert__link[aria-disabled="true"] { color: var(--muted-2); font-weight: 500; cursor: not-allowed; }
+  @media (hover: hover) {
+    .edu-cert:not(.edu-cert--next):hover { translate: 0 -2px; border-color: color-mix(in srgb, var(--brand) 45%, var(--line)); }
+    .edu-cert:not(.edu-cert--next):hover .edu-cert__logo { color: color-mix(in srgb, var(--brand) 82%, var(--text)); }
+  }
+  @media (hover: none) { .edu-cert__logo { color: color-mix(in srgb, var(--brand) 82%, var(--text)); } }
+  .edu-cert--next { background: transparent; border: 1.5px dashed var(--line-2); }
+  .cursor-blink { animation: blink 1.2s steps(2, jump-none) infinite; }
+  @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.15; } }
+  @media (max-width: 600px) { .edu-career { grid-template-columns: 1fr; } }
+</style>

@@ -57,8 +57,14 @@ export const projects = [
 // Formación: se dibuja como una pista de circuito, en este orden (de arriba abajo).
 // type: 'carrera' o 'certificado' (cambia el icono). Si date dice "presente", se marca "En curso".
 // Para agregar un certificado, copia una línea y cambia los datos.
+// Campos de la web nueva (tarjetas de Formación, 27/11/2026):
+//   carrera: cycle = el ciclo que cursas y totalCycles = los ciclos de la carrera (números, p. ej. 6 y 10): con los dos
+//     se dibuja la barra de avance; con null sale "pendiente".
+//   certificado: url = el enlace a la credencial (botón "Ver credencial"); issuerLogo = el logo de quien lo emite, con el
+//     nombre de simple-icons (p. ej. 'siCoursera', 'siUdemy', 'siCisco', 'siPlatzi', 'siFreecodecamp', 'siGoogle');
+//     sin logo se ve un icono de certificado.
 export const education = [
-  { type: 'carrera', title: 'Ingeniería de Sistemas', place: 'Universidad Nacional Toribio Rodríguez de Mendoza · [CICLO] ciclo', date: '[AÑO] - presente' },
-  { type: 'certificado', title: '[CERTIFICADO 1]', place: '[ENTIDAD]', date: '[AÑO]' },
-  { type: 'certificado', title: '[CERTIFICADO 2]', place: '[ENTIDAD]', date: '[AÑO]' },
+  { type: 'carrera', title: 'Ingeniería de Sistemas', place: 'Universidad Nacional Toribio Rodríguez de Mendoza · [CICLO] ciclo', date: '[AÑO] - presente', cycle: null, totalCycles: null },
+  { type: 'certificado', title: '[CERTIFICADO 1]', place: '[ENTIDAD]', date: '[AÑO]', url: '#', issuerLogo: null },
+  { type: 'certificado', title: '[CERTIFICADO 2]', place: '[ENTIDAD]', date: '[AÑO]', url: '#', issuerLogo: null },
 ];

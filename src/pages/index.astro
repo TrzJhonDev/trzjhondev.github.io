@@ -14,13 +14,18 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 const accent = profile.hero.accent.replace('{name}', profile.name);
 const isCurrent = (e) => /presente/i.test(e.date);
 const hasEmail = isReal(profile.email) && profile.email.includes('@');
+// Redes de Contacto con su logo (simple-icons; LinkedIn y el CV, dibujados: LinkedIn no está en simple-icons).
+// hex = color de la marca al pasar el puntero (null = el del texto: GitHub y TikTok son negros)
+const brandSvg = (icon) => `<path fill="currentColor" d="${icon.path}"/>`;
 const LINKS = [
-  { key: 'github', label: 'GitHub', url: profile.github },
-  { key: 'linkedin', label: 'LinkedIn', url: profile.linkedin },
-  { key: 'cv', label: 'CV', url: profile.cvUrl, local: true },
-  { key: 'youtube', label: 'YouTube', url: profile.youtube },
-  { key: 'instagram', label: 'Instagram', url: profile.instagram },
-  { key: 'tiktok', label: 'TikTok', url: profile.tiktok },
+  { key: 'github', label: 'GitHub', url: profile.github, svg: brandSvg(si.siGithub), hex: null },
+  { key: 'linkedin', label: 'LinkedIn', url: profile.linkedin, hex: '0A66C2',
+    svg: '<path fill="currentColor" d="M20.4 20.5h-3.6v-5.6c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9v5.7H9.3V9h3.4v1.6c.5-.9 1.6-1.9 3.4-1.9 3.6 0 4.3 2.4 4.3 5.5ZM5.3 7.4a2.1 2.1 0 1 1 0-4.1 2.1 2.1 0 0 1 0 4.1Zm1.8 13.1H3.6V9h3.5Z"/>' },
+  { key: 'cv', label: 'CV', url: profile.cvUrl, local: true, hex: null,
+    svg: '<path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Zm0 0v5h5M9 13h6M9 17h4"/>' },
+  { key: 'youtube', label: 'YouTube', url: profile.youtube, svg: brandSvg(si.siYoutube), hex: 'FF0000' },
+  { key: 'instagram', label: 'Instagram', url: profile.instagram, svg: brandSvg(si.siInstagram), hex: 'FF0069' },
+  { key: 'tiktok', label: 'TikTok', url: profile.tiktok, svg: brandSvg(si.siTiktok), hex: null },
 ];
 // Proyectos: colección de Markdown (src/content/proyectos/), en el orden de `order`
 const list = (await getCollection('proyectos')).sort((a, b) => a.data.order - b.data.order);
@@ -29,6 +34,9 @@ const realProjects = list.filter((p) => !p.data.title.includes('['));
 const usedIn = (name) => realProjects.filter((p) => p.data.tags.some((t) => t.toLowerCase() === name.toLowerCase())).length;
 const skillCounts = Object.fromEntries([...SKILLS, ...STACK].map((s) => [s.name, usedIn(s.name)]));
 import MiniMascot from '../components/MiniMascot.jsx';
+import ContactMascot from '../components/ContactMascot.jsx';
+import Formacion from '../astro/Formacion.astro';
+import * as si from 'simple-icons';
 ---
 <Base>
   <!-- Portada -->
@@ -86,25 +94,7 @@ import MiniMascot from '../components/MiniMascot.jsx';
         <p class="kicker">historial de versiones</p>
         <h2>Formación</h2>
       </header>
-      <ol class="timeline">
-        {education.map((e) => (
-          <li class:list={['tl', { 'is-current': isCurrent(e) }]}>
-            <span class="tl__dot" aria-hidden="true"></span>
-            <p class="tl__meta mono"><span>{e.type}</span><span class:list={[{ pending: e.date.includes('[') }]}>{e.date}</span></p>
-            <h3 class:list={[{ pending: e.title.includes('[') }]}>{e.title}</h3>
-            <p class:list={['tl__place', { pending: e.place.includes('[') }]}>{e.place}</p>
-            {isCurrent(e) && <p class="tl__now mono"><i aria-hidden="true"></i>En curso</p>}
-          </li>
-        ))}
-      </ol>
-      {/* Próxima versión: fuera de la lista, así la línea azul se para en la carrera en curso y este tramo va punteado */}
-      {profile.available && (
-        <div class="tl-next">
-          <span class="tl__dot" aria-hidden="true"></span>
-          <p class="tl__meta mono"><span>próxima versión</span><span>bloqueada</span></p>
-          <h3>Prácticas pre‑profesionales<span class="cursor-blink" aria-hidden="true">_</span></h3>
-        </div>
-      )}
+      <Formacion />
     </div>
   </section>
 
@@ -112,6 +102,7 @@ import MiniMascot from '../components/MiniMascot.jsx';
   <section id="contacto" class="section">
     <div class="wrap">
       <div class="contact">
+        <div class="contact__main">
         <header class="section__head" data-reveal>
           <p class="kicker">&gt; abrir conexión</p>
           <h2>Contacto</h2>
@@ -135,12 +126,25 @@ import MiniMascot from '../components/MiniMascot.jsx';
             <span class="contact__note">Se abre tu programa de correo con el texto listo; no hay servidor.</span>
           </div>
         </form>
-        <ul class="contact__links">
-          {LINKS.map((l) => (
-            <li><a class="contact__link" {...(l.local ? localLink(l.url) : externalLink(l.url))}>
-              <span>{l.label}</span><span class="mono">{isReal(l.url) ? '↗' : 'pendiente'}</span>
-            </a></li>
-          ))}
+        </div>
+        <!-- La mascota "cartera": mira tu mensaje y celebra al enviarlo (ContactMascot.jsx; la pequeña se aparta mientras se ve) -->
+        <div class="contact__stage" data-contact-bot>
+          <div class="contact__panel" aria-hidden="true"></div>
+          <ContactMascot client:visible />
+        </div>
+        <ul class="contact__socials">
+          {LINKS.map((l) => {
+            const real = isReal(l.url);
+            return (
+              <li style={l.hex ? `--brand: #${l.hex}` : undefined}>
+                <a class:list={['social', { 'is-pending': !real }]} {...(l.local ? localLink(l.url) : externalLink(l.url))}>
+                  <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" set:html={l.svg} />
+                  <span class="social__name">{l.label}</span>
+                  <span class="mono social__state">{real ? '↗' : 'pendiente'}</span>
+                </a>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </div>
@@ -166,6 +170,7 @@ import MiniMascot from '../components/MiniMascot.jsx';
     const err = document.getElementById('mensaje-error');
     if (!text) { if (err) err.textContent = 'Escribe tu mensaje antes de enviarlo.'; form.querySelector('textarea')?.focus(); return; }
     if (err) err.textContent = '';
+    window.dispatchEvent(new CustomEvent('mascota:celebrar'));
     if (to) location.href = `mailto:${to}?subject=${encodeURIComponent('Contacto desde tu portafolio')}&body=${encodeURIComponent(text)}`;
   });
   form?.querySelector('textarea')?.addEventListener('input', () => { const err = document.getElementById('mensaje-error'); if (err) err.textContent = ''; });
@@ -239,39 +244,34 @@ import MiniMascot from '../components/MiniMascot.jsx';
 
   /* Habilidades: logos en src/astro/SkillLogos.astro */
 
-  /* Formación: línea de tiempo (fase 3: la línea se dibuja con el scroll) */
-  .timeline { list-style: none; margin: 0; padding: 0 0 0 28px; position: relative; display: grid; gap: 34px; max-width: 760px; view-timeline-name: --tl; }
-  .timeline::before { content: ''; position: absolute; left: 6px; top: 8px; bottom: 8px; width: 2px; background: var(--line-2); }
-  .tl { position: relative; display: grid; gap: 6px; view-timeline-name: --tl-item; }
-  .tl__dot { position: absolute; left: -28px; top: 6px; width: 14px; height: 14px; border-radius: 50%; background: var(--bg); border: 2px solid var(--accent-ink); }
-  .tl.is-current .tl__dot { background: var(--accent-ink); }
-  .tl-next { position: relative; display: grid; gap: 6px; max-width: 760px; margin-top: 34px; padding-left: 28px; }
-  .tl-next::before { content: ''; position: absolute; left: 6px; top: -34px; height: 40px; border-left: 2px dashed var(--line-2); }
-  .tl-next .tl__dot { left: 0; border-style: dashed; border-color: var(--line-2); }
-  .tl-next h3 { font-size: 24px; }
-  .tl__meta { display: flex; gap: 14px; font-size: 13px; color: var(--muted-2); }
-  .tl h3 { font-size: 24px; }
-  .tl__place { color: var(--muted); }
-  .tl__now { display: inline-flex; align-items: center; gap: 8px; width: fit-content; font-size: 12.5px; color: var(--accent-ink); padding: 3px 10px; border-radius: 999px; border: 1px solid rgba(var(--accent-rgb), 0.4); }
-  .tl__now i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-ink); }
-  /* Con el scroll (CSS scroll-driven, sin JavaScript; donde no hay soporte o con "reducir movimiento" se ve completa):
-     la línea azul baja mientras la lista cruza la pantalla y cada punto se enciende al pasar; las habilidades suben un
-     poco al entrar. Solo transform, opacity y colores. */
-  @supports (animation-timeline: view()) {
-    @media (prefers-reduced-motion: no-preference) {
-      .timeline::after { content: ''; position: absolute; left: 6px; top: 8px; bottom: 8px; width: 2px; background: var(--accent-ink); transform-origin: top; animation: tl-draw linear both; animation-timeline: --tl; animation-range: entry 35% cover 62%; }
-      .tl .tl__dot { animation: tl-dot linear both; animation-timeline: --tl-item; animation-range: entry 70% cover 45%; }
-    }
-  }
-  @keyframes tl-draw { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-  @keyframes tl-dot { from { border-color: var(--line-2); } }
-  @keyframes rise { from { opacity: 0; transform: translateY(18px); } }
+  /* Formación: tarjetas en src/astro/Formacion.astro */
   .cursor-blink { animation: blink 1.2s steps(2, jump-none) infinite; }
   @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.15; } }
 
   /* Contacto */
   .contact { padding: clamp(28px, 5vw, 56px); border-radius: 22px; background: var(--surface); border: 1px solid var(--line); }
   .contact .section__head { margin-bottom: 28px; }
+  .contact { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr); gap: 24px clamp(24px, 4vw, 56px); align-items: center; }
+  .contact__main { min-width: 0; }
+  .contact__stage { position: relative; aspect-ratio: 3 / 4; width: min(100%, 340px); justify-self: center; }
+  :global(.contact-bot) { position: absolute; inset: 0; }
+  .contact__panel { position: absolute; inset: 14% 0 3% 0; border-radius: 28px; background: var(--stage-glow), var(--stage-panel); }
+  .contact__socials { grid-column: 1 / -1; list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .social {
+    --brand-c: var(--text);
+    display: grid; justify-items: center; gap: 8px; padding: 18px 12px 14px; border-radius: var(--radius); border: 1px solid var(--line);
+    background: var(--bg); color: var(--muted-2); text-decoration: none; text-align: center; transition: translate 0.25s var(--ease), border-color 0.25s, color 0.25s;
+  }
+  .contact__socials li[style] .social { --brand-c: color-mix(in srgb, var(--brand) 82%, var(--text)); }
+  .social svg { width: 28px; height: 28px; }
+  .social__name { font: 500 14.5px var(--sans); color: var(--text); }
+  .social__state { font-size: 11.5px; color: var(--muted-2); }
+  .social.is-pending { border-style: dashed; border-color: var(--line-2); cursor: not-allowed; }
+  @media (hover: hover) {
+    .social:not(.is-pending):hover { translate: 0 -2px; color: var(--brand-c); border-color: color-mix(in srgb, var(--brand-c) 45%, var(--line)); }
+  }
+  @media (hover: none) { .social { color: var(--brand-c); } }
+  @media (max-width: 860px) { .contact { grid-template-columns: 1fr; } .contact__stage { width: min(70vw, 280px); } }
   .contact__mail { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
   .contact__addr { font-size: clamp(17px, 2.2vw, 22px); word-break: break-all; }
   .contact__status { font-size: 14px; color: var(--accent-ink); min-height: 1em; }
@@ -283,9 +283,4 @@ import MiniMascot from '../components/MiniMascot.jsx';
   .contact__hint { min-height: 1.2em; font-size: 14px; color: var(--danger); }
   .contact__send { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
   .contact__note { font-size: 14px; color: var(--muted-2); }
-  .contact__links { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 10px; }
-  .contact__link { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line-2); color: var(--text); text-decoration: none; transition: border-color 0.15s; }
-  .contact__link:hover { border-color: var(--muted-2); color: var(--text); }
-  .contact__link .mono { font-size: 13px; color: var(--muted-2); }
-  .contact__link[aria-disabled="true"] { border-style: dashed; cursor: not-allowed; color: var(--muted); }
 </style>

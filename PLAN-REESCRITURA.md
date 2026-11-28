@@ -49,6 +49,11 @@ y fluida, informa sin saturar y **conserva a la mascota** como anfitriona.
 
 `src/astro/SkillLogos.astro`: una fila por área (nombre y cuántas habilidades) con una ficha por habilidad: logo real de `simple-icons` 16.37.0 (CC0; Java = OpenJDK, con el naranja de Java porque su color es negro; "HTML y CSS" lleva los dos) o un icono propio de trazo para lo que no es una marca (SQL y Fundamentos). Gris en reposo; al pasar el puntero, el color de la marca (mezclado con el texto para que se vea en los dos temas), la ficha se tiñe y sube 2 px (propiedad `translate`, que no choca con la animación de entrada); en táctil, en color desde el principio. Cada ficha sube al asomar (CSS scroll-driven). La insignia "N proy." cuenta solo proyectos reales. El logo de cada habilidad se elige en `logo` de `src/data/skills.js`. El stack de esta web (TypeScript, Astro, Vite, Three.js, GSAP y Blender; pedido por Jhon) va en `STACK` de `skills.js`, aparte de `SKILLS` porque no son teclas del portátil (cada tecla necesita su fragmento de código); el área nueva "3D y animación" está en `AREAS_EXTRA`. Las marcas negras (Three.js) toman el color del texto.
 
+## Formación y Contacto nuevos (27/11/2026)
+
+- **Formación con tarjetas (F1):** `src/astro/Formacion.astro`. La carrera en una tarjeta grande con barra de avance por ciclos (`cycle` y `totalCycles` en `education` de `profile.js`; se llena al entrar en pantalla; sin datos, punteada y "avance: pendiente"). Cada certificado en una ficha con el logo de quien lo emite (`issuerLogo`, nombre de simple-icons) y "Ver credencial" (`url`); sin logo, un icono de certificado. Al final, Prácticas como próxima versión bloqueada. Sustituye a la línea de tiempo.
+- **Contacto con la mascota cartera (C1):** formulario a la izquierda y, a la derecha, la mascota 3D en su panel (`src/components/ContactMascot.jsx`, isla `client:visible`): saluda con `hola`, sigue el puntero y celebra al enviar (evento `mascota:celebrar`). La mascota pequeña de la esquina se aparta mientras se ve (`[data-contact-bot]`). Debajo, las redes en fichas con su logo (simple-icons; LinkedIn y el CV, dibujados); lo pendiente con borde discontinuo y la palabra.
+
 ## Pendiente
 
 - Publicar: unir la rama `reescritura-astro` con `main` y subirla (GitHub Actions ya compila con Astro y Node 24). Solo con el visto bueno de Jhon.
