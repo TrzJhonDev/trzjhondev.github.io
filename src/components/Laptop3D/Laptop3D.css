@@ -1,5 +1,5 @@
 /* ───────────── Portátil 3D (solo CSS transforms) ─────────────
-   Colores de carcasa y escenario: variables --lap-* y --stage-* en index.css
+   Colores de carcasa y escenario: variables --lap-* y --stage-* en src/styles/lab.css
    (cambian con el modo claro/oscuro). --skill la pone el componente. */
 
 .laptop-wrap { position: absolute; inset: 0; }
@@ -573,7 +573,7 @@
 .tk--prompt { color: var(--skill); font-weight: 700; }
 .tk--caret { color: var(--skill); }
 
-/* ── Modelo WebGL (gl/glEngine.js, PLAN-PORTATIL-3D.md) ──
+/* ── Modelo WebGL (gl/glEngine.js, docs/historial/PLAN-PORTATIL-3D.md) ──
    El canvas va entre la caja del suelo y la de las piezas. Con el modelo listo (.is-gl) las piezas CSS del cuerpo se
    vuelven invisibles pero siguen ahí, en el mismo sitio (la cámara WebGL copia la proyección CSS), para recibir clics y
    arrastres. Se ocultan solo hojas (caras), nunca contenedores con preserve-3d: opacity < 1 en ellos aplana la escena. */

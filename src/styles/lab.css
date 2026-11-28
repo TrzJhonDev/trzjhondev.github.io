@@ -1,6 +1,6 @@
-/* Estilos de /lab: los componentes de la web anterior (portátil 3D con su lista de programas, switch de puertos) siguen
- * usando las clases y los tokens de src/index.css (la app de Vite, en legacy/). Aquí va SOLO lo que necesitan, sin las
- * reglas globales viejas (body, barra, portada), para no pisar la web de Astro. Si cambias src/index.css, revisa esto. */
+/* Estilos de /lab: los componentes de la web anterior (portátil 3D con su lista de programas, switch de puertos) usan
+ * estas clases y tokens (vienen del index.css de la web anterior, que ya se borró). Solo lo que necesitan, sin reglas
+ * globales (body, barra, portada), para no pisar los estilos de Astro (src/styles/global.css). */
 
 :root {
   /* Paleta cruda · azul cielo (tono 199–203°), azul (207°) e índigo de apoyo (217–222°) */

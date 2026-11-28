@@ -10,7 +10,7 @@ const prefersReducedMotion = () => {
 
 /**
  * Cambia el tema ('light' | 'dark') con un fundido suave entre el aspecto viejo y el nuevo (View Transitions;
- * la duración está en index.css); sin esa API, un fundido de colores con CSS. Con "reducir movimiento" es instantáneo.
+ * la duración está en src/styles/global.css); sin esa API, un fundido de colores con CSS. Con "reducir movimiento" es instantáneo.
  * Se puede llamar desde cualquier parte: el botón de la barra o el comando `tema` de la terminal.
  * Guarda la elección solo cuando el usuario la cambia.
  */

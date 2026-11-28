@@ -1,4 +1,4 @@
-// Portafolio en Astro (reescritura del 27/11/2026, ver PLAN-REESCRITURA.md): páginas en HTML estático y solo la mascota
+// Portafolio en Astro (reescritura del 27/11/2026, ver docs/PLAN-REESCRITURA.md): páginas en HTML estático y solo la mascota
 // 3D (y, en /lab, el portátil y los juegos) como islas de React.
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';

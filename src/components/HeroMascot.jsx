@@ -30,11 +30,19 @@ export default function HeroMascot() {
     };
   }, []);
 
+  // Con pantalla de precarga (Boot.astro): avisa de que está lista y no se funde ni despierta hasta que el robot de la
+  // precarga aterriza en su sitio ('boot:fin'); así el relevo imagen → 3D ocurre ya en la portada.
+  const booting = () => document.documentElement.matches('.is-booting, .boot-leaving');
+  const announce = () => { window.__mascotaLista = true; window.dispatchEvent(new Event('mascota:lista')); };
   const onReady = (e) => {
-    setReady(true);
-    // Primero se funde con la imagen dormida (0,5 s), luego despierta y, al terminar, saluda
-    timers.current.push(setTimeout(() => { if (e.sleeping) e.wake(); }, 520));
-    timers.current.push(setTimeout(() => e.welcome(), 2100));
+    announce();
+    const go = () => {
+      setReady(true);
+      // Primero se funde con la imagen dormida (0,5 s), luego despierta y, al terminar, saluda
+      timers.current.push(setTimeout(() => { if (e.sleeping) e.wake(); }, 520));
+      timers.current.push(setTimeout(() => e.welcome(), 2100));
+    };
+    if (booting()) window.addEventListener('boot:fin', go, { once: true }); else go();
   };
 
   return (
@@ -42,7 +50,7 @@ export default function HeroMascot() {
       <Sleeping />
       {!failed && (
         <Suspense fallback={null}>
-          <Mascot3D games={false} sleeping ptr={ptr} onReady={onReady} onError={() => setFailed(true)} />
+          <Mascot3D games={false} sleeping ptr={ptr} onReady={onReady} onError={() => { setFailed(true); announce(); }} />
         </Suspense>
       )}
     </div>

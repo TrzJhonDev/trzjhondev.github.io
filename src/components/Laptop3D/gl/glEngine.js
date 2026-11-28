@@ -11,7 +11,7 @@ import { SKILLS } from '../../../data/skills';
 import { readableOn } from '../../../lib/math3d';
 
 // Portátil modelado en Blender (blender/portatil.blend -> public/models/portatil.glb) dibujado con WebGL DENTRO de la
-// misma escena que la versión CSS (PLAN-PORTATIL-3D.md, fase 6). La cámara reproduce EXACTAMENTE la proyección CSS
+// misma escena que la versión CSS (docs/historial/PLAN-PORTATIL-3D.md, fase 6). La cámara reproduce EXACTAMENTE la proyección CSS
 // del escenario (perspective 1700 px, perspective-origin, scale(--fit), y el transform de .scene), así el modelo cae
 // en el mismo sitio que las piezas CSS: esas siguen en la página, invisibles, y reciben los clics y arrastres
 // (data-hit), así que toda la interacción (useLaptop, terminal, rompecabezas, cargador) no cambia. La pantalla, los

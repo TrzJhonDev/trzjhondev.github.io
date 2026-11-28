@@ -29,7 +29,7 @@ await ctx.close();
 const mascot = `data:image/png;base64,${fs.readFileSync(tmp).toString('base64')}`;
 fs.unlinkSync(tmp);
 
-// 2) La tarjeta (colores del tema oscuro de index.css)
+// 2) La tarjeta (colores del tema oscuro de src/styles/global.css)
 const accent = profile.hero.accent.replace('{name}', profile.name);
 const html = `<!doctype html><html><head><meta charset="utf-8">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@700&family=IBM+Plex+Sans:wght@400;500&display=block" rel="stylesheet">

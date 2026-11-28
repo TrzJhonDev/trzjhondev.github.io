@@ -1,15 +1,13 @@
-// Coordinador de la pantalla de carga (PLAN-PANTALLA-CARGA.md). Sin dependencias: va en el paquete principal.
+// Coordinador de la pantalla de precarga de la portada (src/astro/Boot.astro; docs/PLAN-REESCRITURA.md). Sin dependencias.
 //
-// La pantalla (#boot) ya está en index.html y se pinta antes que React. Aquí:
-//  - se descarga el modelo de la mascota con fetch, leyendo el cuerpo por partes para saber el progreso real
-//    (el <link rel="preload"> de index.html hace que la descarga ya haya empezado);
+// La pantalla (#boot) es HTML de Boot.astro y se pinta antes que nada. Aquí:
+//  - se descarga el modelo de la mascota con fetch, leyendo el cuerpo por partes para saber el progreso real;
 //  - se lleva el progreso con pesos: modelo 45 %, Three.js 35 %, fuentes 10 %, página montada 10 %;
-//  - se avisa cuando la mascota 3D está lista para despertar ('mascot'), o cuando se agota el tope (6 s) o el
+//  - se avisa cuando la mascota 3D está lista para despertar ('mascot'), o cuando se agota el tope (maxMs) o el
 //    visitante salta la carga (Esc o clic): en esos casos se sigue igual, sin esperar más.
 // La barra de #boot y la consola del pecho leen el progreso de aquí.
 
-/** URL del modelo de la mascota (la misma clave para la descarga con progreso y para el motor 3D). */
-/** URL de un modelo con su versión (huella del archivo, ver vite.config.js): un .glb reexportado nunca se sirve viejo. */
+/** URL de un modelo con su versión (huella del archivo, ver lib/modelVersions.js y Base.astro): un .glb reexportado nunca se sirve viejo. */
 export function modelUrl(name) {
   const meta = typeof document !== 'undefined' && document.querySelector('meta[name="model-versions"]')?.content;
   const v = meta && new RegExp(`${name}=([\w]+)`).exec(meta)?.[1];
@@ -76,14 +74,14 @@ export function modelBuffer(url) {
   })());
 }
 
-/** Arranque: lo llama main.jsx antes de montar React. */
-export function startBoot({ modelUrl, importMascot }) {
+/** Arranque: lo llama el script de src/pages/index.astro si hay pantalla de precarga (src/astro/Boot.astro). */
+export function startBoot({ modelUrl, importMascot, maxMs = MAX_MS }) {
   if (!boot.active) return;
   document.documentElement.setAttribute('aria-busy', 'true');
   modelBuffer(modelUrl).catch(() => boot.set('model', 1));
   importMascot().then(() => boot.set('three', 1), () => boot.set('three', 1));
   (document.fonts?.ready || Promise.resolve()).then(() => boot.set('fonts', 1));
-  window.setTimeout(() => { state.timedOut = true; emit(); }, MAX_MS);
+  window.setTimeout(() => { state.timedOut = true; emit(); }, maxMs);
   // Saltar la carga: Esc o un clic en la pantalla de carga
   const skip = (e) => { if (e.type === 'keydown' && e.key !== 'Escape') return; boot.skip(); };
   window.addEventListener('keydown', skip);

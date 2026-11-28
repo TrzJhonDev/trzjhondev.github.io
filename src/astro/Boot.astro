@@ -1,0 +1,100 @@
+---
+// Pantalla de precarga de la portada (Jhon, 27/11/2026, opción B "la mascota despierta"). El robot dormido (la misma
+// imagen del motor 3D que usa la portada) con CARGANDO y el % en la pantalla del pecho, y unas "z". El progreso es real
+// (lib/boot.js: descarga del modelo, Three.js y fuentes). Al terminar, el robot vuela por FLIP a su sitio en la portada,
+// el fondo se funde y la mascota 3D despierta allí (HeroMascot.jsx, evento 'boot:fin'). Dura como mucho ~2,6 s y como
+// poco ~1,2 s; un clic o Esc la saltan.
+// Cuándo sale: al entrar desde fuera y al recargar. NO al volver desde otra página de la web (caso de estudio, /lab),
+// ni con un #ancla (y sin JavaScript nunca: la marca .is-booting la pone el script). Con "reducir movimiento" SÍ sale
+// (Jhon no la veía: Windows con las animaciones apagadas lo pide), pero quieta: sin "z" que suben, sin círculo ni
+// vuelo; al terminar solo se funde.
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<div id="boot" role="status">
+  <div class="boot__bg"></div>
+  <div class="boot__stage">
+    <img class="boot__img" alt="" width="680" height="907" />
+    <div class="boot__chest" aria-hidden="true"><span>CARGANDO</span><span class="boot__bar"><i></i></span><span class="boot__pct">0%</span></div>
+    <div class="boot__z" aria-hidden="true"><i>z</i><i>z</i><i>z</i></div>
+  </div>
+  <span class="boot__ring" aria-hidden="true"></span>
+  <span class="boot-sr">Cargando el portafolio</span>
+</div>
+<script is:inline define:vars={{ base: BASE }}>
+  (function () {
+    var d = document.documentElement, show = false;
+    try {
+      var nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+      var reload = nav && nav.type === 'reload';
+      var inside = false;
+      try { inside = !!document.referrer && new URL(document.referrer).origin === location.origin; } catch (e) {}
+      show = !location.hash && (reload || !inside);
+    } catch (e) {}
+    if (!show) return;
+    d.classList.add('is-booting', 'was-booted');
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+    var img = document.querySelector('#boot .boot__img');
+    img.onload = function () { document.getElementById('boot').classList.add('img-ok'); };
+    img.src = base + '/img/mascota-dormida-' + (d.dataset.theme === 'light' ? 'claro' : 'oscuro') + '.webp';
+  })();
+</script>
+
+<style is:global>
+  #boot { display: none; }
+  html.is-booting { overflow: hidden; }
+  html.is-booting body > :not(#boot) { visibility: hidden; }
+  html.is-booting #boot, html.boot-leaving #boot { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; }
+  #boot .boot__bg { position: absolute; inset: 0; background: var(--bg, #0C0E13); transition: opacity 0.6s ease-out; }
+  #boot .boot__stage { position: relative; width: min(68vw, 340px); aspect-ratio: 3 / 4; transition: transform 0.85s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  #boot .boot__img, #boot .boot__chest, #boot .boot__z { transition: opacity 0.25s; }
+  #boot .boot__img { position: absolute; inset: 0; width: 100%; height: 100%; }
+  /* La pantalla del pecho, en % de la imagen (680 × 907) */
+  #boot .boot__chest {
+    position: absolute; left: 31.4%; top: 60.2%; width: 37.2%; height: 15.7%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6%;
+    font: 600 clamp(9px, 3.2vw, 15px) / 1 "IBM Plex Mono", ui-monospace, monospace; color: #8FD8FF; letter-spacing: 0.06em;
+    text-shadow: 0 0 6px rgba(143, 216, 255, 0.45);
+  }
+  #boot .boot__bar { display: block; width: 72%; height: 7%; min-height: 3px; border-radius: 2px; background: #12313F; overflow: hidden; }
+  #boot .boot__bar i { display: block; height: 100%; background: #8FD8FF; transform-origin: left; transform: scaleX(0); }
+  #boot .boot__pct { font-size: 0.72em; color: #2AB4F4; }
+  #boot .boot__z { position: absolute; left: 76%; top: 2%; font: 700 clamp(14px, 4vw, 22px) "IBM Plex Mono", ui-monospace, monospace; color: var(--accent-ink, #2AB4F4); }
+  #boot .boot__z i { position: absolute; font-style: normal; opacity: 0; animation: boot-z 3s ease-out infinite; }
+  #boot .boot__z i:nth-child(2) { animation-delay: 1s; font-size: 0.8em; }
+  #boot .boot__z i:nth-child(3) { animation-delay: 2s; font-size: 0.62em; }
+  @keyframes boot-z { 0% { opacity: 0; transform: translate(0, 0); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(28px, -46px); } }
+  /* Hasta que llega la imagen no se ven el pecho ni las "z" (no flotan solos) */
+  #boot:not(.img-ok) .boot__chest, #boot:not(.img-ok) .boot__z { opacity: 0; }
+  /* Salida (opción C, "encendido desde el pecho"): 1) la pantalla del pecho se enciende con LISTO; 2) un círculo de luz
+     crece desde el pecho y el fondo se abre por dentro (máscara radial, la mueve el script de index.astro) dejando ver
+     la portada; 3) el robot vuela a su sitio con el pecho y las "z" ya apagados */
+  #boot .boot__chest::before {
+    content: ""; position: absolute; inset: 2% 4%; border-radius: 10%; opacity: 0; pointer-events: none;
+    background: rgba(143, 216, 255, 0.16); box-shadow: 0 0 28px 6px rgba(143, 216, 255, 0.4);
+  }
+  #boot .boot__chest > span { position: relative; }
+  #boot.is-ready .boot__chest { color: #E6F6FF; text-shadow: 0 0 10px rgba(143, 216, 255, 0.9); }
+  #boot.is-ready .boot__chest::before { animation: chest-on 0.38s ease-out both; }
+  @keyframes chest-on { 0% { opacity: 0; transform: scale(0.9); } 45% { opacity: 1; transform: scale(1.04); } 100% { opacity: 0.75; transform: none; } }
+  #boot .boot__ring {
+    position: fixed; left: 0; top: 0; width: 0; height: 0; border-radius: 50%; opacity: 0; pointer-events: none;
+    border: 2px solid #8FD8FF; box-shadow: 0 0 24px 4px rgba(143, 216, 255, 0.45), inset 0 0 24px 2px rgba(143, 216, 255, 0.25);
+  }
+  #boot.is-leaving { pointer-events: none; }
+  #boot.is-fading { opacity: 0; transition: opacity 0.45s ease-out; }
+  @media (prefers-reduced-motion: reduce) {
+    #boot .boot__z i { animation: none; opacity: 1; }
+    #boot .boot__z i:nth-child(2) { transform: translate(12px, -18px); }
+    #boot .boot__z i:nth-child(3) { transform: translate(22px, -34px); }
+    #boot.is-ready .boot__chest::before { animation: none; opacity: 0.75; }
+  }
+  #boot.is-flying .boot__z, #boot.is-flying .boot__chest { opacity: 0; }
+  .boot-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  /* La portada espera: su entrada empieza cuando se ve, y la mascota de la portada no aparece hasta que el robot aterriza */
+  html.is-booting .hero__text > *, html.is-booting .hero .line, html.is-booting .hero__panel { animation: none !important; }
+  html.boot-leaving .hero-bot { visibility: hidden; }
+  /* Tras la precarga, el panel azul de la portada ya está quieto en su sitio esperando a la mascota (Jhon: durante el
+     vuelo solo debe moverse la mascota, "y que su caja la normal sí lo espere donde es") */
+  html.was-booted .hero-bot, html.was-booted .hero__panel { animation: none !important; }
+</style>

@@ -7,7 +7,7 @@ import { boot } from '../../lib/boot';
  * Consola del pecho de la mascota: una pantallita (canvas de W×H) con tres estados.
  *  - standby: el logotipo TRZ_ y, en la mascota grande, "clic: jugar".
  *  - tips: cuando el ratón lleva un rato quieto y la mascota "teclea", escribe datos cortos y útiles (src/data/tips.js).
- *  - cargando: durante la pantalla de carga (PLAN-PANTALLA-CARGA.md) dice CARGANDO con una barra y el porcentaje
+ *  - cargando: durante la pantalla de carga (docs/historial/PLAN-PANTALLA-CARGA.md) dice CARGANDO con una barra y el porcentaje
  *    reales (lib/boot.js); al terminar, LISTO. Lo enciende la mascota con link.current.loading(true | false).
  *  - menu / game: tres minijuegos (consoleGames.js) con flechas o WASD, espacio y Esc. También se juega con los botones de la consola.
  *    Mientras se juega la consola "suena" solo en lo visual: el ecualizador de la píldora baila y la pantalla late (clase .is-playing).
@@ -18,7 +18,7 @@ import { boot } from '../../lib/boot';
  * y se publica link.current.busy (menú o juego abiertos: la mascota no teclea ni saca su mini teclado).
  */
 
-// Acciones para el botón accesible de la portada (Portrait.jsx), que vive fuera de la escena 3D
+// Acciones de la consola desde fuera de la escena 3D
 // (y para la mascota 3D, que pulsa la pantalla y los botones de su modelo: press(tecla, abajo) y screen())
 export const consoleCtl = { open: () => {}, press: () => {}, screen: () => {} };
 

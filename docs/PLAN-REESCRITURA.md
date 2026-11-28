@@ -1,7 +1,7 @@
 # Plan de la reescritura (Astro)
 
 Decidido por Jhon el 27/11/2026, tras el análisis "Rumbo del portafolio" (https://claude.ai/artifact/RLV5cW8tCsE2M33KMvzW7X).
-Rama de trabajo: `reescritura-astro`. La web publicada (rama `main`) no cambia hasta que la nueva esté lista y Jhon lo apruebe.
+Se trabajó en la rama `reescritura-astro` y ya está publicada en `main`.
 
 ## Objetivo
 
@@ -49,6 +49,10 @@ y fluida, informa sin saturar y **conserva a la mascota** como anfitriona.
 
 `src/astro/SkillLogos.astro`: una fila por área (nombre y cuántas habilidades) con una ficha por habilidad: logo real de `simple-icons` 16.37.0 (CC0; Java = OpenJDK, con el naranja de Java porque su color es negro; "HTML y CSS" lleva los dos) o un icono propio de trazo para lo que no es una marca (SQL y Fundamentos). Gris en reposo; al pasar el puntero, el color de la marca (mezclado con el texto para que se vea en los dos temas), la ficha se tiñe y sube 2 px (propiedad `translate`, que no choca con la animación de entrada); en táctil, en color desde el principio. Cada ficha sube al asomar (CSS scroll-driven). La insignia "N proy." cuenta solo proyectos reales. El logo de cada habilidad se elige en `logo` de `src/data/skills.js`. El stack de esta web (TypeScript, Astro, Vite, Three.js, GSAP y Blender; pedido por Jhon) va en `STACK` de `skills.js`, aparte de `SKILLS` porque no son teclas del portátil (cada tecla necesita su fragmento de código); el área nueva "3D y animación" está en `AREAS_EXTRA`. Las marcas negras (Three.js) toman el color del texto.
 
+## Pantalla de precarga (27/11/2026, opción B "la mascota despierta")
+
+Jhon: "falta la pantalla de precarga". `src/astro/Boot.astro` (lo primero del body de la portada, por el slot `before` de Base): el robot dormido (`mascota-dormida-*.webp`) con CARGANDO, barra y % en el pecho y unas "z". Progreso real con `lib/boot.js` (modelo, Three.js, fuentes; `startBoot` acepta `maxMs`). Mínimo 1,2 s (lo eligió Jhon tras probar 2 y 1,6 s), tope 3,2 s; clic o Esc la saltan. Al terminar (Jhon eligió la opción C, "encendido desde el pecho"): el pecho se enciende con LISTO y 100 %, un círculo de luz (`.boot__ring`) crece desde el pecho mientras el fondo se abre por dentro con una máscara radial (la mueve el script de index.astro) y deja ver la portada, que hace su entrada; a mitad, el robot vuela por FLIP a `.hero__stage`; al aterrizar se quita (`boot:fin`) y la mascota 3D, que ya estaba lista y dormida (`mascota:lista`), se funde con la imagen y despierta (HeroMascot.jsx). Sale al entrar desde fuera y al recargar; no al volver desde otra página de la web ni con un #ancla. Con "reducir movimiento" también sale (Windows con las animaciones apagadas lo pide y Jhon no la veía), pero quieta: "z" fijas, sin círculo ni vuelo, y se funde. Lenis espera a que termine. Las imágenes `mascota-dormida-*.webp` tienen fondo TRANSPARENTE (antes eran opacas y durante el vuelo y el relevo al 3D se veía un rectángulo negro o crema sobre el panel; `poster.mjs` quita el fondo de html/body y guarda el alfa con `yuva420p`), y tras la precarga el panel azul ya está quieto en su sitio esperando a la mascota.
+
 ## Laboratorio como ventana con pestañas (27/11/2026, opción L1)
 
 Jhon: "interactivo pero limpio, organizado, con buena estructura y buen espaciado". `LabApp.jsx`: pestañas Portátil · Consola · Switch (patrón de ARIA: flechas, Inicio y Fin; enlace propio #portatil, #consola, #switch) y UNA ventana con barra de título (`~/lab/<pieza>`), la pieza a todo el ancho (solo se monta la activa) y, debajo, la misma franja en las tres: qué es, controles (cada uno como una tecla) y "hecho con" (logos de simple-icons). El portátil conserva su lista de programas (sin el título viejo) y el switch se ve sin el marco de Contacto. Estilos en `src/pages/lab/index.astro`.
@@ -69,4 +73,4 @@ Jhon: "ocupa mucho espacio … que reaccione al scroll". `SkillLogos.astro` ahor
 - Publicar: unir la rama `reescritura-astro` con `main` y subirla (GitHub Actions ya compila con Astro y Node 24). Solo con el visto bueno de Jhon.
 - Probar en un móvil real (con `npm run dev -- --host`).
 - Jhon: capturas y textos de cada proyecto en `src/content/proyectos/`, y los datos de `profile.js`.
-- Más adelante: borrar de `src/components/` lo que ya no usa nadie (`Portrait`, `Hero`, `Navbar`, `Footer`, `Education` y la mascota CSS de respaldo, si se confirma que /lab no la necesita) y reescribir `CLAUDE.md` para la web nueva.
+- Hecho el 28/11/2026 (limpieza): se borraron la app de Vite (`legacy/`), los componentes que solo usaba ella (`App`, `Hero`, `Navbar`, `Portrait`, `Education`, `index.css`), los prototipos de `src/proto/` (`Pose.jsx` pasó a `components/`), las cabezas de la mascota del mapa viejo, los scripts de pruebas del sitio anterior y la lista `projects` de `profile.js` (la terminal del portátil ya lee los proyectos de Markdown). Los planes viejos están en `docs/historial/` y `CLAUDE.md` se reescribió para la web actual. La mascota CSS se queda: la usan las piezas de /lab mientras carga la 3D.

@@ -57,6 +57,7 @@ const versions = `mascota=${modelVersion('mascota')};portatil=${modelVersion('po
     </script>
   </head>
   <body>
+    <slot name="before" /><!-- la pantalla de precarga de la portada (Boot.astro) va lo primero del body -->
     <a class="skip" href="#contenido">Saltar al contenido</a>
     <Nav />
     <main id="contenido">

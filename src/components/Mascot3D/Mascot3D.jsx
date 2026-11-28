@@ -8,7 +8,7 @@ import './Mascot3D.css';
 // cmd (órdenes: 'cheer'), onAct ('wave' | 'startle' | 'laugh'), paused y greet (la pequeña saluda al aparecer).
 // La consola del pecho es la de siempre (Console.jsx), montada oculta: el motor copia su pantalla en el modelo. Solo la
 // de la portada ('hero') juega: recibe las pulsaciones de la pantalla, la cruz y A/B (consoleCtl) y teclea con datos.
-// Se carga en diferido (Portrait.jsx, MascotAuto.jsx); mientras tanto (o si falla WebGL) se ve la mascota CSS.
+// Se carga en diferido (HeroMascot.jsx, MascotAuto.jsx y las demás mascotas); mientras tanto (o si falla WebGL) se ve la mascota CSS.
 
 import { MASCOT_URL as MODEL } from '../../lib/boot';
 
@@ -29,7 +29,7 @@ export default function Mascot3D({ variant = 'hero', games, still = false, greet
         // section: ref con la sección que tienes delante (pose de la pequeña)
         onAct: (t) => cb.current.onAct?.(t),
         // Escenario de Contacto: el director mueve la mascota en cada fotograma (Contact.jsx + lib/contactStage.js)
-        // Pantalla de carga: empieza dormida (PLAN-PANTALLA-CARGA.md)
+        // Pantalla de carga: empieza dormida (docs/historial/PLAN-PANTALLA-CARGA.md)
         sleeping,
         still, // página 404: quieta en su pose (sin teclear, sin gafas, sin reaccionar al scroll)
         stage, onFrame: stage ? (dt, now) => cb.current.onFrame?.(dt, now) : null,

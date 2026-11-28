@@ -13,7 +13,7 @@ import { EYE, EYE_X, EYE_Y, MOUTH, MOUTH_X, MOUTH_Y, P, PUPIL, MIRRORED, mirror 
 // (cmd) y mira donde la guía diga (look). La pantalla del pecho copia en cada fotograma la consola real (Console.jsx,
 // montada oculta): su canvas y sus textos. Un único bucle rAF; se para fuera de pantalla, con la pestaña oculta o en pausa.
 
-// Colores por tema: los mismos que las variables --m-* de Mascot.css (PLAN-COLORES.md)
+// Colores por tema: los mismos que las variables --m-* de Mascot.css (docs/historial/PLAN-COLORES.md)
 // MARFIL Y MANDARINA (Jhon, 26/11/2026, opción A de 4 paletas alegres; antes grafito en oscuro y perla en claro, que él
 // vio "frío, muerto, apagado": "es alegre"). La MISMA identidad en los dos temas, regla 60-30-10: carcasa marfil cálido
 // (60 %), articulaciones grafito (30 %) y acento mandarina (10 %: auriculares, micrófono y botones). La mandarina es el
@@ -364,7 +364,7 @@ export class MascotEngine {
       this.actions[clip.name] = a;
     });
     this.mixer.addEventListener('finished', (e) => { if (e.action === this.current) this.play(this.typing ? 'teclear' : this.base); });
-    // Dormido (pantalla de carga, PLAN-PANTALLA-CARGA.md): bucle 'dormir', cara 'sleep', sin seguir el puntero ni teclear
+    // Dormido (pantalla de carga, docs/historial/PLAN-PANTALLA-CARGA.md): bucle 'dormir', cara 'sleep', sin seguir el puntero ni teclear
     this.sleeping = !!this.o.sleeping && !!this.actions.dormir;
     this.base = this.sleeping ? 'dormir' : 'reposo';
     this.current = this.actions[this.base]; this.current?.play();
@@ -381,7 +381,7 @@ export class MascotEngine {
       this.kick(); this.renderOnce();
       return;
     }
-    // Dormido: el saludo espera a que aterrice en la portada (welcome(), lo llama Portrait.jsx)
+    // Dormido: el saludo espera a que aterrice en la portada (welcome(), lo llama HeroMascot.jsx)
     if (this.sleeping) { this.kick(); this.renderOnce(); return; }
     this.welcome();
     this.kick();

@@ -1,7 +1,7 @@
 // Saca la imagen fija de la pantalla de carga con el motor 3D real (?posar): mascota dormida, fondo transparente,
 // en oscuro y en claro, a 680 × 907 (el doble de la caja de carga). Apunta también dónde cae la pantalla del pecho
 // (en % de la imagen) para colocar encima el CARGANDO de HTML.
-//   node scrollcraft/builds/portafolio/lab/poster.mjs --url http://localhost:5173/
+//   node tools/poster.mjs --url http://localhost:5173/
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -34,9 +34,13 @@ for (const theme of ['oscuro', 'claro']) {
     return { w: el.width, h: el.height, chest: { left: Math.min(...xs), right: Math.max(...xs), top: Math.min(...ys), bottom: Math.max(...ys) } };
   });
   info[theme] = box.chest;
+  // Fondo TRANSPARENTE de verdad: global.css pinta --bg en html y body (con fondo opaco, en la portada se veía un
+  // rectángulo negro o crema sobre el panel azul mientras la mascota volaba; Jhon, 28/11/2026)
+  await page.evaluate(() => { for (const el of [document.documentElement, document.body]) el.style.setProperty('background', 'transparent', 'important'); });
   const png = path.join(OUT, `_dormida-${theme}.png`);
   await page.locator('.pose').screenshot({ path: png, omitBackground: true });
-  spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', png, '-c:v', 'libwebp', '-quality', '86', '-lossless', '0', path.join(OUT, `mascota-dormida-${theme}.webp`)]);
+  // yuva420p: conserva el canal alfa en el WebP
+  spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', png, '-c:v', 'libwebp', '-pix_fmt', 'yuva420p', '-quality', '86', '-lossless', '0', path.join(OUT, `mascota-dormida-${theme}.webp`)]);
   fs.unlinkSync(png);
   await ctx.close();
 }

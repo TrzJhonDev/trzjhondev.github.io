@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { projects as PROFILE_PROJECTS } from '../data/profile';
 import { SKILLS } from '../data/skills';
 import { externalLink, isReal } from '../lib/links';
 import Laptop3D from './Laptop3D/Laptop3D';
@@ -65,7 +64,7 @@ function Programs({ open, onToggle, projects }) {
  * fotograma: lo que ves no se mueve y desde ahí la sección pasa como cualquier otra. Móvil: sin fijar; p va de 0 cuando el escenario asoma por abajo a 1 cuando su borde superior
  * llega arriba. Con "reducir movimiento" no hay pista (el portátil ya sale encendido: useLaptop no hace la entrada).
  */
-const RUNWAY = 1.6; // pantallas de scroll del encendido (si lo cambias, cambia .boot-runway.is-pinned en index.css)
+const RUNWAY = 1.6; // pantallas de scroll del encendido (la pista fijada solo existía en la web anterior; en /lab no se usa)
 function useBootRunway(ref) {
   const p = useRef(0);
   useEffect(() => {
@@ -124,9 +123,9 @@ function useBootRunway(ref) {
  * programas. Abrir un programa lo muestra en la pantalla del portátil; elegir una skill vuelve al editor de código.
  */
 // En /lab (web de Astro): lab = true quita la pista del encendido (el portátil arranca solo) y list trae los proyectos de
-// la colección de Markdown (src/content/proyectos/) en lugar de los de profile.js.
-export default function Projects({ lab = false, list }) {
-  const projects = list ?? PROFILE_PROJECTS;
+// la colección de Markdown (src/content/proyectos/), que también usa la terminal del portátil.
+export default function Projects({ lab = false, list = [] }) {
+  const projects = list;
   const [skill, setSkill] = useState(SKILLS[0]);
   const [exploded, setExploded] = useState(false);
   const [open, setOpen] = useState(null); // índice del proyecto abierto en la pantalla, o null
@@ -144,7 +143,7 @@ export default function Projects({ lab = false, list }) {
       <div id="skills" className="work__stage">
         <h2 className="sr-only">Skills</h2>
         <Laptop3D
-          skill={skill} onPickSkill={pickSkill} onExplodedChange={setExploded} bootRef={lab ? undefined : bootRef}
+          skill={skill} onPickSkill={pickSkill} onExplodedChange={setExploded} bootRef={lab ? undefined : bootRef} projects={projects}
           project={open == null ? null : { ...projects[open], file: `${slugOf(projects[open])}.app` }}
         />
       </div>

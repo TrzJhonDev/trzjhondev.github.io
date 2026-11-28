@@ -24,7 +24,7 @@ import './Laptop3D.css';
 // ¿Hay puntero que pueda "pasar por encima"? (ratón o touchpad; no en móviles y tabletas táctiles). Se mira una vez.
 const CAN_HOVER = typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches;
 
-// Modelo de Blender dibujado con WebGL (PLAN-PORTATIL-3D.md). Se carga aparte; mientras tanto (o sin WebGL) se ve el CSS.
+// Modelo de Blender dibujado con WebGL (docs/historial/PLAN-PORTATIL-3D.md). Se carga aparte; mientras tanto (o sin WebGL) se ve el CSS.
 const LaptopGL = lazy(() => import('./gl/LaptopGL.jsx'));
 
 // Partículas del fondo (fijas, se desplazan con parallax)
@@ -59,7 +59,7 @@ const tr = ([x, y, z]) => `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,${z.t
  *  - onPickSkill:      (skill) => void
  *  - onExplodedChange: (bool) => void, para que la portada oculte el texto en el despiece
  */
-export default function Laptop3D({ skill, onPickSkill, onExplodedChange, bootRef, project = null }) {
+export default function Laptop3D({ skill, onPickSkill, onExplodedChange, bootRef, project = null, projects = [] }) {
   const stageRef = useRef(null);
   // Clic en la pantalla encendida: abre la terminal (la referencia evita depender del orden de los hooks)
   const termRef = useRef(null);
@@ -76,6 +76,7 @@ export default function Laptop3D({ skill, onPickSkill, onExplodedChange, bootRef
     getSkill: () => skillRef.current,
     onPickSkill: (s) => { actions.skipBoot(); onPickSkill(s); },
     onRun: actions.run,
+    projects,
   });
   termRef.current = term;
   const layout = useLayout(stageRef);
@@ -83,7 +84,7 @@ export default function Laptop3D({ skill, onPickSkill, onExplodedChange, bootRef
   const [beam, setBeam] = useState(null); // { i, start }
   const [gl, setGl] = useState('loading'); // 'loading' | 'ready' | 'failed'
   // El modelo del portátil no compite con la pantalla de carga: se pide cuando la mascota ya aterrizó y el navegador
-  // tiene un momento libre (PLAN-PANTALLA-CARGA.md, punto 5). Mientras tanto se ve el portátil CSS.
+  // tiene un momento libre (docs/historial/PLAN-PANTALLA-CARGA.md, punto 5). Mientras tanto se ve el portátil CSS.
   const [glGo, setGlGo] = useState(false);
   useEffect(() => {
     let id = 0;

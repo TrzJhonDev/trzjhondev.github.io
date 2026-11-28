@@ -25,39 +25,13 @@ export const profile = {
   youtube: '#',
 };
 
-// Para agregar un proyecto, copia un bloque { ... } y cambia los datos.
-// image: ruta a una captura en /public (p. ej. '/proyectos/tienda.png') o null.
-export const projects = [
-  {
-    title: '[PROYECTO 1]',
-    description: '[Qué problema resuelve y qué hiciste tú, en una o dos frases.]',
-    tags: ['React', 'Node.js', 'SQL'],
-    image: null,
-    code: '#',
-    demo: '#',
-  },
-  {
-    title: '[PROYECTO 2]',
-    description: '[Qué problema resuelve y qué hiciste tú, en una o dos frases.]',
-    tags: ['Python', 'MongoDB'],
-    image: null,
-    code: '#',
-    demo: '#',
-  },
-  {
-    title: '[PROYECTO 3]',
-    description: '[Qué problema resuelve y qué hiciste tú, en una o dos frases.]',
-    tags: ['Java', 'Docker'],
-    image: null,
-    code: '#',
-    demo: '#',
-  },
-];
+// Los PROYECTOS no van aquí: cada uno es un archivo Markdown en src/content/proyectos/ (los usan la portada, los
+// casos de estudio y, en /lab, la lista de programas y la terminal del portátil).
 
-// Formación: se dibuja como una pista de circuito, en este orden (de arriba abajo).
+// Formación: tarjetas en la portada (src/astro/Formacion.astro), en este orden.
 // type: 'carrera' o 'certificado' (cambia el icono). Si date dice "presente", se marca "En curso".
 // Para agregar un certificado, copia una línea y cambia los datos.
-// Campos de la web nueva (tarjetas de Formación, 27/11/2026):
+// Campos de las tarjetas:
 //   carrera: cycle = el ciclo que cursas y totalCycles = los ciclos de la carrera (números, p. ej. 6 y 10): con los dos
 //     se dibuja la barra de avance; con null sale "pendiente".
 //   certificado: url = el enlace a la credencial (botón "Ver credencial"); issuerLogo = el logo de quien lo emite, con el

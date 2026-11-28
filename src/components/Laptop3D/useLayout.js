@@ -29,7 +29,7 @@ export function useLayout(ref) {
   let cx, cy, fit, ecx, efit;
   if (desktop) {
     // El portátil ocupa la izquierda; la lista de programas va pegada al borde derecho (a COL_RIGHT) y es estrecha
-    // (Jhon, 26/11/2026: así el portátil es más grande). cardsW = --cards-w de index.css: si cambias uno, cambia el otro
+    // (Jhon, 26/11/2026: así el portátil es más grande). cardsW = --cards-w de src/styles/lab.css: si cambias uno, cambia el otro
     const cardsW = Math.min(380, Math.max(320, w * 0.26));
     // +40 a la izquierda: deja sitio a la batería portátil del cargador, que queda fuera de la carcasa por ese lado
     const left = 16 + 40, right = w - COL_RIGHT - cardsW - 32;

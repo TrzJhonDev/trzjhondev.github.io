@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { profile, projects, education } from '../../data/profile';
+import { profile, education } from '../../data/profile';
 import { CATEGORIES, SKILLS } from '../../data/skills';
 import { isReal } from '../../lib/links';
 import { applyTheme, currentTheme } from '../../lib/useTheme';
@@ -47,7 +47,7 @@ const closest = (w) => NAMES.map((n) => [n, distance(w, n)]).sort((x, y) => x[1]
 const uptime = () => { const s = Math.round(performance.now() / 1000); return s < 90 ? `${s} s` : `${Math.round(s / 60)} min`; };
 
 /** Ficha estilo neofetch: logo a la izquierda y datos a la derecha (todo sale de profile.js y skills.js). */
-function neofetch() {
+function neofetch(nProjects) {
   const logo = [
     '  ┌────────┐  ',
     '  │ J_     │  ',
@@ -65,7 +65,7 @@ function neofetch() {
     [['Universidad: ', C.title], [profile.university]],
     [['Ciudad: ', C.title], [profile.city]],
     [['Skills: ', C.title], [`${SKILLS.length} en ${CATEGORIES.length} categorías`]],
-    [['Proyectos: ', C.title], [String(projects.length)]],
+    [['Proyectos: ', C.title], [String(nProjects)]],
     [['Tema: ', C.title], [themeName(currentTheme())]],
     [['Activo: ', C.title], [uptime()]],
     [['Estado: ', C.title], [profile.available ? 'disponible para prácticas' : 'no disponible', profile.available ? C.ok : C.dim]],
@@ -81,7 +81,10 @@ const MATRIX = '0123456789ABCDEF@#$%&*+=<>';
  *  - getSkill(): skill cargada; onPickSkill(skill); onRun(): ejecuta el código en el portátil.
  * Comandos con gracia: neofetch, ir <destino>, cv, tema, ls… y algunos secretos (prueba "sudo").
  */
-export function useTerminal({ getSkill, onPickSkill, onRun }) {
+// projects: los proyectos de la colección de Markdown (src/content/proyectos/), los mismos que la lista de programas
+export function useTerminal({ getSkill, onPickSkill, onRun, projects = [] }) {
+  const projRef = useRef(projects);
+  projRef.current = projects;
   const [open, setOpen] = useState(false);
   const [lines, setLines] = useState(() => [
     line(`${profile.brand} · terminal v1.0`, C.title),
@@ -131,13 +134,13 @@ export function useTerminal({ getSkill, onPickSkill, onRun }) {
         );
         break;
       case 'neofetch': case 'ficha':
-        print(...neofetch());
+        print(...neofetch(projRef.current.length));
         break;
       case 'skills':
         CATEGORIES.forEach((cat) => print(multi([`${cat}: `, C.title], [SKILLS.filter((s) => s.cat === cat).map((s) => s.name).join(', ')])));
         break;
       case 'proyectos':
-        projects.forEach((p) => print(line(`• ${p.title}`, C.title), line(`  ${p.tags.join(' · ')}`, C.dim)));
+        projRef.current.forEach((p) => print(line(`• ${p.title}`, C.title), line(`  ${p.tags.join(' · ')}`, C.dim)));
         break;
       case 'formacion': case 'formación':
         education.forEach((e) => print(line(`• ${e.title}: ${e.place} (${e.date})`)));

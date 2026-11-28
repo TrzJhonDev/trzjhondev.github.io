@@ -1,8 +1,8 @@
-/* ───────────── Portafolio en Astro · paleta B "Cielo sereno" (Jhon, 27/11/2026; ver PLAN-REESCRITURA.md) ─────────────
+/* ───────────── Portafolio en Astro · paleta B "Cielo sereno" (Jhon, 27/11/2026; ver docs/PLAN-REESCRITURA.md) ─────────────
    La paleta azul cielo de siempre, con disciplina: el azul cielo solo en lo que se pulsa, los enlaces y el renglón
    "Usuario: Jhon."; todo lo demás en neutros. La mandarina se queda en la mascota. Un solo color saturado por pantalla.
    Oscuro por defecto; [data-theme="light"] cambia los tokens (lo pone el script de Base.astro). Contrastes en
-   PLAN-COLORES.md (todos AA). Tipografía IBM Plex. */
+   docs/historial/PLAN-COLORES.md (todos AA). Tipografía IBM Plex. */
 :root {
   --sky-200: #8FD8FF;
   --sky-300: #5CC6F7;

@@ -1,5 +1,5 @@
 /* ── "Abrir conexión": panel de puertos con cable (26/11/2026, opción C) ──
-   El bloque (.cta, en index.css) sigue el tema de la página. Arriba, el título y el mensaje; debajo, el escenario.
+   El bloque (.cta, en src/styles/lab.css) sigue el tema de la página. Arriba, el título y el mensaje; debajo, el escenario.
    Capas del escenario: servidor y sombra (0) < mascota 3D (1) < panel y cable (2; el cable la rodea, no la cruza)
    < conector (3) < globo (4). En vivo (.is-live) lib/contactStage.js coloca conector, cable, globo y sombra con transform.
    Conector y servidor son objetos físicos: colores fijos como los del portátil (grafito y metal). */

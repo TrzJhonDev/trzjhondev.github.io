@@ -1,5 +1,5 @@
 ---
-// Portada de la web nueva (fase 1 de PLAN-REESCRITURA.md): todo es HTML estático salvo la mascota (isla de React).
+// Portada de la web nueva (fase 1 de docs/PLAN-REESCRITURA.md): todo es HTML estático salvo la mascota (isla de React).
 // Los datos salen de src/data/profile.js y skills.js; los [MARCADORES] los completa Jhon.
 import Base from '../layouts/Base.astro';
 import HeroMascot from '../components/HeroMascot.jsx';
@@ -36,9 +36,11 @@ const skillCounts = Object.fromEntries([...SKILLS, ...STACK].map((s) => [s.name,
 import MiniMascot from '../components/MiniMascot.jsx';
 import ContactMascot from '../components/ContactMascot.jsx';
 import Formacion from '../astro/Formacion.astro';
+import Boot from '../astro/Boot.astro';
 import * as si from 'simple-icons';
 ---
 <Base>
+  <Boot slot="before" />
   <!-- Portada -->
   <section id="inicio" class="hero">
     <div class="wrap hero__grid">
@@ -151,6 +153,100 @@ import * as si from 'simple-icons';
 </Base>
 
 <script>
+  // Pantalla de precarga (Boot.astro). Si la hay: progreso real con lib/boot.js (modelo, Three.js, fuentes) y, cuando
+  // la mascota 3D de la portada está lista (evento 'mascota:lista' de HeroMascot) o se agota el tope, el robot vuela a su
+  // sitio. Como mínimo 1,2 s para que no sea un destello; un clic o Esc la saltan al momento.
+  import { boot, startBoot, MASCOT_URL } from '../lib/boot.js';
+  if (boot.active) {
+    const t0 = performance.now();
+    const MIN_MS = 1200; // mínimo que pidió Jhon (se probaron 2 y 1,6 s)
+    startBoot({ modelUrl: MASCOT_URL, importMascot: () => import('../components/Mascot3D/Mascot3D.jsx'), maxMs: 3200 });
+    boot.set('app', 1);
+    const ready = () => boot.mascotReady();
+    if ((window as any).__mascotaLista) ready(); else window.addEventListener('mascota:lista', ready, { once: true });
+    let leaving = false;
+    boot.on(() => {
+      if (leaving || !boot.ready) return;
+      leaving = true;
+      setTimeout(leave, boot.skipped ? 0 : Math.max(0, MIN_MS - (performance.now() - t0)));
+    });
+  }
+  function leave() {
+    const root = document.documentElement;
+    const el = document.getElementById('boot');
+    const stage = el?.querySelector<HTMLElement>('.boot__stage');
+    if (!el || !stage) { root.classList.remove('is-booting'); boot.finish(); window.dispatchEvent(new Event('boot:fin')); return; }
+    // 1) El pecho se enciende: barra llena, 100 % y LISTO
+    const fill = el.querySelector<HTMLElement>('.boot__bar i');
+    const pct = el.querySelector('.boot__pct');
+    const label = el.querySelector('.boot__chest > span');
+    if (fill) fill.style.transform = 'scaleX(1)';
+    if (pct) pct.textContent = '100%';
+    if (label) label.textContent = 'LISTO';
+    el.classList.add('is-ready');
+    // Con "reducir movimiento": sin círculo ni vuelo; se ve LISTO un momento y la pantalla se funde
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        root.classList.remove('is-booting');
+        el.classList.add('is-leaving', 'is-fading');
+        setTimeout(() => { el.remove(); boot.finish(); window.dispatchEvent(new Event('boot:fin')); }, 480);
+      }, 420);
+      return;
+    }
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+      root.classList.add('boot-leaving');
+      root.classList.remove('is-booting');
+      el.classList.add('is-leaving');
+      // 2) Un círculo de luz crece desde el pecho y el fondo se abre por dentro (máscara radial), dejando ver la portada
+      const bg = el.querySelector<HTMLElement>('.boot__bg');
+      const ring = el.querySelector<HTMLElement>('.boot__ring');
+      const c = el.querySelector('.boot__chest')!.getBoundingClientRect();
+      const cx = c.left + c.width / 2, cy = c.top + c.height / 2;
+      const R = Math.hypot(Math.max(cx, innerWidth - cx), Math.max(cy, innerHeight - cy)) + 40;
+      const T = 760, r0 = performance.now();
+      const step = (now: number) => {
+        const k = Math.min(1, (now - r0) / T);
+        const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; // entra y sale suave
+        const r = Math.max(0, e * R);
+        const m = `radial-gradient(circle at ${cx}px ${cy}px, transparent ${r}px, #000 ${r + 1}px)`;
+        if (bg) { bg.style.webkitMaskImage = m; bg.style.maskImage = m; }
+        if (ring) {
+          ring.style.width = ring.style.height = `${2 * r}px`;
+          ring.style.transform = `translate(${cx - r}px, ${cy - r}px)`;
+          ring.style.opacity = String(k < 0.75 ? Math.min(1, k * 6) : (1 - k) / 0.25);
+        }
+        if (k < 1) requestAnimationFrame(step);
+        else if (bg) bg.style.opacity = '0';
+      };
+      requestAnimationFrame(step);
+      // 3) Con el círculo ya abierto a medias, el robot vuela a su sitio en la portada
+      setTimeout(fly, 300);
+    }, 420);
+
+    function fly() {
+      const a = stage!.getBoundingClientRect();
+      const b = document.querySelector('.hero__stage')?.getBoundingClientRect();
+      el!.classList.add('is-flying');
+      if (b && b.width) {
+        stage!.style.transformOrigin = '0 0';
+        stage!.style.transform = `translate(${b.left - a.left}px, ${b.top - a.top}px) scale(${b.width / a.width})`;
+      }
+      let done = false;
+      const end = () => {
+        if (done) return;
+        done = true;
+        el!.remove();
+        root.classList.remove('boot-leaving');
+        boot.finish();
+        window.dispatchEvent(new Event('boot:fin'));
+      };
+      stage!.addEventListener('transitionend', (e) => { if (e.target === stage && e.propertyName === 'transform') end(); });
+      setTimeout(end, 1100);
+    }
+  }
+
   // C · Títulos que se revelan: al entrar en pantalla, la línea de consola se "escribe" y el título sube desde abajo,
   // una sola vez. Las clases las pone este script (sin JavaScript se ve todo); con "reducir movimiento", nada.
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
