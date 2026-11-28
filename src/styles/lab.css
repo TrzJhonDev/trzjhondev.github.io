@@ -157,10 +157,12 @@
   /* En el despiece la lista se oculta y la ficha de la pieza ocupa su columna */
   .work--exploded .work__col { opacity: 0; transform: translateX(16px); pointer-events: none; visibility: hidden; transition: opacity 0.35s, transform 0.35s, visibility 0s 0.35s; }
 }
-/* Pantallas estrechas: primero el portátil a pantalla completa y debajo la lista de programas */
+/* Pantallas estrechas: primero el portátil (escenario a su medida, con el portátil arriba; ver useLayout.js) y debajo
+   la lista de programas. En el despiece (.is-roomy) el escenario vuelve a ser casi toda la pantalla. */
 @media (max-width: 899px) {
   .work { height: auto; min-height: 0; }
-  .work__stage { position: relative; height: 92vh; height: 92svh; min-height: 520px; }
+  .work__stage { position: relative; height: max(400px, min(80vw + 110px, 92vh)); height: max(400px, min(80vw + 110px, 92svh)); }
+  .work__stage:has(.is-roomy) { height: 92vh; height: 92svh; min-height: 520px; }
   .work__panel { pointer-events: auto; }
   .work__col { width: 100%; height: auto; padding: 40px 0 48px; }
 }

@@ -101,7 +101,9 @@ export default function Laptop3D({ skill, onPickSkill, onExplodedChange, bootRef
   // En el despiece el texto de presentación se oculta y el portátil usa su sitio
   const cx = layout.cx + (layout.ecx - layout.cx) * e;
   const fit = layout.fit + (layout.efit - layout.fit) * e;
-  const cy = layout.cy - (layout.desktop ? 20 * e : 40 * e);
+  const cy = layout.cy + (layout.ecy - layout.cy) * e;
+  // En pantallas estrechas el escenario es bajo; el despiece necesita la altura grande mientras dure (lab.css)
+  const roomy = st.exploded || e > 0.001;
   useEffect(() => { onExplodedChange?.(st.exploded); }, [st.exploded, onExplodedChange]);
 
   // La mascota (guía) acompaña al portátil: comenta la skill elegida, ejecutar y el despiece, y si lo dejas inclinado
@@ -249,7 +251,7 @@ export default function Laptop3D({ skill, onPickSkill, onExplodedChange, bootRef
     <div className="laptop-wrap">
       <div
         ref={stageRef}
-        className={`stage${st.dragging ? ' is-dragging' : ''}${gl === 'ready' ? ' is-gl' : ''}`}
+        className={`stage${st.dragging ? ' is-dragging' : ''}${gl === 'ready' ? ' is-gl' : ''}${roomy ? ' is-roomy' : ''}`}
         role="group"
         aria-roledescription="escena 3D"
         aria-label={`Portátil 3D interactivo mostrando ${skill.name}`}

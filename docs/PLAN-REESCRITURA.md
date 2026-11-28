@@ -92,6 +92,10 @@ Jhon: "ocupa mucho espacio … que reaccione al scroll". `SkillLogos.astro` ahor
 
 Se borraron la app de Vite (`legacy/`), los componentes que solo usaba ella (`App`, `Hero`, `Navbar`, `Portrait`, `Education`, `index.css`), los prototipos de `src/proto/` (`Pose.jsx` pasó a `components/`), las cabezas de la mascota del mapa viejo, los scripts de pruebas del sitio anterior y la lista `projects` de `profile.js` (la terminal del portátil ya lee los proyectos de Markdown). Los planes viejos están en `docs/historial/` y `CLAUDE.md` se reescribió para la web actual. La mascota CSS se queda: la usan las piezas de /lab mientras carga la 3D.
 
+## Portátil del laboratorio en móvil (28/11/2026)
+
+Jhon: "está muy abajo de la ventana, que se pegue más arriba". Por debajo de 900 px el escenario ya no ocupa el 92 % de la pantalla: mide según el ancho (`.work__stage` en `lab.css`) y el portátil va anclado arriba (`LID_REACH` y `TOP_GAP` en `useLayout.js`), con la lista de programas justo debajo. En el despiece (`.stage.is-roomy`) vuelve la altura grande y queda como antes.
+
 ## Pendiente
 
 - Probar en un móvil real (con `npm run dev -- --host`).

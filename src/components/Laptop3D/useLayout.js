@@ -3,6 +3,8 @@ import { useLayoutEffect, useState } from 'react';
 const LAPTOP_HALF = 300; // medio ancho que ocupa el portátil girado (px de escena)
 export const DESKTOP = 900; // desde este ancho el texto va al lado del portátil
 const BANK_REACH = 385;
+const LID_REACH = 420; // cuánto sube la tapa abierta por encima del centro (px de escena)
+const TOP_GAP = 36; // aire sobre la tapa en pantallas estrechas (px)
 export const COL_RIGHT = 32; // margen derecho de la lista de programas en escritorio (= padding-right de .work__panel) // hasta dónde llega la batería del cargador a la izquierda del centro (px de escena)
 
 /**
@@ -26,7 +28,7 @@ export function useLayout(ref) {
   const desktop = w >= DESKTOP;
   const half = LAPTOP_HALF;
   const colLeft = Math.max(0, (w - 1200) / 2) + 24; // columna del texto (y de la ficha del despiece)
-  let cx, cy, fit, ecx, efit;
+  let cx, cy, fit, ecx, ecy, efit;
   if (desktop) {
     // El portátil ocupa la izquierda; la lista de programas va pegada al borde derecho (a COL_RIGHT) y es estrecha
     // (Jhon, 26/11/2026: así el portátil es más grande). cardsW = --cards-w de src/styles/lab.css: si cambias uno, cambia el otro
@@ -39,9 +41,10 @@ export function useLayout(ref) {
     fit = Math.min(1.2, (right - left) / 2 / half, h / 750);
     // En el despiece las tarjetas se ocultan y la ficha de la pieza ocupa su sitio: el portátil no se mueve
     ecx = cx;
+    ecy = cy - 20;
     efit = fit;
   } else {
-    cy = h * 0.66;
+    ecy = h * 0.66 - 40;
     efit = Math.min(1, (w - 16) / 2 / half, h / 820);
     ecx = w / 2;
     // Con la batería del cargador a la izquierda (llega a -380 px de escena) el conjunto mide más: se achica un poco y se
@@ -51,5 +54,8 @@ export function useLayout(ref) {
   }
   fit = Math.max(0.4, fit);
   efit = Math.max(0.4, efit);
-  return { cx, cy, fit, ecx, efit, colLeft, w, h, desktop, holo: Math.min(1.6, Math.max(1, 0.8 / fit)) };
+  // En pantallas estrechas el portátil va pegado arriba de la ventana (Jhon, 28/11/2026: se veía muy abajo)
+  // (Se mira la ventana, igual que la regla de lab.css: una ventana de escritorio estrecha no cambia.)
+  if (!desktop) cy = window.innerWidth < DESKTOP ? Math.min(h * 0.66, TOP_GAP + LID_REACH * fit) : h * 0.66;
+  return { cx, cy, fit, ecx, ecy, efit, colLeft, w, h, desktop, holo: Math.min(1.6, Math.max(1, 0.8 / fit)) };
 }
