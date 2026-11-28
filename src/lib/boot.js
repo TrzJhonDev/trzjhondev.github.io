@@ -10,7 +10,8 @@
 /** URL de un modelo con su versión (huella del archivo, ver lib/modelVersions.js y Base.astro): un .glb reexportado nunca se sirve viejo. */
 export function modelUrl(name) {
   const meta = typeof document !== 'undefined' && document.querySelector('meta[name="model-versions"]')?.content;
-  const v = meta && new RegExp(`${name}=([\w]+)`).exec(meta)?.[1];
+  // OJO: dentro de una plantilla `\w` se queda en "w"; por eso la huella se busca con [0-9a-f].
+  const v = meta && new RegExp(`${name}=([0-9a-f]+)`).exec(meta)?.[1];
   return `${import.meta.env.BASE_URL}models/${name}.glb${v ? `?v=${v}` : ''}`;
 }
 export const MASCOT_URL = modelUrl('mascota');
