@@ -1,0 +1,104 @@
+---
+// Habilidades como logos (opción D, elegida por Jhon el 27/11/2026). Una fila por área (nombre y cuántas) con sus
+// tecnologías: logo real de `simple-icons` (CC0) o uno propio para lo que no es una marca (SQL y Fundamentos), y su
+// nombre. En reposo, en gris (los tonos de la página); al pasar el puntero, el logo toma el color de su marca, la ficha
+// se tiñe un poco y sube 2 px. En táctil (sin puntero) van en color desde el principio. Cada ficha entra con una
+// pequeña subida al asomar (CSS scroll-driven). El número junto al nombre = en cuántos proyectos REALES aparece.
+import * as si from 'simple-icons';
+import { SKILLS, CATEGORIES, STACK, AREAS_EXTRA } from '../data/skills.js';
+
+interface Props { counts: Record<string, number>; }
+const { counts } = Astro.props;
+
+// Colores de marca que no se ven sobre el fondo (OpenJDK es negro): el naranja de la taza de Java
+const BRAND_FIX: Record<string, string> = { siOpenjdk: 'E76F00' };
+// Marcas cuyo color es el negro (Three.js): toman el color del texto de la página
+const TEXT_COLOR = new Set(['siThreedotjs']);
+// Iconos propios (trazo de 2 px, viewBox 24): lo que no tiene logo de marca
+const OWN: Record<string, string> = {
+  datos: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>',
+  estructuras: '<circle cx="12" cy="5" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M11 7.3 7 15.7M13 7.3l4 8.4"/>',
+  redes: '<rect x="9" y="3" width="6" height="5" rx="1"/><rect x="3" y="16" width="6" height="5" rx="1"/><rect x="15" y="16" width="6" height="5" rx="1"/><path d="M12 8v4M6 16v-4h12v4"/>',
+  arquitectura: '<rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9.5" y="9.5" width="5" height="5"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/>',
+};
+type Logo = { kind: 'brand' | 'own'; svg: string; hex: string; title: string };
+const logo = (key: string): Logo | null => {
+  if (key.startsWith('propio:')) {
+    const k = key.slice(7);
+    return OWN[k] ? { kind: 'own', svg: OWN[k], hex: '', title: k } : null;
+  }
+  const icon = (si as Record<string, { path: string; hex: string; title: string }>)[key];
+  return icon ? { kind: 'brand', svg: `<path d="${icon.path}"/>`, hex: TEXT_COLOR.has(key) ? '' : (BRAND_FIX[key] ?? icon.hex), title: icon.title } : null;
+};
+// Las teclas del portátil (SKILLS) y el stack de la web (STACK), por áreas
+const ALL = [...SKILLS, ...STACK];
+const groups = [...CATEGORIES, ...AREAS_EXTRA]
+  .map((cat) => ({ cat, items: ALL.filter((s) => s.cat === cat).map((s) => ({ ...s, logos: (s.logo ?? []).map(logo).filter(Boolean) as Logo[] })) }))
+  .filter((g) => g.items.length);
+---
+<div class="sk-areas">
+  {groups.map((g) => (
+    <section class="sk-area" aria-labelledby={`area-${g.cat}`}>
+      <header class="sk-area__head">
+        <h3 id={`area-${g.cat}`}>{g.cat}</h3>
+        <p class="mono">{g.items.length} {g.items.length === 1 ? 'habilidad' : 'habilidades'}</p>
+      </header>
+      <ul class="sk-grid">
+        {g.items.map((s) => {
+          const brand = s.logos.find((l) => l.kind === 'brand' && l.hex)?.hex;
+          const n = counts[s.name] ?? 0;
+          return (
+            <li class="sk" style={brand ? `--brand: #${brand}` : undefined}>
+              <span class="sk__logos" aria-hidden="true">
+                {s.logos.map((l) => l.kind === 'brand'
+                  ? <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor" style={l.hex ? `--c: #${l.hex}` : '--c: var(--text)'} set:html={l.svg} />
+                  : <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="own" set:html={l.svg} />)}
+              </span>
+              <span class="sk__name">{s.name}</span>
+              {n > 0 && <span class="sk__n mono" title={`En ${n} proyecto${n > 1 ? 's' : ''}`}>{n} proy.</span>}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  ))}
+</div>
+
+<style>
+  .sk-areas { display: grid; border-top: 1px solid var(--line); }
+  .sk-area { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 20px 40px; padding-block: 26px; border-bottom: 1px solid var(--line); align-items: start; }
+  .sk-area__head { display: grid; gap: 4px; padding-top: 10px; }
+  .sk-area__head h3 { font-size: 24px; }
+  .sk-area__head p { font-size: 13px; color: var(--muted-2); }
+  .sk-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .sk {
+    --brand: var(--accent-ink);
+    position: relative; display: grid; justify-items: center; align-content: center; gap: 10px; min-height: 112px; padding: 18px 12px 16px;
+    border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); color: var(--muted-2); text-align: center;
+    transition: translate 0.25s var(--ease), border-color 0.25s, background-color 0.25s, color 0.25s;
+  }
+  .sk__logos { display: flex; gap: 10px; }
+  .sk__logos svg { display: block; width: 32px; height: 32px; transition: color 0.25s; }
+  .sk__name { font: 500 14.5px/1.3 var(--sans); color: var(--text); }
+  .sk__n { position: absolute; top: 8px; right: 8px; font-size: 10.5px; padding: 2px 7px; border-radius: 999px; background: rgba(var(--accent-rgb), 0.14); color: var(--accent-ink); }
+  /* El color de la marca (mezclado con el texto para que se vea en los dos temas: el amarillo de JavaScript sobre crema
+     o el azul oscuro de C++ sobre negro) */
+  .sk__logos svg { --c: var(--brand); }
+  @media (hover: hover) {
+    .sk:hover { translate: 0 -2px; border-color: color-mix(in srgb, var(--brand) 45%, var(--line)); background: color-mix(in srgb, var(--brand) 7%, var(--surface)); }
+    .sk:hover .sk__logos svg { color: color-mix(in srgb, var(--c) 82%, var(--text)); }
+  }
+  @media (hover: none) { .sk__logos svg { color: color-mix(in srgb, var(--c) 82%, var(--text)); } }
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .sk { animation: sk-in linear both; animation-timeline: view(); animation-range: entry 0% entry 60%; }
+    }
+  }
+  @keyframes sk-in { from { opacity: 0; transform: translateY(16px); } }
+  @media (max-width: 760px) {
+    .sk-area { grid-template-columns: 1fr; gap: 14px; padding-block: 22px; }
+    .sk-area__head { padding-top: 0; display: flex; align-items: baseline; justify-content: space-between; }
+    .sk-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+    .sk { min-height: 100px; }
+  }
+</style>

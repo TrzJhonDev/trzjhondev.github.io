@@ -45,6 +45,10 @@ y fluida, informa sin saturar y **conserva a la mascota** como anfitriona.
 - **Títulos que se revelan** (`data-reveal`): la línea de consola se escribe, el título sube descubriéndose y el texto llega después, una vez (IntersectionObserver en index.astro, estilos en global.css; sin JavaScript o con "reducir movimiento" se ve todo).
 - **Microinteracciones:** flecha en "Ver proyectos" y "Ver caso de estudio" que se desliza; los enlaces de texto dibujan su subrayado al pasar el puntero.
 
+## Habilidades con logos (27/11/2026, opción D de 4)
+
+`src/astro/SkillLogos.astro`: una fila por área (nombre y cuántas habilidades) con una ficha por habilidad: logo real de `simple-icons` 16.37.0 (CC0; Java = OpenJDK, con el naranja de Java porque su color es negro; "HTML y CSS" lleva los dos) o un icono propio de trazo para lo que no es una marca (SQL y Fundamentos). Gris en reposo; al pasar el puntero, el color de la marca (mezclado con el texto para que se vea en los dos temas), la ficha se tiñe y sube 2 px (propiedad `translate`, que no choca con la animación de entrada); en táctil, en color desde el principio. Cada ficha sube al asomar (CSS scroll-driven). La insignia "N proy." cuenta solo proyectos reales. El logo de cada habilidad se elige en `logo` de `src/data/skills.js`. El stack de esta web (TypeScript, Astro, Vite, Three.js, GSAP y Blender; pedido por Jhon) va en `STACK` de `skills.js`, aparte de `SKILLS` porque no son teclas del portátil (cada tecla necesita su fragmento de código); el área nueva "3D y animación" está en `AREAS_EXTRA`. Las marcas negras (Three.js) toman el color del texto.
+
 ## Pendiente
 
 - Publicar: unir la rama `reescritura-astro` con `main` y subirla (GitHub Actions ya compila con Astro y Node 24). Solo con el visto bueno de Jhon.
