@@ -20,7 +20,7 @@ const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google
 const ctx = await browser.newContext({ viewport: { width: 1000, height: 1300 }, reducedMotion: 'reduce' });
 await ctx.addInitScript(() => { try { localStorage.setItem('theme', 'dark'); } catch { /* sin almacenamiento */ } });
 const pose = await ctx.newPage();
-await pose.goto(`${URL}?posar&despierta&w=900`, { waitUntil: 'networkidle' });
+await pose.goto(`${URL}posar/?despierta&w=900`, { waitUntil: 'networkidle' });
 await pose.waitForFunction(() => window.__poseReady === true, null, { timeout: 30000 });
 await pose.waitForTimeout(800);
 await pose.addStyleTag({ content: 'html, body, #root, main { background: transparent !important; } body::before, body::after { display: none !important; }' });

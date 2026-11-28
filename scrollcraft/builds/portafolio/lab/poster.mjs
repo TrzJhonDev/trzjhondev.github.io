@@ -15,7 +15,7 @@ for (const theme of ['oscuro', 'claro']) {
   const ctx = await browser.newContext({ viewport: { width: 800, height: 1000 }, deviceScaleFactor: 1, reducedMotion: 'reduce' });
   await ctx.addInitScript((t) => { try { localStorage.setItem('theme', t); } catch {} }, theme === 'oscuro' ? 'dark' : 'light');
   const page = await ctx.newPage();
-  await page.goto(`${URL}?posar&w=680`, { waitUntil: 'networkidle' });
+  await page.goto(`${URL}posar/?w=680`, { waitUntil: 'networkidle' });
   await page.waitForFunction(() => window.__poseReady === true, null, { timeout: 30000 });
   await page.waitForTimeout(800);
   const box = await page.evaluate(() => {

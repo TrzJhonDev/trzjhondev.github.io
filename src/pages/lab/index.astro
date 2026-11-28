@@ -1,0 +1,41 @@
+---
+// Laboratorio: el portátil 3D, la consola de juegos de la mascota y el switch de puertos de la web anterior
+// (LabApp.jsx, una sola isla de React). Decisión de Jhon del 27/11/2026: fuera de la portada, a un clic desde la barra.
+import Base from '../../layouts/Base.astro';
+import LabApp from '../../components/LabApp.jsx';
+import { getCollection } from 'astro:content';
+
+// Los proyectos de la colección, con la forma que espera la lista de programas del portátil
+const projects = (await getCollection('proyectos'))
+  .sort((a, b) => a.data.order - b.data.order)
+  .map((p) => ({ title: p.data.title, description: p.data.summary, tags: p.data.tags, image: p.data.image, code: p.data.code, demo: p.data.demo }));
+---
+<Base title="Laboratorio — TrzJhonDev" description="Laboratorio de TrzJhonDev: un portátil 3D interactivo, la consola de juegos de la mascota y un switch de puertos con cable.">
+  <div class="wrap"><header class="lab-intro">
+    <p class="kicker">~/lab</p>
+    <h1>Laboratorio</h1>
+    <p>Tres piezas interactivas hechas con CSS 3D, Three.js y modelos de Blender. Están aquí para que las pruebes con calma; los proyectos están en <a href="/#proyectos">la portada</a>.</p>
+  </header></div>
+  <LabApp client:only="react" projects={projects}>
+    <p slot="fallback" class="wrap lab-loading mono">Cargando el laboratorio…</p>
+  </LabApp>
+</Base>
+
+<style>
+  .lab-intro { padding-top: 150px; display: grid; gap: 16px; max-width: 820px; }
+  .lab-intro h1 { font-size: clamp(44px, 6.4vw, 80px); }
+  .lab-intro p:last-child { color: var(--muted); font-size: 18px; }
+  .lab-loading { padding-block: 80px; color: var(--muted-2); }
+  :global(.lab-sec) { padding-top: clamp(80px, 10vw, 120px); }
+  :global(.lab-sec__head) { display: grid; gap: 12px; max-width: 760px; margin-bottom: 28px; }
+  :global(.lab-sec__head h2) { font-size: clamp(30px, 4vw, 46px); }
+  :global(.lab-sec__head p) { color: var(--muted); }
+  :global(.lab-console) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 420px); gap: 40px; align-items: center; }
+  :global(.lab-console__bot) { position: relative; aspect-ratio: 3 / 4; width: 100%; border-radius: 32px; background: radial-gradient(60% 50% at 50% 42%, rgba(var(--accent-rgb), 0.16), transparent 70%), var(--surface); border: 1px solid var(--line); }
+  :global(.lab-keys) { list-style: none; padding: 0; margin: 6px 0 0; display: flex; flex-wrap: wrap; gap: 10px 18px; color: var(--muted); font-size: 15px; }
+  :global(.lab-keys kbd) { font: 500 13px var(--mono); padding: 3px 8px; border-radius: 6px; border: 1px solid var(--line-2); background: var(--surface-2); color: var(--text); margin-right: 6px; }
+  /* La sección del switch ya trae su contenedor (.container); el escenario de la lista de programas va a ancho completo */
+  :global(#switch) { padding-top: 0; }
+  :global(.lab-laptop .work) { height: min(100svh, 860px); }
+  @media (max-width: 860px) { :global(.lab-console) { grid-template-columns: 1fr; } :global(.lab-console__bot) { max-width: 360px; justify-self: center; } }
+</style>

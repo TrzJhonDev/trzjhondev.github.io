@@ -15,7 +15,7 @@ for (const theme of ['oscuro', 'claro']) {
   const ctx = await browser.newContext({ viewport: { width: 1000, height: 1300 }, deviceScaleFactor: 1, reducedMotion: 'reduce' });
   await ctx.addInitScript((t) => { try { localStorage.setItem('theme', t); } catch { /* sin almacenamiento */ } }, theme === 'oscuro' ? 'dark' : 'light');
   const page = await ctx.newPage();
-  await page.goto(`${URL}?posar&despierta&w=900`, { waitUntil: 'networkidle' });
+  await page.goto(`${URL}posar/?despierta&w=900`, { waitUntil: 'networkidle' });
   await page.waitForFunction(() => window.__poseReady === true, null, { timeout: 30000 });
   await page.waitForTimeout(800);
   // Rectángulo de la cabeza (con orejas y micrófono) proyectado a la imagen, en px

@@ -25,6 +25,7 @@ export const mascotLines = {
   // profile.js, lo dice. {email} = el correo de profile.js. Las listas se eligen al azar.
   contacto: {
     pregunta: '¿Le dejo un mensaje a {name}? Escríbelo arriba o elige un puerto.',
+    preguntaLab: 'Elige un puerto y lo conecto, o arrastra tú el conector.', // en /lab no hay formulario arriba
     pista: {
       mensaje: 'Escribe tu mensaje y lo abro en tu correo, listo para enviar.',
       copiar: 'Copio su correo y lo pegas donde quieras.',

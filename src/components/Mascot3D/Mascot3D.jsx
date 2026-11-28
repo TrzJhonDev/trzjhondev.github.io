@@ -12,7 +12,7 @@ import './Mascot3D.css';
 
 import { MASCOT_URL as MODEL } from '../../lib/boot';
 
-export default function Mascot3D({ variant = 'hero', greet = false, ptr, look, cmd, section, onAct, paused = false, stage = false, sleeping = false, loading = false, onFrame, onReady, onError }) {
+export default function Mascot3D({ variant = 'hero', games, greet = false, ptr, look, cmd, section, onAct, paused = false, stage = false, sleeping = false, loading = false, onFrame, onReady, onError }) {
   const host = useRef(null);
   const ghost = useRef(null);
   const link = useRef({});
@@ -25,7 +25,8 @@ export default function Mascot3D({ variant = 'hero', greet = false, ptr, look, c
     let e;
     try {
       e = new MascotEngine(host.current, {
-        variant, greet, ptr, look, cmd, section, link, ctl: hero ? consoleCtl : null, // section: ref con la sección que tienes delante (pose de la pequeña)
+        variant, greet, ptr, look, cmd, section, link, ctl: hero && games !== false ? consoleCtl : null, // games={false}: la pantalla del pecho no abre los juegos (viven en /lab)
+        // section: ref con la sección que tienes delante (pose de la pequeña)
         onAct: (t) => cb.current.onAct?.(t),
         // Escenario de Contacto: el director mueve la mascota en cada fotograma (Contact.jsx + lib/contactStage.js)
         // Pantalla de carga: empieza dormida (PLAN-PANTALLA-CARGA.md)
@@ -63,7 +64,7 @@ export default function Mascot3D({ variant = 'hero', greet = false, ptr, look, c
   return (
     <div ref={host} className={`mascot3d mascot3d--${stage ? 'stage' : variant}`} role="button" tabIndex={0} aria-label={label} onKeyDown={onKey}>
       {/* Consola real, invisible: da los juegos, los datos y las teclas; su pantalla se pinta en el pecho del modelo */}
-      <div ref={ghost} className="mascot mascot3d__ghost" aria-hidden="true"><Console variant={variant} link={link} /></div>
+      <div ref={ghost} className="mascot mascot3d__ghost" aria-hidden="true"><Console variant={variant} link={link} games={games} /></div>
     </div>
   );
 }

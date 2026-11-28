@@ -1,0 +1,132 @@
+/* ───────────── Portafolio en Astro · paleta B "Cielo sereno" (Jhon, 27/11/2026; ver PLAN-REESCRITURA.md) ─────────────
+   La paleta azul cielo de siempre, con disciplina: el azul cielo solo en lo que se pulsa, los enlaces y el renglón
+   "Usuario: Jhon."; todo lo demás en neutros. La mandarina se queda en la mascota. Un solo color saturado por pantalla.
+   Oscuro por defecto; [data-theme="light"] cambia los tokens (lo pone el script de Base.astro). Contrastes en
+   PLAN-COLORES.md (todos AA). Tipografía IBM Plex. */
+:root {
+  --sky-200: #8FD8FF;
+  --sky-300: #5CC6F7;
+  --sky-400: #2AB4F4;
+  --sky-650: #0879B8;
+  --sky-750: #0A70B4;
+  --sky-800: #075F88;
+  --indigo-400: #4C8DF6;
+  --indigo-700: #2F63D6;
+
+  --bg: #0C0E13;
+  --surface: #12151B;
+  --surface-2: #181C24;
+  --line: #222731;
+  --line-2: #343A46;
+  --text: #F2F4F7;
+  --muted: #B4BAC6;
+  --muted-2: #8B93A1;
+
+  --accent: var(--sky-400);
+  --accent-hover: var(--sky-300);
+  --on-accent: #0C0E13;
+  --accent-ink: var(--sky-400);
+  --accent-2: var(--indigo-400);
+  --accent-rgb: 42, 180, 244;
+  --haze-rgb: 42, 180, 244;
+  --focus: var(--sky-200);
+  --ok: #5FD39A;
+  --danger: #FF6B6B;
+
+  /* Escenario de la mascota (panel de la portada): en claro, azul noche (el marfil sobre crema da 1,1:1 y la mascota desaparecía) */
+  --stage-panel: linear-gradient(180deg, #151B25, #0F131A);
+  --stage-glow: radial-gradient(60% 50% at 50% 42%, rgba(42, 180, 244, 0.16), transparent 70%);
+
+  --sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --display: 'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+
+  --wrap: 1200px;
+  --gutter: max(24px, env(safe-area-inset-left), env(safe-area-inset-right));
+  --radius: 14px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --bg: #FAF8F4;
+  --surface: #FFFFFF;
+  --surface-2: #F1EEE8;
+  --line: #E3DFD7;
+  --line-2: #CFCAC0;
+  --text: #1A1D24;
+  --muted: #4A505C;
+  --muted-2: #5E6470;
+  --accent: var(--sky-650);
+  --accent-hover: var(--sky-800);
+  --on-accent: #FFFFFF;
+  --accent-ink: var(--sky-750);
+  --accent-2: var(--indigo-700);
+  --accent-rgb: 8, 121, 184;
+  --haze-rgb: 96, 178, 240;
+  --focus: var(--sky-800);
+  --ok: #1F8A5B;
+  --danger: #C62828;
+  --stage-panel: linear-gradient(180deg, #17344F, #0E2236);
+  --stage-glow: radial-gradient(60% 50% at 50% 42%, rgba(143, 216, 255, 0.22), transparent 70%);
+  color-scheme: light;
+}
+
+/* ── Base ── */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; scrollbar-color: var(--accent) var(--bg); caret-color: var(--accent); accent-color: var(--accent); }
+html.lenis, html.lenis body { height: auto; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 400 17px/1.65 var(--sans); overflow-x: clip; }
+img { max-width: 100%; height: auto; display: block; }
+a { color: var(--accent-ink); text-underline-offset: 3px; }
+a:hover { color: var(--accent-hover); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.05; letter-spacing: -0.015em; margin: 0; text-wrap: balance; }
+p { margin: 0; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.mono { font-family: var(--mono); }
+.wrap { max-width: var(--wrap); margin: 0 auto; padding-left: var(--gutter); padding-right: var(--gutter); }
+@media (max-width: 480px) { :root { --gutter: max(16px, env(safe-area-inset-left), env(safe-area-inset-right)); } }
+
+/* ── Botones ── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 22px;
+  border-radius: 999px; font: 600 15px var(--sans); text-decoration: none; border: 1px solid transparent; cursor: pointer;
+  transition: transform 0.15s var(--ease), background-color 0.15s, border-color 0.15s, color 0.15s;
+  -webkit-user-select: none; user-select: none; touch-action: manipulation;
+}
+.btn--accent { background: var(--accent); color: var(--on-accent); }
+.btn--accent:hover { background: var(--accent-hover); color: var(--on-accent); }
+.btn--ghost { border-color: var(--line-2); color: var(--text); background: transparent; }
+.btn--ghost:hover { border-color: var(--muted-2); color: var(--text); }
+.btn:active { transform: scale(0.97); }
+@media (hover: hover) { .btn:hover { transform: translateY(-1px); } .btn:active { transform: scale(0.97); } }
+.btn[aria-disabled="true"] { cursor: not-allowed; color: var(--muted-2); border: 1.5px dashed var(--line-2); background: transparent; }
+.icon-btn {
+  display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line-2);
+  background: var(--surface); color: var(--text); cursor: pointer; transition: border-color 0.15s, transform 0.15s;
+}
+.icon-btn:hover { border-color: var(--muted-2); }
+.icon-btn:active { transform: scale(0.94); }
+
+/* ── Secciones ── */
+.section { padding-block: clamp(88px, 12vw, 140px) 0; }
+.section__head { display: grid; gap: 14px; max-width: 760px; margin-bottom: clamp(36px, 5vw, 56px); }
+.section__head h2 { font-size: clamp(34px, 4.6vw, 56px); }
+.section__head p { color: var(--muted); font-size: 18px; max-width: 60ch; }
+.kicker { font: 500 14px var(--mono); color: var(--accent-2); }
+.pending { color: var(--muted-2); }
+
+/* Movimiento: con "reducir movimiento" nada se desplaza (solo cambios instantáneos) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/* ── Transiciones entre páginas ──
+   View Transitions entre documentos (Chrome 126+, Safari 18.2+; en Firefox, navegación normal): de la portada al
+   caso de estudio, la captura y el título vuelan a su sitio (view-transition-name `shot-<id>` y `title-<id>` en
+   Showcase.astro y proyectos/[id].astro); el resto se funde. La barra no se mueve (`nav`). Sin "reducir movimiento". */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+}
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.3s; }
+::view-transition-group(*) { animation-duration: 0.55s; animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); }

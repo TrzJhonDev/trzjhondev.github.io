@@ -1,0 +1,22 @@
+---
+// Página de herramientas (no es para visitantes): la mascota 3D sola, con fondo transparente, para sacar imágenes con
+// el MISMO motor, luz y encuadre. /posar/ = dormida (lab/poster.mjs); /posar/?despierta = despierta (lab/cabeza.mjs y
+// tools/og.mjs). Parámetro w = ancho de la caja (3:4). Sustituye al ?posar de la app de Vite.
+import '../styles/global.css';
+import Pose from '../proto/Pose.jsx';
+import '../components/Mascot/Mascot.css';
+---
+<!doctype html>
+<html lang="es" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <title>Posar — herramientas</title>
+    <script is:inline>
+      try { var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+    </script>
+  </head>
+  <body style="background: transparent">
+    <Pose client:only="react" />
+  </body>
+</html>

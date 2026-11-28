@@ -1,0 +1,142 @@
+---
+// Caso de estudio de un proyecto (fase 2 de PLAN-REESCRITURA.md). El contenido sale de src/content/proyectos/<id>.md.
+// Al llegar desde la portada, la captura y el título vuelan a su sitio (View Transitions entre documentos, mismos
+// view-transition-name que en Showcase.astro). Barra de lectura arriba (CSS scroll-driven, con @supports) e índice
+// lateral que marca la sección que lees.
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+import { externalLink, isReal } from '../../lib/links.js';
+
+export async function getStaticPaths() {
+  const list = (await getCollection('proyectos')).sort((a, b) => a.data.order - b.data.order);
+  return list.map((entry, i) => ({ params: { id: entry.id }, props: { entry, i, list } }));
+}
+const { entry, i, list } = Astro.props;
+const { Content, headings } = await render(entry);
+const p = entry.data;
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+const pad = (n) => String(n).padStart(2, '0');
+const marker = (s) => s.includes('[');
+const toc = headings.filter((h) => h.depth === 2);
+const prev = list[i - 1], next = list[i + 1];
+---
+<Base title={`${p.title} — TrzJhonDev`} description={p.summary} image={p.image ?? '/og.jpg'}>
+  <div class="read-bar" aria-hidden="true"></div>
+  <article class="case">
+    <div class="wrap">
+      <a class="case__back" href={`${BASE}/#proyectos`}>← Todos los proyectos</a>
+      <header class="case__head">
+        <p class="kicker">~/programas/{entry.id}.app · {pad(i + 1)} / {pad(list.length)}</p>
+        <h1 style={`view-transition-name: title-${entry.id}`} class:list={{ pending: marker(p.title) }}>{p.title}</h1>
+        <p class:list={['case__lead', { pending: marker(p.summary) }]}>{p.summary}</p>
+        <dl class="case__meta">
+          <div><dt>Rol</dt><dd class:list={{ pending: marker(p.role) }}>{p.role}</dd></div>
+          <div><dt>Año</dt><dd class:list={{ pending: marker(p.year) }}>{p.year}</dd></div>
+          <div><dt>Tecnologías</dt><dd><ul class="tags">{p.tags.map((t) => <li>{t}</li>)}</ul></dd></div>
+          <div class="case__links">
+            <a class="btn btn--accent" {...externalLink(p.demo)}>Ver demo{!isReal(p.demo) && <span class="sr-only"> (pendiente)</span>}</a>
+            <a class="btn btn--ghost" {...externalLink(p.code)}>Código{!isReal(p.code) && <span class="sr-only"> (pendiente)</span>}</a>
+          </div>
+        </dl>
+      </header>
+
+      <figure class="case__shot" style={`view-transition-name: shot-${entry.id}`}>
+        <div class="frame__bar" aria-hidden="true"><i></i><i></i><i></i><span class="mono">{entry.id}.app</span></div>
+        {p.image
+          ? <img src={`${BASE}${p.image}`} alt={`Captura de ${p.title}`} />
+          : <div class="shot__empty mono" role="img" aria-label="Captura pendiente">[CAPTURA]</div>}
+      </figure>
+
+      <div class="case__body">
+        {toc.length > 0 && (
+          <nav class="toc" aria-label="En esta página">
+            <p class="toc__title mono">en esta página</p>
+            <ol>{toc.map((h) => <li><a href={`#${h.slug}`} data-toc={h.slug}>{h.text}</a></li>)}</ol>
+          </nav>
+        )}
+        <div class="prose"><Content /></div>
+      </div>
+
+      <nav class="case__next" aria-label="Otros proyectos">
+        {prev ? <a href={`${BASE}/proyectos/${prev.id}/`} class="nx"><span class="mono">← anterior</span><b>{prev.data.title}</b></a> : <span></span>}
+        {next ? <a href={`${BASE}/proyectos/${next.id}/`} class="nx nx--next"><span class="mono">siguiente →</span><b>{next.data.title}</b></a> : <a href={`${BASE}/#contacto`} class="nx nx--next"><span class="mono">siguiente →</span><b>Contacto</b></a>}
+      </nav>
+    </div>
+  </article>
+</Base>
+
+<script>
+  // Índice lateral: marca la sección que cruza el 30 % de la ventana
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc]')];
+  const heads = links.map((a) => document.getElementById(a.dataset.toc!)).filter(Boolean) as HTMLElement[];
+  let raf = 0;
+  const paint = () => {
+    raf = 0;
+    const line = innerHeight * 0.3;
+    let on = 0;
+    heads.forEach((h, i) => { if (h.getBoundingClientRect().top <= line) on = i; });
+    links.forEach((a, i) => (i === on ? a.setAttribute('aria-current', 'location') : a.removeAttribute('aria-current')));
+  };
+  if (links.length) { addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(paint); }, { passive: true }); paint(); }
+</script>
+
+<style>
+  .case { padding-top: 120px; }
+  .case__back { font-size: 15px; text-decoration: none; color: var(--muted); }
+  .case__back:hover { color: var(--accent-ink); }
+  .case__head { display: grid; gap: 18px; max-width: 860px; margin-top: 28px; }
+  .case h1 { font-size: clamp(40px, 6vw, 72px); width: fit-content; }
+  .case__lead { font-size: clamp(18px, 2vw, 21px); color: var(--muted); max-width: 60ch; }
+  .case__meta { display: flex; flex-wrap: wrap; gap: 18px 40px; margin: 10px 0 0; align-items: end; }
+  .case__meta dt { font: 500 12.5px var(--mono); color: var(--muted-2); margin-bottom: 6px; }
+  .case__meta dd { margin: 0; }
+  .case__links { display: flex; gap: 10px; flex-wrap: wrap; }
+  .tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .tags li { font: 500 13px var(--mono); padding: 4px 11px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--muted); }
+
+  .case__shot { margin: 48px 0 0; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); background: var(--surface); box-shadow: 0 30px 70px -36px rgba(0, 0, 0, 0.55); }
+  .frame__bar { display: flex; align-items: center; gap: 6px; padding: 10px 14px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+  .frame__bar i { width: 9px; height: 9px; border-radius: 50%; background: var(--line-2); }
+  .frame__bar span { margin-left: 10px; font-size: 12.5px; color: var(--muted-2); }
+  .case__shot img, .shot__empty { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+  .shot__empty { display: grid; place-items: center; color: var(--muted-2); background: repeating-linear-gradient(135deg, transparent 0 14px, color-mix(in srgb, var(--line) 50%, transparent) 14px 15px); }
+
+  .case__body { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: clamp(32px, 6vw, 88px); margin-top: clamp(56px, 8vw, 96px); }
+  .toc { position: sticky; top: 100px; align-self: start; }
+  .toc__title { font-size: 12.5px; color: var(--muted-2); margin-bottom: 10px; }
+  .toc ol { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 1px solid var(--line-2); display: grid; gap: 10px; }
+  .toc a { font-size: 15px; color: var(--muted); text-decoration: none; position: relative; display: block; }
+  .toc a[aria-current] { color: var(--text); }
+  .toc a[aria-current]::before { content: ''; position: absolute; left: -16px; top: 2px; bottom: 2px; width: 3px; border-radius: 2px; background: var(--accent-ink); }
+  @media (max-width: 860px) { .case__body { grid-template-columns: 1fr; } .toc { display: none; } }
+
+  .prose { max-width: 68ch; }
+  .prose :global(h2) { font-size: clamp(26px, 3vw, 34px); margin: 56px 0 14px; scroll-margin-top: 110px; }
+  .prose :global(h2:first-child) { margin-top: 0; }
+  .prose :global(h3) { font-size: 22px; margin: 32px 0 10px; }
+  .prose :global(p), .prose :global(li) { color: var(--muted); font-size: 17.5px; }
+  .prose :global(p + p) { margin-top: 14px; }
+  .prose :global(ul), .prose :global(ol) { padding-left: 22px; display: grid; gap: 6px; }
+  .prose :global(strong) { color: var(--text); }
+  .prose :global(img) { border-radius: 12px; border: 1px solid var(--line); margin: 24px 0; }
+  .prose :global(code) { font-family: var(--mono); font-size: 0.9em; background: var(--surface-2); padding: 2px 6px; border-radius: 6px; }
+  .prose :global(pre) { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; overflow-x: auto; }
+  .prose :global(pre code) { background: none; padding: 0; }
+
+  .case__next { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: clamp(72px, 10vw, 120px); padding-top: 32px; border-top: 1px solid var(--line); }
+  .nx { display: grid; gap: 6px; padding: 18px 20px; border-radius: var(--radius); border: 1px solid var(--line); text-decoration: none; color: var(--text); transition: border-color 0.15s; }
+  .nx:hover { border-color: var(--muted-2); color: var(--text); }
+  .nx span { font-size: 13px; color: var(--muted-2); }
+  .nx b { font: 700 22px var(--display); }
+  .nx--next { text-align: right; }
+  @media (max-width: 560px) { .case__next { grid-template-columns: 1fr; } .nx--next { text-align: left; } }
+
+  /* Barra de lectura: avanza con el scroll de la página (sin JavaScript donde el navegador lo soporta) */
+  .read-bar { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 50; background: var(--accent-ink); transform-origin: left; transform: scaleX(0); display: none; }
+  @supports (animation-timeline: scroll()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .read-bar { display: block; animation: read linear both; animation-timeline: scroll(root); }
+    }
+  }
+  @keyframes read { to { transform: scaleX(1); } }
+</style>

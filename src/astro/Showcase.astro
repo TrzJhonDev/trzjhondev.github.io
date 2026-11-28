@@ -1,0 +1,151 @@
+---
+// Vitrina de proyectos (fase 2 de PLAN-REESCRITURA.md): el ÚNICO tramo de la portada que reacciona al scroll de
+// forma marcada. En escritorio, a la izquierda queda fija (sticky) una ventana de navegador con la captura; a la
+// derecha bajan los bloques de texto, uno por proyecto. Cuando un bloque cruza el centro, su captura entra con un
+// fundido y el contador y el nombre del archivo cambian; una barra fina avanza con el scroll y la captura se desplaza
+// un poco dentro de la ventana (GSAP + ScrollTrigger, con scrub). En móvil y con "reducir movimiento": cada proyecto
+// lleva su captura encima, sin nada fijo ni ligado al scroll. Clic en un proyecto → su caso de estudio, con una
+// transición de vista: la captura crece hasta ser la cabecera (view-transition-name `shot-<id>`, ver global.css).
+import type { CollectionEntry } from 'astro:content';
+import { externalLink, isReal } from '../lib/links.js';
+
+interface Props { list: CollectionEntry<'proyectos'>[]; }
+const { list } = Astro.props;
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+const pad = (n: number) => String(n).padStart(2, '0');
+const url = (id: string) => `${BASE}/proyectos/${id}/`;
+const marker = (s: string) => s.includes('[');
+---
+<div class="showcase" data-showcase>
+  <div class="showcase__media" aria-hidden="true">
+    <div class="frame">
+      <div class="frame__bar">
+        <i></i><i></i><i></i>
+        <span class="mono frame__file" data-file>{list[0]?.id}.app</span>
+        <span class="mono frame__count"><b data-count>01</b> / {pad(list.length)}</span>
+      </div>
+      <div class="frame__view">
+        {list.map((p, i) => (
+          <a class:list={['shot', { 'is-active': i === 0 }]} href={url(p.id)} tabindex="-1" style={`--vt: shot-${p.id}`} data-shot>
+            {p.data.image
+              ? <img src={`${BASE}${p.data.image}`} alt="" loading={i === 0 ? 'eager' : 'lazy'} />
+              : <span class="shot__empty mono">[CAPTURA]</span>}
+          </a>
+        ))}
+      </div>
+      <div class="frame__progress"><i data-progress></i></div>
+    </div>
+  </div>
+
+  <ol class="showcase__steps" data-steps>
+    {list.map((p, i) => (
+      <li class:list={['step', { 'is-active': i === 0 }]} data-step data-file={`${p.id}.app`}>
+        <a class="step__shot" href={url(p.id)} tabindex="-1" aria-hidden="true" style={`--vt: shot-${p.id}`}>
+          <span class="frame__bar"><i></i><i></i><i></i><span class="mono frame__file">{p.id}.app</span></span>
+          {p.data.image ? <img src={`${BASE}${p.data.image}`} alt="" loading="lazy" /> : <span class="shot__empty mono">[CAPTURA]</span>}
+        </a>
+        <p class="step__num mono">{pad(i + 1)} / {pad(list.length)}</p>
+        <h3 style={`view-transition-name: title-${p.id}`}><a href={url(p.id)} class:list={{ pending: marker(p.data.title) }}>{p.data.title}</a></h3>
+        <p class:list={['step__summary', { pending: marker(p.data.summary) }]}>{p.data.summary}</p>
+        <p class="step__meta mono"><span class:list={{ pending: marker(p.data.role) }}>{p.data.role}</span><span aria-hidden="true">·</span><span class:list={{ pending: marker(p.data.year) }}>{p.data.year}</span></p>
+        <ul class="tags">{p.data.tags.map((t) => <li>{t}</li>)}</ul>
+        <div class="step__links">
+          <a class="btn btn--accent" href={url(p.id)}>Ver caso de estudio</a>
+          <a class="btn btn--ghost" {...externalLink(p.data.code)}>Código{!isReal(p.data.code) && <span class="sr-only"> (pendiente)</span>}</a>
+          <a class="btn btn--ghost" {...externalLink(p.data.demo)}>Demo{!isReal(p.data.demo) && <span class="sr-only"> (pendiente)</span>}</a>
+        </div>
+      </li>
+    ))}
+  </ol>
+</div>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+
+  const root = document.querySelector<HTMLElement>('[data-showcase]');
+  if (root) {
+    const steps = [...root.querySelectorAll<HTMLElement>('[data-step]')];
+    const shots = [...root.querySelectorAll<HTMLElement>('[data-shot]')];
+    const count = root.querySelector('[data-count]');
+    const file = root.querySelector('[data-file]');
+    const bar = root.querySelector('[data-progress]');
+    let current = 0;
+    const setActive = (i: number) => {
+      if (i === current) return;
+      current = i;
+      shots.forEach((s, k) => s.classList.toggle('is-active', k === i));
+      steps.forEach((s, k) => s.classList.toggle('is-active', k === i));
+      if (count) count.textContent = String(i + 1).padStart(2, '0');
+      if (file) file.textContent = steps[i].dataset.file ?? '';
+    };
+
+    // Solo en escritorio y con movimiento: lo fijo y lo ligado al scroll (gsap.matchMedia lo deshace solo al salir)
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 900px) and (prefers-reduced-motion: no-preference)', () => {
+      root.classList.add('is-live');
+      steps.forEach((s, i) => ScrollTrigger.create({
+        trigger: s, start: 'top 55%', end: 'bottom 55%',
+        onToggle: (self) => { if (self.isActive) setActive(i); },
+      }));
+      if (bar) gsap.fromTo(bar, { scaleX: 0 }, { scaleX: 1, ease: 'none', scrollTrigger: { trigger: root.querySelector('[data-steps]'), start: 'top 55%', end: 'bottom 55%', scrub: 0.4 } });
+      // La captura se desplaza un poco dentro de la ventana mientras su bloque pasa (profundidad, sin marear)
+      shots.forEach((sh, i) => {
+        const media = sh.firstElementChild;
+        if (media) gsap.fromTo(media, { yPercent: -3 }, { yPercent: 3, ease: 'none', scrollTrigger: { trigger: steps[i], start: 'top bottom', end: 'bottom top', scrub: true } });
+      });
+      return () => root.classList.remove('is-live');
+    });
+    // Las capturas y las fuentes cambian alturas: se vuelve a medir cuando todo ha cargado
+    addEventListener('load', () => ScrollTrigger.refresh());
+  }
+</script>
+
+<style>
+  .showcase { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(32px, 5vw, 72px); }
+  /* Columna fija con la ventana */
+  .showcase__media { position: sticky; top: max(96px, calc(50svh - 230px)); align-self: start; }
+  .frame { border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); background: var(--surface); box-shadow: 0 30px 70px -36px rgba(0, 0, 0, 0.55); }
+  .frame__bar { display: flex; align-items: center; gap: 6px; padding: 10px 14px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+  .frame__bar i { width: 9px; height: 9px; border-radius: 50%; background: var(--line-2); }
+  .frame__file { margin-left: 10px; font-size: 12.5px; color: var(--muted-2); }
+  .frame__count { margin-left: auto; font-size: 12.5px; color: var(--muted-2); }
+  .frame__count b { color: var(--accent-ink); font-weight: 600; }
+  .frame__view { position: relative; aspect-ratio: 16 / 10; overflow: hidden; }
+  .shot { position: absolute; inset: 0; display: block; opacity: 0; transform: scale(1.03); pointer-events: none; transition: opacity 0.6s var(--ease), transform 0.8s var(--ease); }
+  .shot.is-active { opacity: 1; transform: none; pointer-events: auto; }
+  .shot img, .shot .shot__empty { position: absolute; inset: -4% 0; width: 100%; height: 108%; object-fit: cover; }
+  .shot__empty { display: grid; place-items: center; color: var(--muted-2); font-size: 14px; background: repeating-linear-gradient(135deg, transparent 0 14px, color-mix(in srgb, var(--line) 50%, transparent) 14px 15px); }
+  .frame__progress { height: 3px; background: var(--line); }
+  .frame__progress i { display: block; height: 100%; background: var(--accent-ink); transform-origin: left; transform: scaleX(0); }
+
+  /* Bloques de texto: en escritorio, cada uno ocupa casi una pantalla y el que no está activo se atenúa */
+  .showcase__steps { list-style: none; margin: 0; padding: 0; }
+  .step { display: grid; gap: 14px; align-content: center; padding-block: 24px; }
+  .showcase.is-live .step { min-height: 78svh; opacity: 0.4; transition: opacity 0.5s var(--ease); }
+  .showcase.is-live .step.is-active { opacity: 1; }
+  .step__shot { display: none; }
+  .step__num { font-size: 13px; color: var(--accent-2); }
+  .step h3 { font-size: clamp(30px, 3.4vw, 42px); }
+  .step h3 a { color: var(--text); text-decoration: none; }
+  .step h3 a:hover { color: var(--accent-ink); }
+  .step__summary { color: var(--muted); font-size: 17.5px; max-width: 46ch; }
+  .step__meta { display: flex; gap: 10px; font-size: 13px; color: var(--muted-2); }
+  .step__links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+  .tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .tags li { font: 500 13px var(--mono); padding: 4px 11px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--muted); }
+
+  /* La transición de vista usa la captura que se ve: la fija en escritorio, la del bloque en móvil */
+  @media (min-width: 900px) and (prefers-reduced-motion: no-preference) { .shot.is-active { view-transition-name: var(--vt); } }
+
+  /* Móvil (o con "reducir movimiento"): sin columna fija; cada proyecto con su captura encima */
+  @media (max-width: 899px), (prefers-reduced-motion: reduce) {
+    .showcase { grid-template-columns: 1fr; }
+    .showcase__media { display: none; }
+    .showcase__steps { display: grid; gap: 64px; }
+    .step__shot { display: block; position: relative; text-decoration: none; color: inherit; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); background: var(--surface); margin-bottom: 6px; view-transition-name: var(--vt); }
+    .step__shot img, .step__shot .shot__empty { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+    .step__shot .shot__empty { display: grid; position: static; height: auto; }
+  }
+</style>

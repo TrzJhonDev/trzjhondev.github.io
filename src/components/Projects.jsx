@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { projects } from '../data/profile';
+import { projects as PROFILE_PROJECTS } from '../data/profile';
 import { SKILLS } from '../data/skills';
 import { externalLink, isReal } from '../lib/links';
 import Laptop3D from './Laptop3D/Laptop3D';
@@ -22,7 +22,7 @@ function FileIcon() {
  * enlaces. Título y descripción también van aquí: visibles en móvil (el portátil queda arriba) y para lectores de
  * pantalla en escritorio (la pantalla 3D no es accesible). Si no caben, la lista se desplaza con la rueda o el dedo.
  */
-function Programs({ open, onToggle }) {
+function Programs({ open, onToggle, projects }) {
   return (
     <div className="progs">
       <p className="progs__path"><span>~/programas</span> — {projects.length} {projects.length === 1 ? 'elemento' : 'elementos'}</p>
@@ -123,7 +123,10 @@ function useBootRunway(ref) {
  * Sección Proyectos: el portátil 3D a la izquierda (a pantalla completa de la sección) y a la derecha la lista de
  * programas. Abrir un programa lo muestra en la pantalla del portátil; elegir una skill vuelve al editor de código.
  */
-export default function Projects() {
+// En /lab (web de Astro): lab = true quita la pista del encendido (el portátil arranca solo) y list trae los proyectos de
+// la colección de Markdown (src/content/proyectos/) en lugar de los de profile.js.
+export default function Projects({ lab = false, list }) {
+  const projects = list ?? PROFILE_PROJECTS;
   const [skill, setSkill] = useState(SKILLS[0]);
   const [exploded, setExploded] = useState(false);
   const [open, setOpen] = useState(null); // índice del proyecto abierto en la pantalla, o null
@@ -136,12 +139,12 @@ export default function Projects() {
   return (
     // Pista del encendido (el pico, scroll-craft 25/11/2026): en escritorio la sección queda fijada (sticky) durante
     // RUNWAY pantallas de scroll mientras el portátil arranca; en móvil arranca a medida que entra en la pantalla
-    <div ref={runwayRef} className="boot-runway" data-sc-act="pin" data-sc-verify-state="">
+    <div ref={lab ? null : runwayRef} className={lab ? 'lab-laptop' : 'boot-runway'} data-sc-act="pin" data-sc-verify-state="">
     <section id="proyectos" className={`work${exploded ? ' work--exploded' : ''}`}>
       <div id="skills" className="work__stage">
         <h2 className="sr-only">Skills</h2>
         <Laptop3D
-          skill={skill} onPickSkill={pickSkill} onExplodedChange={setExploded} bootRef={bootRef}
+          skill={skill} onPickSkill={pickSkill} onExplodedChange={setExploded} bootRef={lab ? undefined : bootRef}
           project={open == null ? null : { ...projects[open], file: `${slugOf(projects[open])}.app` }}
         />
       </div>
@@ -154,7 +157,7 @@ export default function Projects() {
               <h2>Programas instalados</h2>
             </div>
           </div>
-          <Programs open={open} onToggle={toggle} />
+          <Programs open={open} onToggle={toggle} projects={projects} />
         </div>
       </div>
     </section>

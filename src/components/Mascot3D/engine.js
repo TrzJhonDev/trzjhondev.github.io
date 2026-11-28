@@ -49,6 +49,7 @@ const GLASSES_EVERY = [16000, 30000]; // ms entre gestos cuando está quieta
 // El portátil y la pista de Formación quedan a la izquierda de la esquina, así que mira a la izquierda.
 const SECTION_POSE = {
   proyectos: { face: 'focus', dx: -0.85, dy: -0.15 },
+  habilidades: { face: 'happy', dx: -0.7, dy: 0 },
   formacion: { face: 'happy', dx: -0.9, dy: 0.05 },
   contacto: { face: 'happy', dx: -0.4, dy: 0, wave: true },
 };

@@ -42,8 +42,10 @@ const wrapLine = (l) => {
 const record = (id) => { try { return Number(localStorage.getItem(`mascota-record-${id}`)) || 0; } catch { return 0; } };
 const saveRecord = (id, v) => { try { localStorage.setItem(`mascota-record-${id}`, String(v)); } catch { /* sin almacenamiento */ } };
 
-export default function Console({ variant = 'hero', link }) {
+// games: false = la grande sin juegos (portada de la web en Astro: los juegos viven en /lab); por defecto, los de la grande
+export default function Console({ variant = 'hero', link, games }) {
   const hero = variant !== 'mini';
+  const play = games ?? hero;
   const rootRef = useRef(null), canvasRef = useRef(null), textRef = useRef(null), hudRef = useRef(null);
   const act = useRef({ press: () => {}, screen: () => {} });
   const [down, setDown] = useState(''); // botón de la consola que se está pulsando (solo para resaltarlo)
@@ -69,7 +71,7 @@ export default function Console({ variant = 'hero', link }) {
 
     // ── standby ──
     const standby = () => {
-      setText(`<b class="mc-logo">TRZ<i class="mc-cur">_</i></b>${hero ? '<span class="mc-sm">clic: jugar</span>' : ''}`, 'is-center');
+      setText(`<b class="mc-logo">TRZ<i class="mc-cur">_</i></b>${play ? '<span class="mc-sm">clic: jugar</span>' : ''}`, 'is-center');
     };
 
     // ── cargando (pantalla de carga) ──

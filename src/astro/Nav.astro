@@ -1,0 +1,148 @@
+---
+// Barra flotante: arriba, transparente; al bajar se esconde y al subir vuelve con fondo. La rayita azul marca la
+// sección que cruza el 40 % de la ventana (aria-current). Sin React: un script pequeño con rAF.
+import { profile } from '../data/profile.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const home = Astro.url.pathname === `${base}/` || Astro.url.pathname === base;
+const to = (hash) => (home ? hash : `${base}/${hash}`);
+const LINKS = [
+  { href: to('#proyectos'), label: 'Proyectos', section: 'proyectos' },
+  { href: to('#habilidades'), label: 'Habilidades', section: 'habilidades' },
+  { href: to('#formacion'), label: 'Formación', section: 'formacion' },
+  { href: `${base}/lab/`, label: 'Lab', section: 'lab' },
+];
+---
+<header class="nav" data-nav>
+  <nav class="wrap nav__inner" aria-label="Principal">
+    <a href={`${base}/`} class="brand">
+      <span class="brand__mark" aria-hidden="true">J<span class="cursor-blink">_</span></span>
+      <span class="brand__name">{profile.brand}</span>
+    </a>
+    <div class="nav__links">
+      {LINKS.map((l) => <a href={l.href} data-section={l.section} aria-current={l.section === 'lab' && Astro.url.pathname.startsWith(`${base}/lab`) ? 'page' : undefined}>{l.label}</a>)}
+      <span class="nav__ind" aria-hidden="true"></span>
+      <button type="button" class="icon-btn" data-theme-toggle aria-label="Cambiar de tema">
+        <svg class="i-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5" /></svg>
+        <svg class="i-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" /></svg>
+      </button>
+      <a href={to('#contacto')} class="btn btn--accent nav__cta">Contacto</a>
+      <button type="button" class="icon-btn nav__menu" aria-expanded="false" aria-controls="menu-movil" aria-label="Abrir el menú" data-menu>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+      </button>
+    </div>
+  </nav>
+  <!-- Menú del móvil: por debajo de 760 px los enlaces de la barra no caben -->
+  <div class="nav__sheet wrap" id="menu-movil" hidden>
+    <ul>{[...LINKS, { href: to('#contacto'), label: 'Contacto' }].map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+  </div>
+</header>
+
+<script>
+  // Tema: View Transitions con el fundido del navegador; se guarda la elección
+  const btn = document.querySelector('[data-theme-toggle]');
+  const label = () => {
+    const dark = document.documentElement.dataset.theme !== 'light';
+    btn?.setAttribute('aria-label', dark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+  };
+  label();
+  btn?.addEventListener('click', () => {
+    const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('theme', next); } catch { /* sin almacenamiento */ }
+    const apply = () => {
+      document.documentElement.dataset.theme = next;
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'light' ? '#FAF8F4' : '#0C0E13');
+      label();
+    };
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduce && document.startViewTransition) document.startViewTransition(apply).finished.catch(() => {});
+    else apply();
+  });
+
+  // Menú del móvil: se abre y se cierra con el botón, con Esc o al elegir un enlace
+  const menuBtn = document.querySelector<HTMLButtonElement>('[data-menu]');
+  const sheet = document.getElementById('menu-movil');
+  const setMenu = (open: boolean) => {
+    if (!menuBtn || !sheet) return;
+    sheet.hidden = !open;
+    menuBtn.setAttribute('aria-expanded', String(open));
+    menuBtn.setAttribute('aria-label', open ? 'Cerrar el menú' : 'Abrir el menú');
+    document.querySelector('[data-nav]')?.classList.toggle('is-open', open);
+  };
+  menuBtn?.addEventListener('click', () => setMenu(sheet?.hidden ?? false));
+  sheet?.addEventListener('click', (ev) => { if ((ev.target as HTMLElement).closest('a')) setMenu(false); });
+  addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && sheet && !sheet.hidden) { setMenu(false); menuBtn?.focus(); } });
+
+  // Barra flotante y sección activa
+  const nav = document.querySelector('[data-nav]') as HTMLElement | null;
+  const ind = nav?.querySelector('.nav__ind') as HTMLElement | null;
+  const links = [...(nav?.querySelectorAll<HTMLAnchorElement>('.nav__links a[data-section]') ?? [])];
+  const TOP = 80;
+  let lastY = scrollY, raf = 0, active: string | null | undefined;
+  const paint = () => {
+    raf = 0;
+    if (!nav || !ind) return;
+    const y = scrollY, dy = y - lastY;
+    if (y <= TOP) nav.classList.remove('is-floating', 'is-hidden');
+    else if (dy > 4) nav.classList.add('is-floating', 'is-hidden');
+    else if (dy < -4) { nav.classList.add('is-floating'); nav.classList.remove('is-hidden'); }
+    if (Math.abs(dy) > 4 || y <= TOP) lastY = y;
+    const line = innerHeight * 0.4;
+    let now: string | null = null;
+    for (const a of links) {
+      const r = document.getElementById(a.dataset.section!)?.getBoundingClientRect();
+      if (r && r.top <= line && r.bottom > line) { now = a.dataset.section!; break; }
+    }
+    if (now === active) return;
+    active = now;
+    const on = links.find((a) => a.dataset.section === now && a.offsetWidth > 0);
+    links.forEach((a) => { if (a.dataset.section !== 'lab') a.toggleAttribute('aria-current', a === on); if (a === on) a.setAttribute('aria-current', 'location'); });
+    if (!on) { ind.classList.remove('is-on'); return; }
+    ind.style.transform = `translateX(${on.offsetLeft}px)`;
+    ind.style.width = `${on.offsetWidth}px`;
+    ind.classList.add('is-on');
+  };
+  const kick = () => { if (!raf) raf = requestAnimationFrame(paint); };
+  addEventListener('scroll', kick, { passive: true });
+  addEventListener('resize', () => { active = undefined; kick(); });
+  paint();
+</script>
+
+<style>
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 40; padding-top: env(safe-area-inset-top); view-transition-name: nav;
+    transition: translate 0.35s var(--ease), background-color 0.25s, box-shadow 0.25s;
+  }
+  .nav.is-floating { background: color-mix(in srgb, var(--bg) 94%, transparent); box-shadow: 0 1px 0 var(--line), 0 10px 28px rgba(0, 0, 0, 0.16); }
+  .nav.is-hidden:not(.is-open) { translate: 0 calc(-100% - 12px); }
+  .nav.is-open { background: var(--bg); box-shadow: 0 1px 0 var(--line), 0 18px 40px rgba(0, 0, 0, 0.25); }
+  .nav__menu { display: none; }
+  .nav__sheet ul { list-style: none; margin: 0; padding: 4px 0 18px; display: grid; }
+  .nav__sheet a { display: block; padding: 13px 2px; font: 600 18px var(--sans); color: var(--text); text-decoration: none; border-top: 1px solid var(--line); }
+  .nav.is-hidden:focus-within { translate: 0 0; }
+  .nav__inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 18px; transition: padding 0.25s; }
+  .nav.is-floating .nav__inner { padding-block: 10px; }
+  .brand { display: flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; min-width: 0; }
+  .brand:hover { color: var(--text); }
+  .brand__mark { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line-2); font: 600 14px var(--mono); color: var(--accent-ink); }
+  .brand__name { font: 700 20px var(--display); letter-spacing: -0.005em; }
+  .cursor-blink { animation: blink 1.2s steps(2, jump-none) infinite; }
+  @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.15; } }
+  .nav__links { position: relative; display: flex; align-items: center; gap: 26px; font-size: 15px; }
+  .nav__links a:not(.btn) { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+  .nav__links a:not(.btn):hover, .nav__links a[aria-current] { color: var(--text); }
+  .nav__ind {
+    position: absolute; left: 0; bottom: -7px; width: 0; height: 2px; border-radius: 2px; background: var(--accent-ink); opacity: 0; pointer-events: none;
+    transition: transform 0.4s var(--ease), width 0.4s var(--ease), opacity 0.2s;
+  }
+  .nav__ind.is-on { opacity: 1; }
+  .nav__cta { min-height: 42px; padding: 0 18px; }
+  :global([data-theme="light"]) .i-sun, .i-moon { display: none; }
+  :global([data-theme="light"]) .i-moon { display: block; }
+  @media (max-width: 760px) {
+    .nav__links { gap: 10px; }
+    .nav__links a:not(.btn) { display: none; }
+    .nav__menu { display: inline-grid; }
+    .nav__cta { display: none; }
+    .brand__name { font-size: 17px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  }
+</style>

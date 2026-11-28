@@ -105,13 +105,15 @@ function useMedia(query) {
   return on;
 }
 
-export default function Contact() {
+// lab = true (página /lab de la web de Astro): solo el escenario del switch, sin el formulario ni el pie (ya están en la web)
+export default function Contact({ lab = false }) {
   const { contact } = useGuide();
   const wide = useMedia(STAGE_MQ);
   const [failed, setFailed] = useState(false);
   const staged = wide && !failed;
   const [live, setLive] = useState(false); // el director ya mueve las tarjetas (y la mascota 3D está lista)
-  const [line, setLine] = useState(fill(T.pregunta));
+  const ask = lab ? T.preguntaLab : T.pregunta; // en /lab no hay formulario: la pregunta no habla de "arriba"
+  const [line, setLine] = useState(fill(ask));
   const [status, setStatus] = useState('');
   const [msg, setMsg] = useState('');
   const stageRef = useRef(null);
@@ -127,7 +129,7 @@ export default function Contact() {
     window.clearTimeout(timer.current);
     if (ms) {
       holdUntil.current = performance.now() + ms;
-      timer.current = window.setTimeout(() => setLine(fill(T.pregunta)), ms);
+      timer.current = window.setTimeout(() => setLine(fill(ask)), ms);
     }
   }, []);
   const sayKey = useCallback((key, ms = 2800) => sayFor(fill(pick(T[key])), ms), [sayFor]);
@@ -194,7 +196,7 @@ export default function Contact() {
     // El conector acaba de enchufarse bajo el puntero: sigues en el puerto
     if (ev.type === 'pointerleave' && ev.relatedTarget?.closest?.('.cta__plug')) return;
     director.current?.attend(null);
-    if (performance.now() >= holdUntil.current) setLine(fill(T.pregunta));
+    if (performance.now() >= holdUntil.current) setLine(fill(ask));
   };
   const hover = (id, ready) => ({
     onPointerEnter: hint(id, ready), onPointerLeave: unhint, onFocus: hint(id, ready), onBlur: unhint,
@@ -238,9 +240,9 @@ export default function Contact() {
   const mascotProps = { ptr: contact.ptr, look: contact.look, cmd: contact.cmd, onAct };
 
   return (
-    <section id="contacto" className="container section section--tight">
+    <section id={lab ? 'switch' : 'contacto'} className="container section section--tight">
       <div className="cta">
-        <div className="cta__top">
+        {!lab && <div className="cta__top">
           <div className="cta__head">
             {/* Voz de la máquina (26/11/2026): antes "¿Trabajamos juntos? … Escríbeme." */}
             <h2>Abrir conexión</h2>
@@ -257,7 +259,7 @@ export default function Contact() {
               Enviar por correo
             </button>
           </form>
-        </div>
+        </div>}
 
         <div ref={stageRef} className={`cta__stage${staged ? '' : ' cta__stage--static'}`}>
           <div className="cta__bubble">{line}</div>
@@ -312,7 +314,7 @@ export default function Contact() {
           )}
         </div>
         <p className="sr-only" role="status" aria-live="polite">{status}</p>
-        <Footer />
+        {!lab && <Footer />}
       </div>
     </section>
   );

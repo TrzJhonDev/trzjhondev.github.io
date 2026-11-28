@@ -2,8 +2,11 @@
 
 Portafolio personal (React 18 + Vite 5, JavaScript, sin TypeScript) de un estudiante de Ingeniería de Sistemas. Todo el texto de la interfaz está en español.
 
+## REESCRITURA EN ASTRO (rama `reescritura-astro`, desde el 27/11/2026)
+Jhon decidió reescribir la web: proyectos como protagonistas, formal e interactiva, mascota como anfitriona. Plan, decisiones y fases en `PLAN-REESCRITURA.md` (paleta B "Cielo sereno", Astro con islas de React, GSAP + ScrollTrigger para un único tramo fijado, Lenis, CSS scroll-driven, View Transitions; portátil, consola y switch a `/lab`). En esa rama: páginas en `src/pages/` (`index.astro`, `lab/`), estructura en `src/layouts/Base.astro`, piezas de Astro en `src/astro/` (`Nav`, `Footer`), estilos base y tokens en `src/styles/global.css`, proyectos en Markdown en `src/content/proyectos/` (esquema en `src/content.config.js`; `profile.projects` ya solo lo usa la app vieja de /lab), vitrina de proyectos en `src/astro/Showcase.astro` y caso de estudio en `src/pages/proyectos/[id].astro` (estado de cada fase en PLAN-REESCRITURA.md), mascota pequeña de la esquina en `src/components/MiniMascot.jsx`, mascota de la portada en `src/components/HeroMascot.jsx` (isla `client:only`, empieza dormida en la imagen fija y despierta; sin pantalla de carga a pantalla completa; `games={false}`: los juegos del pecho viven en `/lab`). Laboratorio `/lab` en `src/pages/lab/index.astro` + `src/components/LabApp.jsx` (portátil, consola con juegos y switch, componentes viejos en modo `lab`; estilos en `src/styles/lab.css`). Página de herramientas `/posar/` (`src/pages/posar.astro`) para sacar imágenes de la mascota. `public/sw.js` solo se da de baja (la web nueva no usa caché local). La app de Vite anterior quedó en `legacy/` (`index.html`, `main.jsx`, `vite.config.js`) y sus componentes siguen en `src/components/` para montarlos en `/lab`. Lo que dice el resto de este archivo describe la web publicada (rama `main`); al terminar la reescritura hay que actualizarlo.
+
 ## Comandos
-- `npm run dev` — servidor de desarrollo
+- `npm run dev` — servidor de desarrollo (en la rama `reescritura-astro`, `astro dev` en el puerto 5173)
 - `npm run build` — build de producción (debe pasar sin errores antes de dar algo por terminado)
 
 ## Convenciones

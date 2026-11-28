@@ -9,7 +9,7 @@ export default function Pose() {
   const awake = params.has('despierta');
   return (
     <div className="pose" style={{ position: 'relative', width: size, height: Math.round((size * 4) / 3), background: 'transparent' }}>
-      <Mascot3D sleeping={!awake} onReady={(e) => {
+      <Mascot3D games={false} sleeping={!awake} onReady={(e) => {
         // Dormida, el pecho va vacío: el CARGANDO lo pone el HTML de la pantalla de carga encima de la imagen
         if (!awake) e.o.consoleEls = () => null;
         e.renderOnce(); window.__poseReady = true;

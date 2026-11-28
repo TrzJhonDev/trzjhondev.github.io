@@ -1,0 +1,266 @@
+---
+// Portada de la web nueva (fase 1 de PLAN-REESCRITURA.md): todo es HTML estático salvo la mascota (isla de React).
+// Los datos salen de src/data/profile.js y skills.js; los [MARCADORES] los completa Jhon.
+import Base from '../layouts/Base.astro';
+import HeroMascot from '../components/HeroMascot.jsx';
+import Showcase from '../astro/Showcase.astro';
+import { getCollection } from 'astro:content';
+import { profile, education } from '../data/profile.js';
+import { SKILLS, CATEGORIES } from '../data/skills.js';
+import { externalLink, localLink, isReal } from '../lib/links.js';
+
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+const accent = profile.hero.accent.replace('{name}', profile.name);
+const isCurrent = (e) => /presente/i.test(e.date);
+const hasEmail = isReal(profile.email) && profile.email.includes('@');
+const skillGroups = CATEGORIES.map((cat) => ({ cat, items: SKILLS.filter((s) => s.cat === cat) })).filter((g) => g.items.length);
+const LINKS = [
+  { key: 'github', label: 'GitHub', url: profile.github },
+  { key: 'linkedin', label: 'LinkedIn', url: profile.linkedin },
+  { key: 'cv', label: 'CV', url: profile.cvUrl, local: true },
+  { key: 'youtube', label: 'YouTube', url: profile.youtube },
+  { key: 'instagram', label: 'Instagram', url: profile.instagram },
+  { key: 'tiktok', label: 'TikTok', url: profile.tiktok },
+];
+// Proyectos: colección de Markdown (src/content/proyectos/), en el orden de `order`
+const list = (await getCollection('proyectos')).sort((a, b) => a.data.order - b.data.order);
+// Habilidades: en cuántos proyectos REALES aparece cada una (los que aún son plantilla, con [CORCHETES], no cuentan)
+const realProjects = list.filter((p) => !p.data.title.includes('['));
+const usedIn = (name) => realProjects.filter((p) => p.data.tags.some((t) => t.toLowerCase() === name.toLowerCase())).length;
+import MiniMascot from '../components/MiniMascot.jsx';
+---
+<Base>
+  <!-- Portada -->
+  <section id="inicio" class="hero">
+    <div class="wrap hero__grid">
+      <div class="hero__text">
+        <p class="kicker">{profile.hero.kicker}</p>
+        <h1><span class="line">{profile.hero.title}</span><span class="line accent">{accent}</span></h1>
+        <p class="hero__lead">{profile.role} en la {profile.university}, {profile.city}. {profile.bio}</p>
+        <div class="hero__cta">
+          <a class="btn btn--accent" href="#proyectos">Ver proyectos</a>
+          <a class="btn btn--ghost" {...localLink(profile.cvUrl)} download={isReal(profile.cvUrl) ? '' : undefined}>Descargar CV</a>
+        </div>
+      </div>
+      <div class="hero__stage" aria-label="Mascota robot de TrzJhonDev">
+        <div class="hero__panel" aria-hidden="true"></div>
+        <HeroMascot client:only="react">
+          <div class="hero-bot" slot="fallback">
+            <img class="hero-bot__img hero-bot__img--dark" src={`${BASE}/img/mascota-dormida-oscuro.webp`} alt="" width="680" height="907" fetchpriority="high" />
+            <img class="hero-bot__img hero-bot__img--light" src={`${BASE}/img/mascota-dormida-claro.webp`} alt="" width="680" height="907" />
+          </div>
+        </HeroMascot>
+      </div>
+    </div>
+  </section>
+
+  <!-- Proyectos: vitrina con la captura fija que cambia mientras bajas (Showcase.astro) -->
+  <section id="proyectos" class="section">
+    <div class="wrap">
+      <header class="section__head">
+        <p class="kicker">~/programas — {list.length} instalados</p>
+        <h2>Proyectos</h2>
+        <p>Lo que he construido: qué problema resuelve cada uno, cómo lo hice y con qué.</p>
+      </header>
+      <Showcase list={list} />
+    </div>
+  </section>
+
+  <!-- Habilidades -->
+  <section id="habilidades" class="section">
+    <div class="wrap">
+      <header class="section__head">
+        <p class="kicker">$ skills --list</p>
+        <h2>Habilidades</h2>
+        <p>Las herramientas con las que trabajo, por áreas. En <a href={`${BASE}/lab/`}>el laboratorio</a> puedes probarlas en el portátil 3D.</p>
+      </header>
+      <div class="skills">
+        {skillGroups.map((g) => (
+          <div class="skill-group">
+            <h3>{g.cat}</h3>
+            <ul class="tags">{g.items.map((s) => { const n = usedIn(s.name); return <li>{s.name}{n > 0 && <span class="tags__n" title={`En ${n} proyecto${n > 1 ? 's' : ''}`}>{n}</span>}</li>; })}</ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Formación -->
+  <section id="formacion" class="section">
+    <div class="wrap">
+      <header class="section__head">
+        <p class="kicker">historial de versiones</p>
+        <h2>Formación</h2>
+      </header>
+      <ol class="timeline">
+        {education.map((e) => (
+          <li class:list={['tl', { 'is-current': isCurrent(e) }]}>
+            <span class="tl__dot" aria-hidden="true"></span>
+            <p class="tl__meta mono"><span>{e.type}</span><span class:list={[{ pending: e.date.includes('[') }]}>{e.date}</span></p>
+            <h3 class:list={[{ pending: e.title.includes('[') }]}>{e.title}</h3>
+            <p class:list={['tl__place', { pending: e.place.includes('[') }]}>{e.place}</p>
+            {isCurrent(e) && <p class="tl__now mono"><i aria-hidden="true"></i>En curso</p>}
+          </li>
+        ))}
+        {profile.available && (
+          <li class="tl is-next">
+            <span class="tl__dot" aria-hidden="true"></span>
+            <p class="tl__meta mono"><span>próxima versión</span></p>
+            <h3>Prácticas pre‑profesionales<span class="cursor-blink" aria-hidden="true">_</span></h3>
+          </li>
+        )}
+      </ol>
+    </div>
+  </section>
+
+  <!-- Contacto -->
+  <section id="contacto" class="section">
+    <div class="wrap">
+      <div class="contact">
+        <header class="section__head">
+          <p class="kicker">&gt; abrir conexión</p>
+          <h2>Contacto</h2>
+          <p>Busco prácticas y proyectos donde aprender. Escríbeme y te respondo.</p>
+        </header>
+        <div class="contact__mail">
+          <span class="mono contact__addr" class:list={[{ pending: !hasEmail }]}>{profile.email}</span>
+          {hasEmail
+            ? <button type="button" class="btn btn--accent" data-copy={profile.email}>Copiar correo</button>
+            : <span class="btn" aria-disabled="true">Correo pendiente</span>}
+          <span class="contact__status" role="status" aria-live="polite"></span>
+        </div>
+        <form class="contact__form" data-mailto={hasEmail ? profile.email : ''} novalidate>
+          <label for="mensaje">Tu mensaje</label>
+          <textarea id="mensaje" name="mensaje" rows="4" placeholder="Hola Jhon, me gustaría…" data-lenis-prevent required></textarea>
+          <p class="contact__hint" id="mensaje-error" role="alert"></p>
+          <div class="contact__send">
+            {hasEmail
+              ? <button type="submit" class="btn btn--accent">Enviar por correo</button>
+              : <span class="btn" aria-disabled="true">Envío pendiente: falta el correo</span>}
+            <span class="contact__note">Se abre tu programa de correo con el texto listo; no hay servidor.</span>
+          </div>
+        </form>
+        <ul class="contact__links">
+          {LINKS.map((l) => (
+            <li><a class="contact__link" {...(l.local ? localLink(l.url) : externalLink(l.url))}>
+              <span>{l.label}</span><span class="mono">{isReal(l.url) ? '↗' : 'pendiente'}</span>
+            </a></li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+  <MiniMascot client:only="react" />
+</Base>
+
+<script>
+  // Formulario: abre el programa de correo con asunto y texto (sin servidor). Si está vacío, lo dice junto al campo.
+  const form = document.querySelector<HTMLFormElement>('.contact__form');
+  form?.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const to = form.dataset.mailto;
+    const text = (form.querySelector('textarea') as HTMLTextAreaElement).value.trim();
+    const err = document.getElementById('mensaje-error');
+    if (!text) { if (err) err.textContent = 'Escribe tu mensaje antes de enviarlo.'; form.querySelector('textarea')?.focus(); return; }
+    if (err) err.textContent = '';
+    if (to) location.href = `mailto:${to}?subject=${encodeURIComponent('Contacto desde tu portafolio')}&body=${encodeURIComponent(text)}`;
+  });
+  form?.querySelector('textarea')?.addEventListener('input', () => { const err = document.getElementById('mensaje-error'); if (err) err.textContent = ''; });
+
+  // Copiar el correo (con aviso accesible; si el portapapeles falla, se selecciona el texto)
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((b) => {
+    b.addEventListener('click', async () => {
+      const status = document.querySelector('.contact__status');
+      try { await navigator.clipboard.writeText(b.dataset.copy!); if (status) status.textContent = 'Correo copiado'; }
+      catch {
+        const addr = document.querySelector('.contact__addr');
+        if (addr) { const r = document.createRange(); r.selectNodeContents(addr); getSelection()?.removeAllRanges(); getSelection()?.addRange(r); }
+        if (status) status.textContent = 'Selecciona y copia el correo';
+      }
+      setTimeout(() => { if (status) status.textContent = ''; }, 2500);
+    });
+  });
+</script>
+
+<style>
+  /* Portada: texto a la izquierda, la mascota a la derecha sobre su halo */
+  .hero { position: relative; min-height: min(100svh, 920px); display: grid; align-items: center; padding-block: 120px 56px; }
+  .hero__grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: clamp(24px, 4vw, 56px); align-items: center; width: 100%; }
+  .hero__text { display: grid; gap: 22px; }
+  .hero h1 { font-size: clamp(46px, 6.4vw, 84px); }
+  .hero .line { display: block; white-space: nowrap; }
+  .hero .accent { color: var(--accent-ink); }
+  .hero__lead { color: var(--muted); font-size: 18.5px; max-width: 52ch; }
+  .hero__cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+  .hero__stage { position: relative; width: min(100%, 440px); justify-self: center; aspect-ratio: 3 / 4; }
+  /* Escenario de la mascota: un panel con su luz (en claro, azul noche: el marfil sobre crema casi no se veía) */
+  .hero__panel { position: absolute; inset: 14% 0 3% 0; border-radius: 32px; pointer-events: none; background: var(--stage-glow), var(--stage-panel); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 30px 80px -40px rgba(0, 0, 0, 0.6); }
+  :global(.hero-bot) { position: absolute; inset: 0; }
+  :global(.hero-bot__img) { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity 0.5s var(--ease); }
+  :global(.hero-bot__img--light) { display: none; }
+  :global([data-theme="light"] .hero-bot__img--dark) { display: none; }
+  :global([data-theme="light"] .hero-bot__img--light) { display: block; }
+  :global(.hero-bot.is-ready .hero-bot__img) { opacity: 0; }
+  @media (max-width: 860px) {
+    .hero { min-height: 0; padding-top: 104px; }
+    .hero__grid { grid-template-columns: 1fr; }
+    .hero__stage { width: min(78vw, 340px); order: -1; }
+  }
+
+  .tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .tags li { font: 500 13px var(--mono); padding: 4px 11px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--muted); }
+
+  /* Habilidades */
+  .skills { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 16px; }
+  .skill-group { padding: 22px 22px 24px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); display: grid; gap: 14px; align-content: start; }
+  .skill-group h3 { font-size: 22px; }
+  .tags__n { display: inline-grid; place-items: center; min-width: 18px; height: 18px; margin-left: 7px; padding: 0 5px; border-radius: 999px; font-size: 11px; background: rgba(var(--accent-rgb), 0.16); color: var(--accent-ink); }
+
+  /* Formación: línea de tiempo (fase 3: la línea se dibuja con el scroll) */
+  .timeline { list-style: none; margin: 0; padding: 0 0 0 28px; position: relative; display: grid; gap: 34px; max-width: 760px; view-timeline-name: --tl; }
+  .timeline::before { content: ''; position: absolute; left: 6px; top: 8px; bottom: 8px; width: 2px; background: var(--line-2); }
+  .tl { position: relative; display: grid; gap: 6px; view-timeline-name: --tl-item; }
+  .tl__dot { position: absolute; left: -28px; top: 6px; width: 14px; height: 14px; border-radius: 50%; background: var(--bg); border: 2px solid var(--accent-ink); }
+  .tl.is-current .tl__dot { background: var(--accent-ink); }
+  .tl.is-next .tl__dot { border-style: dashed; border-color: var(--line-2); }
+  .tl__meta { display: flex; gap: 14px; font-size: 13px; color: var(--muted-2); }
+  .tl h3 { font-size: 24px; }
+  .tl__place { color: var(--muted); }
+  .tl__now { display: inline-flex; align-items: center; gap: 8px; width: fit-content; font-size: 12.5px; color: var(--accent-ink); padding: 3px 10px; border-radius: 999px; border: 1px solid rgba(var(--accent-rgb), 0.4); }
+  .tl__now i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-ink); }
+  /* Con el scroll (CSS scroll-driven, sin JavaScript; donde no hay soporte o con "reducir movimiento" se ve completa):
+     la línea azul baja mientras la lista cruza la pantalla y cada punto se enciende al pasar; las habilidades suben un
+     poco al entrar. Solo transform, opacity y colores. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .timeline::after { content: ''; position: absolute; left: 6px; top: 8px; bottom: 8px; width: 2px; background: var(--accent-ink); transform-origin: top; animation: tl-draw linear both; animation-timeline: --tl; animation-range: entry 35% cover 62%; }
+      .tl:not(.is-next) .tl__dot { animation: tl-dot linear both; animation-timeline: --tl-item; animation-range: entry 70% cover 45%; }
+      .skill-group { animation: rise linear both; animation-timeline: view(); animation-range: entry 0% entry 70%; }
+    }
+  }
+  @keyframes tl-draw { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+  @keyframes tl-dot { from { border-color: var(--line-2); } }
+  @keyframes rise { from { opacity: 0; transform: translateY(18px); } }
+  .cursor-blink { animation: blink 1.2s steps(2, jump-none) infinite; }
+  @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.15; } }
+
+  /* Contacto */
+  .contact { padding: clamp(28px, 5vw, 56px); border-radius: 22px; background: var(--surface); border: 1px solid var(--line); }
+  .contact .section__head { margin-bottom: 28px; }
+  .contact__mail { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
+  .contact__addr { font-size: clamp(17px, 2.2vw, 22px); word-break: break-all; }
+  .contact__status { font-size: 14px; color: var(--accent-ink); min-height: 1em; }
+  .contact__form { display: grid; gap: 10px; margin-top: 32px; max-width: 640px; }
+  .contact__form label { font: 600 15px var(--sans); }
+  .contact__form textarea { width: 100%; resize: vertical; min-height: 110px; padding: 12px 14px; border-radius: 12px; font: 400 16px/1.5 var(--sans); color: var(--text); background: var(--bg); border: 1px solid var(--line-2); }
+  .contact__form textarea::placeholder { color: var(--muted-2); }
+  .contact__form textarea:focus { outline: none; border-color: var(--accent-ink); box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.18); }
+  .contact__hint { min-height: 1.2em; font-size: 14px; color: var(--danger); }
+  .contact__send { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+  .contact__note { font-size: 14px; color: var(--muted-2); }
+  .contact__links { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 10px; }
+  .contact__link { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line-2); color: var(--text); text-decoration: none; transition: border-color 0.15s; }
+  .contact__link:hover { border-color: var(--muted-2); color: var(--text); }
+  .contact__link .mono { font-size: 13px; color: var(--muted-2); }
+  .contact__link[aria-disabled="true"] { border-style: dashed; cursor: not-allowed; color: var(--muted); }
+</style>

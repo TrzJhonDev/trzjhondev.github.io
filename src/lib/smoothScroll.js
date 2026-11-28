@@ -17,7 +17,8 @@ export function startSmoothScroll() {
   const motion = window.matchMedia('(prefers-reduced-motion: no-preference)');
   let lenis = null;
   const sync = () => {
-    const want = fine.matches && motion.matches && boot.finished;
+    // Sin pantalla de carga (páginas de Astro) no hay que esperar a nada
+    const want = fine.matches && motion.matches && (boot.finished || !boot.active);
     if (want && !lenis) {
       lenis = new Lenis({ autoRaf: true, lerp: 0.1, anchors: true, allowNestedScroll: true, stopInertiaOnNavigate: true });
       window.__lenis = lenis; // para las pruebas (lab/*.mjs)

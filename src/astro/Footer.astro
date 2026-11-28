@@ -1,0 +1,19 @@
+---
+// Pie: cierra el "> sesión iniciada" de la portada.
+import { profile } from '../data/profile.js';
+const year = new Date().getFullYear();
+---
+<footer class="foot">
+  <div class="wrap foot__inner">
+    <span>© {year} {profile.name} <span class:list={[{ pending: profile.lastName.includes('[') }]}>{profile.lastName}</span></span>
+    <span class="mono foot__build">compilado con Astro, Three.js y Blender</span>
+    <span class="mono foot__exit">&gt; sesión cerrada · exit 0</span>
+  </div>
+</footer>
+
+<style>
+  .foot { margin-top: clamp(96px, 12vw, 140px); border-top: 1px solid var(--line); }
+  .foot__inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding-block: 24px max(28px, env(safe-area-inset-bottom)); font-size: 14px; color: var(--muted); }
+  .foot__build { font-size: 13px; }
+  .foot__exit { font-size: 13px; color: var(--accent-ink); }
+</style>
