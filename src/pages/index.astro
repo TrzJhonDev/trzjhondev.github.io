@@ -53,7 +53,7 @@ import * as si from 'simple-icons';
           <a class="btn btn--ghost" {...localLink(profile.cvUrl)} download={isReal(profile.cvUrl) ? '' : undefined}>Descargar CV</a>
         </div>
       </div>
-      <div class="hero__stage" aria-label="Mascota robot de TrzJhonDev">
+      <div class="hero__stage" aria-label={`${profile.mascot}, la mascota robot de ${profile.brand}`}>
         <div class="hero__panel" aria-hidden="true"></div>
         <HeroMascot client:only="react">
           <div class="hero-bot" slot="fallback">

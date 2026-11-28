@@ -29,7 +29,7 @@ const DWELL = 1400;           // tiempo mínimo en una sección antes de comenta
 const TILT_RETRY = 45000;     // entre ofertas de enderezar
 const TILT_MAX_OFFERS = 3;    // por sesión
 
-const fill = (s) => s.replace('{name}', profile.name);
+const fill = (s) => s.replace('{name}', profile.name).replace('{mascot}', profile.mascot);
 const read = (area, key) => { try { return window[area].getItem(key); } catch { return null; } };
 const write = (area, key, v) => { try { window[area].setItem(key, v); } catch { /* sin almacenamiento: solo esta visita */ } };
 const readSet = (key) => { try { return new Set(JSON.parse(read('sessionStorage', key) || '[]')); } catch { return new Set(); } };

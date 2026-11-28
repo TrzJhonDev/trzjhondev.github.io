@@ -1,6 +1,7 @@
 import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { siReact, siThreedotjs, siBlender, siCss, siJavascript, siSvg } from 'simple-icons';
 import { GuideProvider } from './Mascot/Guide';
+import { profile } from '../data/profile';
 import Projects from './Projects';
 import Contact from './Contact';
 import '../styles/lab.css';
@@ -34,7 +35,7 @@ const TABS = [
   },
   {
     id: 'consola', label: 'Consola', file: '~/lab/consola',
-    about: 'La consola del pecho de la mascota tiene tres juegos: Serpiente, Salto y Ladrillos. Se dibujan en un canvas que el motor 3D copia a la pantalla del modelo.',
+    about: `La consola del pecho de ${profile.mascot}, la mascota, tiene tres juegos: Serpiente, Salto y Ladrillos. Se dibujan en un canvas que el motor 3D copia a la pantalla del modelo.`,
     controls: [
       { g: 'click', what: 'Abrir el menú de juegos', how: ['Clic en la pantalla del pecho'] },
       { g: 'arrows', what: 'Moverte', how: [{ k: '↑' }, { k: '↓' }, { k: '←' }, { k: '→' }, ' o ', { k: 'WASD' }] },
@@ -47,7 +48,7 @@ const TABS = [
   },
   {
     id: 'switch', label: 'Switch', file: '~/lab/switch',
-    about: 'Un switch de red con siete puertos y un servidor renderizado en Blender. La mascota pasea con el conector y prueba los puertos por su cuenta.',
+    about: `Un switch de red con siete puertos y un servidor renderizado en Blender. ${profile.mascot} pasea con el conector y prueba los puertos por su cuenta.`,
     controls: [
       { g: 'drag', what: 'Enchufar un puerto', how: ['Arrastra el conector hasta un enchufe'] },
       { g: 'point', what: 'Pedirle que conecte', how: ['Pasa el puntero por un puerto'] },

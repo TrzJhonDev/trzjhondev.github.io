@@ -1,6 +1,6 @@
 # Portafolio — Jhon (TrzJhonDev)
 
-Portafolio de un estudiante de Ingeniería de Sistemas, hecho con **Astro** (páginas en HTML estático) y **React** solo donde hace falta interacción. Lo presenta una **mascota robot** modelada en **Blender** y dibujada con **Three.js**. Los proyectos son los protagonistas: cada uno tiene su propia página.
+Portafolio de un estudiante de Ingeniería de Sistemas, hecho con **Astro** (páginas en HTML estático) y **React** solo donde hace falta interacción. Lo presenta **Bonu**, una mascota robot modelada en **Blender** y dibujada con **Three.js**. Los proyectos son los protagonistas: cada uno tiene su propia página.
 
 - **Paleta "Cielo sereno":** azul cielo solo en lo que se pulsa y en los enlaces; el resto, neutros. Modo oscuro (casi negro azulado) y claro (blanco cálido), con un fundido al cambiar. Tokens en `src/styles/global.css`.
 - **Tipografía:** IBM Plex (Sans Condensed en los títulos, Sans en el texto y Mono en los detalles de consola).
@@ -25,8 +25,8 @@ npm run preview        # sirve /dist para probar la versión final
 ## Las páginas
 
 1. **Portada (`/`).**
-   - **Precarga:** el robot dormido con CARGANDO y el % en el pecho; al terminar, un círculo de luz abre la portada y el robot vuela a su sitio. Un clic o Esc la saltan.
-   - **Inicio:** "> sesión iniciada · Sistema listo. Usuario: Jhon.", tu presentación y la mascota, que despierta y saluda. Sigue el puntero y con un clic se asusta o se ríe.
+   - **Precarga:** Bonu dormido con CARGANDO y el % en el pecho; al terminar, un círculo de luz abre la portada y Bonu vuela a su sitio y despierta. Un clic o Esc la saltan.
+   - **Inicio:** "> sesión iniciada · Sistema listo. Usuario: Jhon.", tu presentación y Bonu (su pecho dice BONU), que saluda. Sigue el puntero y con un clic se asusta o se ríe.
    - **Proyectos:** en escritorio, una ventana de navegador fija con la captura que cambia mientras bajas (contador 01/03 y barra de progreso); en móvil, cada proyecto con su captura. Cada uno abre su caso de estudio.
    - **Habilidades:** dos cintas de logos que se mueven con el scroll; al pasar el puntero, el logo toma su color.
    - **Formación:** tarjetas: la carrera con su avance por ciclos, los certificados con su credencial y las prácticas bloqueadas.
@@ -34,7 +34,7 @@ npm run preview        # sirve /dist para probar la versión final
    - **La mascota pequeña** aparece en la esquina al salir de la portada y cambia de pose según la sección.
 2. **Caso de estudio (`/proyectos/<nombre>/`):** contexto, problema, qué hiciste, decisiones, resultado y aprendizajes, con índice lateral, barra de lectura y anterior/siguiente.
 3. **Laboratorio (`/lab/`):** una ventana con pestañas: el portátil 3D (girar, tapa, teclas de skills, terminal, despiece y rompecabezas, cargador), la consola de la mascota con 3 juegos (Serpiente, Salto, Ladrillos) y el switch de puertos con cable. Debajo de cada una, sus controles.
-4. **Página no encontrada (404):** la mascota triste.
+4. **Página no encontrada (404):** Bonu, triste y con la cabeza gacha.
 
 ## Personalizar
 
@@ -45,6 +45,7 @@ npm run preview        # sirve /dist para probar la versión final
 | Capturas | `public/proyectos/` (mejor en 16:10) e `image: "/proyectos/mi-app.png"` en el archivo del proyecto |
 | CV | El PDF en `public/` y `cvUrl: '/cv.pdf'` en `profile.js` |
 | Habilidades | `src/data/skills.js` |
+| Nombre de la mascota (Bonu) | `mascot` en `src/data/profile.js` (sale en los textos y en su pecho) |
 | Frases de la mascota y datos de su consola | `src/data/mascot.js` y `src/data/tips.js` |
 | Colores | Tokens en `src/styles/global.css`; mascota en `Mascot/Mascot.css` (`--m-*`) y `THEMES` de `Mascot3D/engine.js` |
 

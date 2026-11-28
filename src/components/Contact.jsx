@@ -27,7 +27,7 @@ const SRV = { power: [31.74, 22.83], ledX: [34.69, 38.8], units: [32.97, 48.41, 
 const STAGE_MQ ='(min-width: 1100px) and (prefers-reduced-motion: no-preference)';
 
 const T = mascotLines.contacto;
-const fill = (s) => s.replace('{name}', profile.name).replace('{email}', profile.email);
+const fill = (s) => s.replace('{name}', profile.name).replace('{email}', profile.email).replace('{mascot}', profile.mascot);
 const pick = (v) => (Array.isArray(v) ? v[Math.floor(Math.random() * v.length)] : v);
 const hasEmail = isReal(profile.email) && profile.email.includes('@');
 
@@ -246,7 +246,7 @@ export default function Contact({ lab = false }) {
           <div className="cta__head">
             {/* Voz de la máquina (26/11/2026): antes "¿Trabajamos juntos? … Escríbeme." */}
             <h2>Abrir conexión</h2>
-            <p>Busco prácticas y proyectos donde aprender. Deja tu mensaje y la mascota se lo lleva.</p>
+            <p>Busco prácticas y proyectos donde aprender. Deja tu mensaje y {profile.mascot} se lo lleva.</p>
           </div>
           <form className="cta__msg" onSubmit={send} {...hover('mensaje', hasEmail)}>
             <label htmlFor="cta-msg" className="cta__msg-head"><Icon d={ICONS.mensaje} />Escríbele un mensaje</label>

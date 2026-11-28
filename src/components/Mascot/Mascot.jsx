@@ -5,6 +5,7 @@ import Console from './Console';
 import { Face } from './Face';
 import { Prism, TILT, collectShades, reshade, rotZ } from './prism';
 import './Mascot.css';
+import { profile } from '../../data/profile';
 
 /**
  * Mascota: un robot hecho con piezas 3D de CSS (prismas de esquinas redondeadas, sombreados con la luz fija).
@@ -378,7 +379,7 @@ export default function Mascot({ ptr, variant = 'hero', look, cmd, onAct, paused
       className={`mascot mascot--${variant}`}
       role="button"
       tabIndex={0}
-      aria-label="Mascota robot de la portada. Pulsa para que reaccione."
+      aria-label={`${profile.mascot}, la mascota robot. Pulsa para que reaccione.`}
       onClick={() => api.current.react()}
       onKeyDown={onKey}
     >

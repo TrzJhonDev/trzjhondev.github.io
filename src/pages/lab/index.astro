@@ -5,13 +5,14 @@
 import Base from '../../layouts/Base.astro';
 import LabApp from '../../components/LabApp.jsx';
 import { getCollection } from 'astro:content';
+import { profile } from '../../data/profile.js';
 
 // Los proyectos de la colección, con la forma que espera la lista de programas del portátil
 const projects = (await getCollection('proyectos'))
   .sort((a, b) => a.data.order - b.data.order)
   .map((p) => ({ title: p.data.title, description: p.data.summary, tags: p.data.tags, image: p.data.image, code: p.data.code, demo: p.data.demo }));
 ---
-<Base title="Laboratorio — TrzJhonDev" description="Laboratorio de TrzJhonDev: un portátil 3D interactivo, la consola de juegos de la mascota y un switch de puertos con cable.">
+<Base title="Laboratorio — TrzJhonDev" description={`Laboratorio de ${profile.brand}: un portátil 3D interactivo, la consola de juegos de ${profile.mascot}, la mascota, y un switch de puertos con cable.`}>
   <div class="wrap">
     <header class="lab-intro">
       <h1>Laboratorio</h1>

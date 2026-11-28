@@ -81,12 +81,13 @@ Detalle y fechas en `docs/PLAN-REESCRITURA.md`.
 - **/lab**: una ventana con pestañas (Portátil, Consola, Switch; solo se monta la activa; enlace propio con `#`) y debajo
   primero los controles (tarjetas con el gesto animado), luego "qué es" y "hecho con". Sin la etiqueta de la habilidad
   en el portátil.
-- **Mascota**: robot que representa a Jhon (gafas y auriculares son sus rasgos); sin foto ni parecido real y SIN
-  NOMBRE todavía. Colores marfil y mandarina (variables `--m-*` en `Mascot/Mascot.css` y `THEMES` en
+- **Mascota**: robot que representa a Jhon (gafas y auriculares son sus rasgos); sin foto ni parecido real. Se
+  llama **Bonu** (Jhon, 28/11/2026): `profile.mascot` en `profile.js` y `{mascot}` en los textos de `mascot.js`; su
+  pecho en reposo dice BONU, quieto y sin cursor (`LOGO` en `Mascot/Console.jsx`). Colores marfil y mandarina (variables `--m-*` en `Mascot/Mascot.css` y `THEMES` en
   `Mascot3D/engine.js`); nada de paletas frías ni grafito/perla. Sin bordes de contorno. Se acomoda las gafas como gesto
   propio. La pequeña de la esquina (`MiniMascot`) no tiene botón para ocultarla.
 - **Descartado** (no lo vuelvas a poner): el cable de circuito entre mascota y portátil, la terminal que cargaba en la
-  portada, el paseo de la mascota ligado al scroll, la "x" de la mascota pequeña, las tarjetas de cristal flotantes, las
+  portada, el paseo de la mascota ligado al scroll, la "x" de la mascota pequeña, el cuadrito "J_" de la barra (solo va el nombre TrzJhonDev), las tarjetas de cristal flotantes, las
   líneas de consola de Proyectos y Habilidades, el morado.
 
 ## Mascota 3D y modelos
@@ -99,6 +100,8 @@ Detalle y fechas en `docs/PLAN-REESCRITURA.md`.
   un modelo reexportado nunca se sirve viejo.
 - El motor (`engine.js`) carga el glTF una vez y clona por mascota; opciones `games`, `still`, `sleeping`, `pose()`,
   `play()`, `lookHold`, `restFace`. Luz y materiales para que coincida con la versión CSS: sin tono de cine ni entorno.
+  En el bucle, un hueso que se retoca encima de la animación (cabeza) parte de la ÚLTIMA pose del mezclador
+  (`headMix`), nunca de la de fábrica: Three.js no reescribe los huesos cuyo valor no cambia y la pose se perdía.
 - Si cambian el modelo o sus colores, rehaz las imágenes con el servidor de desarrollo en marcha:
   `node tools/poster.mjs` (mascota dormida, fondo TRANSPARENTE), `node tools/og.mjs` (tarjeta para compartir) y
   `node tools/iconos.mjs` (iconos).

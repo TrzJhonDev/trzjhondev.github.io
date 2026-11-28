@@ -2,10 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { TIPS } from '../../data/tips';
 import { GAMES, H, W } from './consoleGames';
 import { boot } from '../../lib/boot';
+import { profile } from '../../data/profile';
+
+// Lo que muestra la pantalla del pecho en reposo: el nombre de la mascota, en mayúsculas y sin cursor
+const LOGO = profile.mascot.toUpperCase();
 
 /**
  * Consola del pecho de la mascota: una pantallita (canvas de W×H) con tres estados.
- *  - standby: el logotipo TRZ_ y, en la mascota grande, "clic: jugar".
+ *  - standby: el nombre de la mascota (BONU, quieto, sin cursor; Jhon, 28/11/2026) y, en el lab, "clic: jugar".
  *  - tips: cuando el ratón lleva un rato quieto y la mascota "teclea", escribe datos cortos y útiles (src/data/tips.js).
  *  - cargando: durante la pantalla de carga (docs/historial/PLAN-PANTALLA-CARGA.md) dice CARGANDO con una barra y el porcentaje
  *    reales (lib/boot.js); al terminar, LISTO. Lo enciende la mascota con link.current.loading(true | false).
@@ -71,7 +75,7 @@ export default function Console({ variant = 'hero', link, games }) {
 
     // ── standby ──
     const standby = () => {
-      setText(`<b class="mc-logo">TRZ<i class="mc-cur">_</i></b>${play ? '<span class="mc-sm">clic: jugar</span>' : ''}`, 'is-center');
+      setText(`<b class="mc-logo">${LOGO}</b>${play ? '<span class="mc-sm">clic: jugar</span>' : ''}`, 'is-center');
     };
 
     // ── cargando (pantalla de carga) ──

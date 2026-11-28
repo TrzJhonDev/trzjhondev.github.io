@@ -4,13 +4,14 @@
 // en cualquier ruta.
 import Base from '../layouts/Base.astro';
 import SadMascot from '../components/SadMascot.jsx';
+import { profile } from '../data/profile.js';
 ---
 <Base title="Página no encontrada — TrzJhonDev" description="Esta dirección no existe en el portafolio de TrzJhonDev.">
   <section class="wrap nf">
     <div class="nf__text">
       <p class="kicker">&gt; error 404 · archivo no encontrado</p>
       <h1>Esta página no existe.</h1>
-      <p class="nf__lead">Puede que el enlace esté mal escrito o que el proyecto haya cambiado de nombre. La mascota lo ha buscado por todas partes.</p>
+      <p class="nf__lead">Puede que el enlace esté mal escrito o que el proyecto haya cambiado de nombre. {profile.mascot} lo ha buscado por todas partes.</p>
       <div class="nf__cta">
         <a class="btn btn--accent" href="/">Volver al inicio</a>
         <a class="btn btn--ghost" href="/#proyectos">Ver proyectos</a>

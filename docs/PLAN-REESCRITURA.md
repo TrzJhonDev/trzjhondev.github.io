@@ -19,7 +19,19 @@ y fluida, informa sin saturar y **conserva a la mascota** como anfitriona.
 | Contenido | Jhon prepara después, por proyecto, una captura y 4–6 frases (problema, qué hizo, resultado). Mientras, plantillas con marcadores claros. |
 | Se conserva | Mascota y sus gestos, voz "> sesión iniciada / sesión cerrada", IBM Plex, `profile.js`, accesibilidad y reglas de rendimiento. |
 
-## Página nueva
+## Cómo está hoy (28/11/2026)
+
+Publicada en https://trzjhondev.github.io/. Lo que se ve, de arriba abajo (el detalle y el porqué de cada cambio, en las secciones de abajo):
+
+1. **Precarga**: Bonu dormido con CARGANDO y el % real en el pecho; LISTO, un círculo de luz abre la portada desde el pecho y vuela a su panel, donde despierta sin tirones.
+2. **Portada**: "> sesión iniciada · Sistema listo. Usuario: Jhon.", dos botones y Bonu sobre su panel; su pecho dice BONU. La barra solo lleva el nombre TrzJhonDev.
+3. **Proyectos**: vitrina con la captura fija que cambia al bajar; cada proyecto abre su caso de estudio.
+4. **Habilidades**: dos cintas de logos que se mueven solo con el scroll.
+5. **Formación**: tarjetas (carrera con avance por ciclos, certificados, prácticas bloqueadas).
+6. **Contacto**: formulario `mailto:` con Bonu, que celebra al enviar, y las redes.
+7. **/proyectos/[id]**, **/lab** (ventana con pestañas Portátil · Consola · Switch, controles primero) y **404** (Bonu, triste y con la cabeza gacha).
+
+## Página nueva (plan inicial)
 
 1. **Portada**: nombre, qué hace en una línea, dos botones y la mascota grande.
 2. **Proyectos**: un único tramo fijado; captura fija en una ventana de navegador que cambia con un fundido mientras bajan los bloques de texto (contador 1/3…). Cada proyecto abre su página.
@@ -34,7 +46,7 @@ y fluida, informa sin saturar y **conserva a la mascota** como anfitriona.
 1. **Hecha (27/11/2026).** Base Astro: dependencias, configuración, tokens, tipografía, estructura, portada con la mascota como isla, secciones estáticas desde `profile.js`.
 2. **Hecha (27/11/2026).** Proyectos: colección `src/content/proyectos/*.md` (plantilla con marcadores; `src/content.config.js`), vitrina `src/astro/Showcase.astro` (captura fija en una ventana que cambia con un fundido cuando cada bloque cruza el 55 % de la ventana, contador, barra de progreso y un leve desplazamiento de la captura, con GSAP + ScrollTrigger dentro de `gsap.matchMedia`: solo escritorio y con movimiento; en móvil y con "reducir movimiento", cada proyecto con su captura encima) y caso de estudio `src/pages/proyectos/[id].astro` (cabecera con rol, año, tecnologías y enlaces; captura; índice lateral que marca la sección; barra de lectura con CSS scroll-driven; anterior/siguiente). View Transitions entre documentos: `shot-<id>` y `title-<id>` vuelan de la portada al caso de estudio; la barra (`nav`) no se mueve.
 3. **Hecha (27/11/2026).** Formación: la línea azul se dibuja mientras la lista cruza la pantalla y cada punto se enciende al pasar (CSS scroll-driven con `view-timeline` `--tl`/`--tl-item`, dentro de `@supports` y sin "reducir movimiento"; sin soporte se ve completa). Habilidades: las tarjetas suben un poco al entrar (CSS) y cada habilidad muestra en cuántos proyectos REALES aparece (los de plantilla, con [CORCHETES], no cuentan). Contacto: formulario que abre el correo (`mailto:` con asunto y texto, aviso junto al campo si está vacío; textarea a 16 px). Mascota pequeña de la esquina (`src/components/MiniMascot.jsx`): aparece sin animación cuando la portada sale de la vista, saluda y cambia de pose por sección (`SECTION_POSE` ahora incluye `habilidades`); no se puede ocultar. Barra: menú del móvil (botón con `aria-expanded`, se cierra con Esc o al elegir) con todas las secciones, Lab y Contacto.
-4. **Hecha salvo publicar y probar en un móvil real (27/11/2026).** `/lab` (`src/pages/lab/index.astro` + `src/components/LabApp.jsx`, una isla de React dentro de `GuideProvider`): el portátil 3D con su lista de programas (los proyectos de la colección; `Projects` con `lab`: sin pista fijada, arranca solo), la consola de la mascota con sus 3 juegos y el switch de puertos (`Contact` con `lab`: sin formulario ni pie; su globo usa `preguntaLab`). Sus estilos salen de la app vieja en `src/styles/lab.css` (solo lo necesario, sin las reglas globales). Página de herramientas `/posar/` (sustituye al `?posar` de Vite; la usan `lab/poster.mjs`, `lab/cabeza.mjs` y `tools/og.mjs`; pecho sin "clic: jugar"). Tarjeta para compartir regenerada. `public/sw.js` ahora se da de baja solo y borra la caché de quien visitó la web anterior. Peso inicial (JS + CSS con gzip): portada ~56 KB más la isla de la mascota (Three.js, ~160 KB, en diferido), caso de estudio ~8 KB, /lab ~21 KB más sus islas.
+4. **Hecha y publicada (27/11/2026).** `/lab` (`src/pages/lab/index.astro` + `src/components/LabApp.jsx`, una isla de React dentro de `GuideProvider`): el portátil 3D con su lista de programas (los proyectos de la colección; `Projects` con `lab`: sin pista fijada, arranca solo), la consola de la mascota con sus 3 juegos y el switch de puertos (`Contact` con `lab`: sin formulario ni pie; su globo usa `preguntaLab`). Sus estilos salen de la app vieja en `src/styles/lab.css` (solo lo necesario, sin las reglas globales). Página de herramientas `/posar/` (sustituye al `?posar` de Vite; la usan `tools/poster.mjs` y `tools/og.mjs`; pecho sin "clic: jugar"). Tarjeta para compartir regenerada. `public/sw.js` ahora se da de baja solo y borra la caché de quien visitó la web anterior. Peso inicial (JS + CSS con gzip): portada ~56 KB más la isla de la mascota (Three.js, ~160 KB, en diferido), caso de estudio ~8 KB, /lab ~21 KB más sus islas.
 
 ## Pulido tras publicar (27/11/2026, elegido por Jhon)
 
@@ -48,6 +60,14 @@ y fluida, informa sin saturar y **conserva a la mascota** como anfitriona.
 ## Habilidades con logos (27/11/2026, opción D de 4)
 
 `src/astro/SkillLogos.astro`: una fila por área (nombre y cuántas habilidades) con una ficha por habilidad: logo real de `simple-icons` 16.37.0 (CC0; Java = OpenJDK, con el naranja de Java porque su color es negro; "HTML y CSS" lleva los dos) o un icono propio de trazo para lo que no es una marca (SQL y Fundamentos). Gris en reposo; al pasar el puntero, el color de la marca (mezclado con el texto para que se vea en los dos temas), la ficha se tiñe y sube 2 px (propiedad `translate`, que no choca con la animación de entrada); en táctil, en color desde el principio. Cada ficha sube al asomar (CSS scroll-driven). La insignia "N proy." cuenta solo proyectos reales. El logo de cada habilidad se elige en `logo` de `src/data/skills.js`. El stack de esta web (TypeScript, Astro, Vite, Three.js, GSAP y Blender; pedido por Jhon) va en `STACK` de `skills.js`, aparte de `SKILLS` porque no son teclas del portátil (cada tecla necesita su fragmento de código); el área nueva "3D y animación" está en `AREAS_EXTRA`. Las marcas negras (Three.js) toman el color del texto.
+
+## Despertar sin tirón (28/11/2026)
+
+Jhon: al despertar, "solo la cabeza cambia de posición, la animación se traba". Causa: cada fotograma el motor ponía la cabeza en su pose de fábrica antes de la animación, y el mezclador de Three.js solo reescribe un hueso cuando su valor cambia; en `dormir` la cabeza está quieta (inclinada 22°), así que la 3D dormía con la cabeza RECTA mientras la imagen de la precarga la tiene inclinada: al relevo y al despertar la cabeza saltaba. Ahora la cabeza parte de la última pose de la animación (`headMix` en engine.js). Medido: ningún salto mayor de 1,2° por fotograma (antes 22° al empezar). Efecto también en la 404: `triste_reposo` ya se ve cabizbaja (18°), como se hizo en Blender.
+
+## Nombre de la mascota y barra (28/11/2026)
+
+La mascota se llama **Bonu** (Jhon). El nombre vive en `profile.mascot` y sale en la etiqueta accesible de las mascotas, el saludo de la guía (`{mascot}` en `mascot.js`), Contacto del laboratorio, las pestañas Consola y Switch, la 404, la descripción de /lab y la pantalla del pecho en reposo, que dice BONU quieto (antes "TRZ_" con cursor que parpadeaba; `LOGO` en Console.jsx). La tarjeta para compartir (`og.jpg`) se rehízo con BONU en el pecho. En la barra se quitó el cuadrito "J_" con el cursor que parpadeaba: solo queda el nombre TrzJhonDev.
 
 ## Pantalla de precarga (27/11/2026, opción B "la mascota despierta")
 
@@ -70,7 +90,9 @@ Jhon: "ocupa mucho espacio … que reaccione al scroll". `SkillLogos.astro` ahor
 
 ## Pendiente
 
-- Publicar: unir la rama `reescritura-astro` con `main` y subirla (GitHub Actions ya compila con Astro y Node 24). Solo con el visto bueno de Jhon.
 - Probar en un móvil real (con `npm run dev -- --host`).
 - Jhon: capturas y textos de cada proyecto en `src/content/proyectos/`, y los datos de `profile.js`.
-- Hecho el 28/11/2026 (limpieza): se borraron la app de Vite (`legacy/`), los componentes que solo usaba ella (`App`, `Hero`, `Navbar`, `Portrait`, `Education`, `index.css`), los prototipos de `src/proto/` (`Pose.jsx` pasó a `components/`), las cabezas de la mascota del mapa viejo, los scripts de pruebas del sitio anterior y la lista `projects` de `profile.js` (la terminal del portátil ya lee los proyectos de Markdown). Los planes viejos están en `docs/historial/` y `CLAUDE.md` se reescribió para la web actual. La mascota CSS se queda: la usan las piezas de /lab mientras carga la 3D.
+
+## Limpieza (28/11/2026)
+
+ se borraron la app de Vite (`legacy/`), los componentes que solo usaba ella (`App`, `Hero`, `Navbar`, `Portrait`, `Education`, `index.css`), los prototipos de `src/proto/` (`Pose.jsx` pasó a `components/`), las cabezas de la mascota del mapa viejo, los scripts de pruebas del sitio anterior y la lista `projects` de `profile.js` (la terminal del portátil ya lee los proyectos de Markdown). Los planes viejos están en `docs/historial/` y `CLAUDE.md` se reescribió para la web actual. La mascota CSS se queda: la usan las piezas de /lab mientras carga la 3D.

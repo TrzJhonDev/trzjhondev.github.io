@@ -370,6 +370,7 @@ export class MascotEngine {
     this.current = this.actions[this.base]; this.current?.play();
     if (this.sleeping) this.setExpr('sleep');
     this.mixer.update(0); // aplica ya la pose (con "reducir movimiento" no hay bucle que lo haga)
+    if (this.head) this.headMix = this.head.quaternion.clone(); // pose de la animación de partida (ver el bucle)
     this.setTheme();
     this.resize();
     // Compilar los materiales antes del primer dibujo: así el relevo de la imagen al 3D no da un tirón
@@ -704,10 +705,15 @@ export class MascotEngine {
     const fo = faceOffset(this.look), fk = `${blink}|${fo.lx}|${fo.ly}|${fo.px}|${fo.py}`;
     if (fk !== this.faceKey) { this.faceKey = fk; this.blinking = blink; this.redrawFace(); }
     // Esqueleto y, encima, la cabeza hacia donde mira
-    if (this.head) this.head.quaternion.copy(this.headRest);
+    // La cabeza parte de la ÚLTIMA pose que dio la animación (headMix), no de la de fábrica: el mezclador de Three.js solo
+    // reescribe un hueso cuando su valor cambia, y en los bucles con la cabeza quieta (`dormir`, inclinada 22°) no la
+    // reescribía: dormida se quedaba recta y, al despertar, daba un tirón (Jhon, 28/11/2026: "solo la cabeza cambia de
+    // posición, la animación se traba")
+    if (this.head) this.head.quaternion.copy(this.headMix || this.headRest);
     // El bucle de reposo no anima el brazo derecho: sin esto, el giro del gesto de las gafas se acumulaba fotograma a fotograma
     if (this.armR) { this.armR.quaternion.copy(this.armRRest); this.armR.scale.y = 1; } // (y su largo, tras el telescópico)
     this.mixer.update(dt);
+    if (this.head) (this.headMix ||= new THREE.Quaternion()).copy(this.head.quaternion);
     if (this.head) this.head.quaternion.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(this.look.y * 0.22, this.look.x * 0.5, 0, 'YXZ')));
     // Mareo: la cabeza da vueltas pequeñas mientras dura
     if (this.head && this.mood === 'dizzy') this.head.quaternion.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.cos(now * 0.011) * 0.07, 0, Math.sin(now * 0.011) * 0.16)));

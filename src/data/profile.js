@@ -6,6 +6,7 @@
 export const profile = {
   name: 'Jhon',
   lastName: '[APELLIDO]',
+  mascot: 'Bonu', // nombre de la mascota robot (Jhon, 28/11/2026); en los textos de mascot.js es {mascot}
   brand: 'TrzJhonDev', // nombre de la barra de arriba y logo de la tapa del portátil 3D
   role: 'Estudiante de Ingeniería de Sistemas',
   university: 'Universidad Nacional Toribio Rodríguez de Mendoza',

@@ -11,6 +11,7 @@ import './Mascot3D.css';
 // Se carga en diferido (HeroMascot.jsx, MascotAuto.jsx y las demás mascotas); mientras tanto (o si falla WebGL) se ve la mascota CSS.
 
 import { MASCOT_URL as MODEL } from '../../lib/boot';
+import { profile } from '../../data/profile';
 
 export default function Mascot3D({ variant = 'hero', games, still = false, greet = false, ptr, look, cmd, section, onAct, paused = false, stage = false, sleeping = false, loading = false, onFrame, onReady, onError }) {
   const host = useRef(null);
@@ -60,7 +61,7 @@ export default function Mascot3D({ variant = 'hero', games, still = false, greet
   }, [loading]);
 
   const onKey = (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); engine.current?.react(); } };
-  const label = hero ? 'Mascota robot de la portada. Pulsa para que reaccione.' : 'Mascota robot. Pulsa para que reaccione.';
+  const label = `${profile.mascot}, la mascota robot${hero ? ' de la portada' : ''}. Pulsa para que reaccione.`;
 
   return (
     <div ref={host} className={`mascot3d mascot3d--${stage ? 'stage' : variant}`} role="button" tabIndex={0} aria-label={label} onKeyDown={onKey}>

@@ -1,13 +1,13 @@
 // ─────────────────────────────────────────────────────────────
 //  TEXTOS DE LA MASCOTA. Edítalos a tu gusto.
-//  {name} se reemplaza por el nombre de profile.js. Frases cortas (unos 110 caracteres como máximo)
+//  {name} se reemplaza por el nombre de profile.js y {mascot} por el de la mascota (Bonu). Frases cortas (unos 110 caracteres como máximo)
 //  y sin datos que no sean ciertos: la mascota habla de la página, no inventa nada de ti.
 //  Tono: amistoso al saludar, serio en proyectos y bromista con los clics.
 // ─────────────────────────────────────────────────────────────
 
 export const mascotLines = {
   // Al llegar (una vez por sesión)
-  saludo: '¡Hola! Soy la mascota de {name}. Si quieres, te acompaño por la página.',
+  saludo: '¡Hola! Soy {mascot}, la mascota de {name}. Si quieres, te acompaño por la página.',
 
   // Una vez por sesión, cuando la sección llega a la mitad de la pantalla. Las claves son los id de las secciones.
   secciones: {
